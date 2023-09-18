@@ -30,7 +30,7 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:id", getProduct);
 
-app.get("*", () => {
+app.all("*", () => {
   throw new NotFoundError();
 });
 app.onError(handleErrors);
