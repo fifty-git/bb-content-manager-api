@@ -31,12 +31,12 @@ export class ValidationError extends CustomError {
 export function handleErrors(err: Error, c: Context<EnvAPI>) {
   if (err instanceof CustomError) {
     logger.error({ error: err.message, stack: err.stack, msg: err.name, tag: err.tag });
-    return c.json({ err: err.message }, err.code);
+    return c.json({ msg: err.message }, err.code);
   }
 
   logger.error(err);
   const code = (err as any).status as number;
 
-  if (code in ALLOWED_ERRORS) return c.json({ err: ALLOWED_ERRORS[code] }, code);
-  return c.json({ err: "Internal Server Error" }, 500);
+  if (code in ALLOWED_ERRORS) return c.json({ msg: ALLOWED_ERRORS[code] }, code);
+  return c.json({ msg: "Internal Server Error" }, 500);
 }
