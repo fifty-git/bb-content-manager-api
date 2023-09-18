@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors } from "~/modules/errors";
 import { bindLogger, logger, uuid } from "./modules/logger";
@@ -26,7 +27,7 @@ app.get("*", secureHeaders());
 app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
-// app.get("/api/v1/services/menu", getMenu);
+app.get("/api/v1/content-manager/products", getProducts);
 
 app.onError(handleErrors);
 logger.info(`Running at http://localhost:${port}`);
