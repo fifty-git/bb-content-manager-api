@@ -4,7 +4,7 @@ export default {
   schema: "./src/schema/*",
   driver: "mysql2",
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL ?? "",
   },
   introspect: {
     casing: "preserve",
