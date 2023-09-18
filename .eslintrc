@@ -1,0 +1,110 @@
+{
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json"
+      }
+    }
+  },
+  "ignorePatterns": ["drizzle", "drizzle.config.ts"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended", "plugin:@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["simple-import-sort", "import", "unused-imports", "@typescript-eslint"],
+  "root": true,
+  "rules": {
+    // bypass
+    "require-atomic-updates": "off",
+
+    // typescript
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-inferrable-types": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+
+    // errors
+    "array-callback-return": ["error", { "checkForEach": true }],
+    "no-await-in-loop": "off",
+    "no-constant-binary-expression": "error",
+    "no-constructor-return": "error",
+    "no-promise-executor-return": "error",
+    "no-self-compare": "error",
+    "no-template-curly-in-string": "error",
+    "no-unmodified-loop-condition": "error",
+    "no-unreachable-loop": "error",
+    "no-unused-private-class-members": "error",
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": true,
+        "variables": true,
+        "allowNamedExports": false
+      }
+    ],
+
+    // good practice
+    "new-cap": ["error", { "capIsNew": false }],
+    "no-array-constructor": "error",
+    "no-console": ["error", { "allow": ["error"] }],
+    "no-else-return": ["error", { "allowElseIf": false }],
+    "no-extend-native": "error",
+    "no-lonely-if": "error",
+    "no-param-reassign": "error",
+    "no-return-assign": "error",
+    "no-throw-literal": "error",
+    "no-var": "error",
+    "object-shorthand": "error",
+    "prefer-const": "error",
+    "prefer-rest-params": "error",
+    "prefer-spread": "error",
+    "prefer-template": "error",
+    "radix": "error",
+    "yoda": "error",
+
+    // styling
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": ["function", "export"], "next": "*" },
+      { "blankLine": "always", "prev": "*", "next": ["function", "export"] },
+      {
+        "blankLine": "any",
+        "prev": ["export", "multiline-expression"],
+        "next": ["export", "multiline-expression"]
+      }
+    ],
+
+    // plugins
+    "import/first": "error",
+    "import/no-duplicates": "error",
+    "import/no-unresolved": "error",
+    "import/no-webpack-loader-syntax": "error",
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [["^.*\\u0000$", "^\\u0000", "^node:", "^@?\\w", "^", "^\\."]]
+      }
+    ],
+    "unused-imports/no-unused-imports": "error",
+    "prettier/prettier": ["error"],
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "all",
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  }
+}
