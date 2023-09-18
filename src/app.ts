@@ -5,7 +5,7 @@ import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
 import { getProduct, getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
-import { handleErrors } from "~/modules/errors";
+import { handleErrors, NotFoundError } from "~/modules/errors";
 import { bindLogger, logger, uuid } from "./modules/logger";
 // import { profile_execution } from "~/modules/profiler";
 
@@ -30,6 +30,9 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:id", getProduct);
 
+app.get("*", () => {
+  throw new NotFoundError();
+});
 app.onError(handleErrors);
 logger.info(`Running at http://localhost:${port}`);
 
