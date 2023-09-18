@@ -30,8 +30,6 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:id", getProduct);
 
-// 404
-app.get("*", (c) => c.notFound());
 app.onError(handleErrors);
 logger.info(`Running at http://localhost:${port}`);
 
