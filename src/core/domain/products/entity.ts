@@ -1,10 +1,10 @@
 export interface NewProduct {
-  name: string;
+  product_name: string;
   group_id?: number;
   subgroup_id?: number;
+  product_type: string;
 }
 
 export interface CreateProductsAPI {
-  product_type: string;
   products: NewProduct[];
 }
