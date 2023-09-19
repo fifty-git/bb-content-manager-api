@@ -18,6 +18,6 @@ export async function createProduct(c: Context<EnvAPI>) {
   const validator = CreateProductsAPISchema.safeParse(await c.req.json());
   if (!validator.success) return c.json({ msg: "Incorrect payload" }, 400);
   const singles = validator.data.products.filter((product) => product.product_type === "single");
-  const bundles = validator.data.products.filter((product) => product.product_type !== "bundle");
+  const bundles = validator.data.products.filter((product) => product.product_type === "bundle");
   return c.json({ singles, bundles });
 }
