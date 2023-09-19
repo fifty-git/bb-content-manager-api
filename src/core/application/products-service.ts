@@ -1,5 +1,6 @@
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
+import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 
 export async function getProducts(c: Context<EnvAPI>) {
@@ -11,4 +12,12 @@ export async function getProduct(c: Context<EnvAPI>) {
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ product: {} });
   return c.json({ product });
+}
+
+export async function createProduct(c: Context<EnvAPI>) {
+  const { data, success } = CreateProductsAPISchema.safeParse(await c.req.json());
+  if (!success) return c.json({ msg: "Incorrect payload" }, 400);
+  const singles = data.products.filter((product) => product.product_type === "single");
+  const bundles = data.products.filter((product) => product.product_type !== "bundle");
+  return c.json({ singles, bundles });
 }
