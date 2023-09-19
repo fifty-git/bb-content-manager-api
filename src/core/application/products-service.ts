@@ -2,6 +2,7 @@ import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
 import { BundlesDS } from "~/core/infrastructure/drizzle/bundles";
+import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
@@ -12,8 +13,11 @@ export async function getProducts(c: Context<EnvAPI>) {
 export async function getProduct(c: Context<EnvAPI>) {
   const id = c.req.param("id");
   const product = await ProductsDS.getByID(+id);
-  if (!product) return c.json({ product: {} });
-  return c.json({ product });
+  if (!product) return c.json({ product });
+
+  const group = await GroupsDS.getGroupByProductID(product.product_id);
+  const subgroup = await GroupsDS.getSubgroupByProductID(product.product_id);
+  return c.json({ product: { ...product, group, subgroup } });
 }
 
 export async function createProduct(c: Context<EnvAPI>) {
