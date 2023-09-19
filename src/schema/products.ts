@@ -13,6 +13,7 @@ import {
   unique,
   varchar,
 } from "drizzle-orm/mysql-core";
+import { groups } from "~/schema/groups";
 import { tags } from "~/schema/tags";
 
 export const products = mysqlTable(
@@ -20,8 +21,8 @@ export const products = mysqlTable(
   {
     product_id: int("product_id").autoincrement().notNull(),
     name: varchar("name", { length: 100 }).notNull(),
-    description: text("description").notNull(),
-    upc: varchar("upc", { length: 50 }).notNull(),
+    description: varchar("description", { length: 2000 }).default("").notNull(),
+    upc: varchar("upc", { length: 50 }),
     active: tinyint("active").default(1).notNull(),
     is_standalone: tinyint("is_standalone").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })
@@ -160,6 +161,25 @@ export const product_varieties = mysqlTable(
   (table) => {
     return {
       product_varieties_product_variety_id: primaryKey(table.product_variety_id),
+    };
+  },
+);
+
+export const product_group_link = mysqlTable(
+  "product_group_link",
+  {
+    product_group_id: int("product_group_id").autoincrement().notNull(),
+    product_id: int("product_id")
+      .notNull()
+      .references(() => products.product_id),
+    group_id: int("group_id")
+      .notNull()
+      .references(() => groups.group_id),
+  },
+  (table) => {
+    return {
+      product_group_link_product_group_id: primaryKey(table.product_group_id),
+      product_group_link_pk: unique("product_group_link_pk").on(table.group_id, table.product_id),
     };
   },
 );

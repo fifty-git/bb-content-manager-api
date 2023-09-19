@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
-import { datetime, decimal, index, int, mysqlTable, primaryKey, text, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { datetime, decimal, index, int, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
+import { groups } from "~/schema/groups";
 import { options_catalog, products } from "~/schema/products";
 
 export const bundles = mysqlTable(
@@ -7,7 +8,7 @@ export const bundles = mysqlTable(
   {
     bundle_id: int("bundle_id").autoincrement().notNull(),
     name: varchar("name", { length: 100 }).notNull(),
-    description: text("description").notNull(),
+    description: varchar("description", { length: 2000 }).default("").notNull(),
     active: tinyint("active").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -85,6 +86,25 @@ export const bundle_variants = mysqlTable(
     return {
       bundle_id: index("bundle_id").on(table.bundle_id),
       bundle_variants_bundle_variant_id: primaryKey(table.bundle_variant_id),
+    };
+  },
+);
+
+export const bundle_group_link = mysqlTable(
+  "bundle_group_link",
+  {
+    bundle_group_id: int("bundle_group_id").autoincrement().notNull(),
+    bundle_id: int("bundle_id")
+      .notNull()
+      .references(() => bundles.bundle_id),
+    group_id: int("group_id")
+      .notNull()
+      .references(() => groups.group_id),
+  },
+  (table) => {
+    return {
+      bundle_group_link_bundle_group_id: primaryKey(table.bundle_group_id),
+      bundle_group_link_pk2: unique("bundle_group_link_pk2").on(table.group_id, table.bundle_id),
     };
   },
 );
