@@ -15,9 +15,9 @@ export async function getProduct(c: Context<EnvAPI>) {
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ product });
 
-  const group = await GroupsDS.getGroupByProductID(product.product_id);
-  const subgroup = await GroupsDS.getSubgroupByProductID(product.product_id);
-  return c.json({ product: { ...product, group, subgroup } });
+  const groups = await GroupsDS.getGroupByProductID(product.product_id);
+  const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
+  return c.json({ product: { ...product, groups, subgroups } });
 }
 
 export async function createProduct(c: Context<EnvAPI>) {
