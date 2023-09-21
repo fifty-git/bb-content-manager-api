@@ -7,7 +7,15 @@ import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
 export async function getProducts(c: Context<EnvAPI>) {
-  return c.json({ msg: "OK" });
+  const products = await ProductsDS.getAll();
+  const response = await Promise.all(
+    products.map(async (product) => {
+      const groups = await GroupsDS.getGroupByProductID(product.product_id);
+      const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
+      return { ...product, groups, subgroups };
+    }),
+  );
+  return c.json({ products: response });
 }
 
 export async function getProduct(c: Context<EnvAPI>) {

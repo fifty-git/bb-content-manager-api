@@ -6,7 +6,8 @@ import { product_group_link, products } from "~/schema/products";
 
 export class ProductsDS {
   static async getAll() {
-    return db.select().from(products).prepare().execute();
+    // TODO remove where
+    return db.select().from(products).where(eq(products.product_id, 46)).prepare().execute();
   }
 
   static async getByID(product_id: number) {
