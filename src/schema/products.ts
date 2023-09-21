@@ -23,7 +23,7 @@ export const products = mysqlTable(
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
     upc: varchar("upc", { length: 50 }),
-    active: tinyint("active").default(1).notNull(),
+    status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     is_standalone: tinyint("is_standalone").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
