@@ -12,7 +12,10 @@ export async function getVariants(c: Context<EnvAPI>) {
 export async function createVariant(c: Context<EnvAPI>) {
   // Validator
   const validator = CreateVariantAPISchema.safeParse({ ...(await c.req.json()), product_id: parseInt(c.req.param("product_id"), 10) });
-  if (!validator.success) return c.json({ status: "error", msg: validator.error.errors[0].message }, 400);
+  if (!validator.success) {
+    c.var.log.error(validator.error.errors);
+    return c.json({ status: "error", msg: validator.error.errors[0].message }, 400);
+  }
 
   // Variant creation
   return c.json({ status: 200, msg: "Variant creation was completed successfully!" });
