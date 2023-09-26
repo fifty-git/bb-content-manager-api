@@ -14,7 +14,7 @@ export async function createVariant(c: Context<EnvAPI>) {
   const validator = CreateVariantAPISchema.safeParse({ ...(await c.req.json()), product_id: parseInt(c.req.param("product_id"), 10) });
   if (!validator.success) {
     c.var.log.error(validator.error.errors);
-    return c.json({ status: "error", msg: validator.error.errors[0].message }, 400);
+    return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
   }
 
   // Variant creation
