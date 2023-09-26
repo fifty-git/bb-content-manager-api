@@ -10,6 +10,7 @@ export class VariantsDS {
         variant_id: product_variants.variant_id,
         name: product_variants.name,
         units: product_variants.units,
+        measure_units: product_variants.measure_units,
         price: product_variants.price,
         upc: product_variants.upc,
       })
