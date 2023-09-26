@@ -15,17 +15,17 @@ export async function getProducts(c: Context<EnvAPI>) {
       return { ...product, groups, subgroups };
     }),
   );
-  return c.json({ products: response });
+  return c.json({ status: "success", data: response });
 }
 
 export async function getProduct(c: Context<EnvAPI>) {
   const id = c.req.param("product_id");
   const product = await ProductsDS.getByID(+id);
-  if (!product) return c.json({ product });
+  if (!product) return c.json({ status: "success", data: product });
 
   const groups = await GroupsDS.getGroupByProductID(product.product_id);
   const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
-  return c.json({ product: { ...product, groups, subgroups } });
+  return c.json({ status: "success", data: { ...product, groups, subgroups } });
 }
 
 export async function createProduct(c: Context<EnvAPI>) {
