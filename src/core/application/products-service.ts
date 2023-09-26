@@ -19,7 +19,7 @@ export async function getProducts(c: Context<EnvAPI>) {
 }
 
 export async function getProduct(c: Context<EnvAPI>) {
-  const id = c.req.param("id");
+  const id = c.req.param("product_id");
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ product });
 

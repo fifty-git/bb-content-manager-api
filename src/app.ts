@@ -3,7 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
-import {createProduct, getProduct, getProducts} from "~/core/application/products-service";
+import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
+import { deleteVariant, getVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import { bindLogger, logger, uuid } from "./modules/logger";
@@ -28,9 +29,11 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
 app.get("/api/v1/content-manager/products", getProducts);
-app.get("/api/v1/content-manager/products/:id", getProduct);
+app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
 
+app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
+app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
 
 // 404 Not found
 app.all("*", () => {

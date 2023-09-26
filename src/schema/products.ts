@@ -123,6 +123,7 @@ export const product_variants = mysqlTable(
     season_end: mysqlEnum("season_end", ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
       .default("Dec")
       .notNull(),
+    upc: varchar("upc", { length: 50 }).default("").notNull(),
     active: tinyint("active").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
