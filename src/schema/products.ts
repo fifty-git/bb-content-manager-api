@@ -1,18 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-  datetime,
-  decimal,
-  index,
-  int,
-  json,
-  mysqlEnum,
-  mysqlTable,
-  primaryKey,
-  text,
-  tinyint,
-  unique,
-  varchar,
-} from "drizzle-orm/mysql-core";
+import { datetime, decimal, index, int, json, mysqlEnum, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
 import { tags } from "~/schema/tags";
 
@@ -113,16 +100,9 @@ export const product_variants = mysqlTable(
       .notNull()
       .references(() => products.product_id),
     name: varchar("name", { length: 100 }).notNull(),
-    description: text("description").notNull(),
     price: decimal("price", { precision: 10, scale: 2 }).notNull(),
     units: int("units").notNull(),
     measure_units: varchar("measure_units", { length: 20 }).notNull(),
-    season_start: mysqlEnum("season_start", ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-      .default("Jan")
-      .notNull(),
-    season_end: mysqlEnum("season_end", ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-      .default("Dec")
-      .notNull(),
     upc: varchar("upc", { length: 50 }).default("").notNull(),
     active: tinyint("active").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })

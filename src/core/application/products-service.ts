@@ -31,7 +31,7 @@ export async function getProduct(c: Context<EnvAPI>) {
 export async function createProduct(c: Context<EnvAPI>) {
   // Validator
   const validator = CreateProductsAPISchema.safeParse(await c.req.json());
-  if (!validator.success) return c.json({ status: 400, msg: "Incorrect payload" }, 400);
+  if (!validator.success) return c.json({ status: "error", msg: "Incorrect payload" }, 400);
 
   // Product creation
   const singles = validator.data.products.filter((product) => product.product_type === "single");
@@ -57,5 +57,5 @@ export async function createProduct(c: Context<EnvAPI>) {
     });
   }
 
-  return c.json({ status: 200, msg: "Product creation was completed successfully!" });
+  return c.json({ status: "success", msg: "Product creation was completed successfully!" });
 }
