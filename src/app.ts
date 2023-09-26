@@ -31,6 +31,7 @@ app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
 
+
 // 404 Not found
 app.all("*", () => {
   throw new NotFoundError();
