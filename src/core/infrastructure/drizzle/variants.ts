@@ -1,7 +1,7 @@
 import type { NewVariant } from "~/core/domain/variants/entity";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { product_variants } from "~/schema/products";
+import { product_variants, variant_option_values, variant_options } from "~/schema/products";
 
 export class VariantsDS {
   static async getAll(product_id: number) {
@@ -16,6 +16,36 @@ export class VariantsDS {
       })
       .from(product_variants)
       .where(and(eq(product_variants.active, 1), eq(product_variants.product_id, product_id)))
+      .prepare()
+      .execute();
+  }
+
+  static async getOptions(variant_id: number) {
+    return db
+      .select({
+        variant_option_id: variant_options.variant_option_id,
+        name: variant_options.dropdown_name,
+        product_exists: variant_options.product_exists,
+        creates_po: variant_options.creates_po,
+      })
+      .from(variant_options)
+      .where(eq(variant_options.variant_id, variant_id))
+      .orderBy(variant_options.display_order)
+      .prepare()
+      .execute();
+  }
+
+  static async getOptionValues(variant_option_id: number) {
+    return db
+      .select({
+        name: variant_option_values.value,
+        additional_price: variant_option_values.additional_price,
+        sku: variant_option_values.sku,
+        is_default: variant_option_values.is_default,
+      })
+      .from(variant_option_values)
+      .where(eq(variant_option_values.variant_option_id, variant_option_id))
+      .orderBy(variant_option_values.display_order)
       .prepare()
       .execute();
   }

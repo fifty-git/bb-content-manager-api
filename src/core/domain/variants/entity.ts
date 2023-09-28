@@ -1,8 +1,8 @@
-export interface NewVariant {
-  product_id: number;
+export interface Variant {
+  variant_id: number;
   name: string;
-  price: string;
   units: number;
   measure_units: string;
+  price: string;
   upc: string;
 }
