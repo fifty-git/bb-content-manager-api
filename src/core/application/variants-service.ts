@@ -7,9 +7,10 @@ import { VariantsDS } from "~/core/infrastructure/drizzle/variants";
 async function getVariantOptions(variants: Variant[]) {
   return await Promise.all(
     variants.map(async (variant) => {
+      const options = await getVariantOptionValues(variant);
       return {
         ...variant,
-        options: getVariantOptionValues(variant),
+        options,
       };
     }),
   );
@@ -19,7 +20,7 @@ async function getVariantOptionValues(variant: Variant) {
   const variant_options = await VariantsDS.getOptions(variant.variant_id);
   return await Promise.all(
     variant_options.map(async (option) => {
-      const options = VariantsDS.getOptionValues(option.variant_option_id);
+      const options = await VariantsDS.getOptionValues(option.variant_option_id);
       return { ...variant_options, options };
     }),
   );
@@ -28,7 +29,7 @@ async function getVariantOptionValues(variant: Variant) {
 export async function getVariants(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variants = await VariantsDS.getAll(+product_id);
-  const with_options = getVariantOptions(variants);
+  const with_options = await getVariantOptions(variants);
   return c.json({ status: "success", data: with_options }, 200);
 }
 
