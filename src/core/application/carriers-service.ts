@@ -13,12 +13,14 @@ import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
-    c.status(400);
-    return c.json({
-      status: "error",
-      data: validator.error.errors,
-      msg: "incorrect payload",
-    });
+    return c.json(
+      {
+        status: "error",
+        data: validator.error.errors,
+        msg: "incorrect payload",
+      },
+      400,
+    );
   }
 }
 
