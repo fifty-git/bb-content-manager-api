@@ -1,36 +1,17 @@
-import { logger } from "~/modules/logger";
-import {
-  Carrier,
-  NewService,
-  Service,
-  UpdateCarrier,
-  UpdateService,
-} from "../domain/carriers/entity";
-import { CarriersDS } from "../infrastructure/drizzle/carriers";
-import { Context } from "hono";
-import { EnvAPI } from "../domain/types";
-import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
+import type { Carrier, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import type { EnvAPI } from "../domain/types";
+import type { Context } from "hono";
+import type { SafeParseReturnType } from "zod";
 import {
   CreateCarrierSchema,
   CreateServiceSchema,
   UpdateCarrierSchema,
   UpdateServiceSchema,
 } from "../domain/carriers/validator/create-carrier";
-import { SafeParseReturnType } from "zod";
+import { CarriersDS } from "../infrastructure/drizzle/carriers";
+import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
 
-async function asyncErrorWrapper<T>(fn: Function) {
-  try {
-    const response = await fn();
-    return response as T;
-  } catch (error) {
-    logger.error(error);
-  }
-}
-
-function handleValidationErrors(
-  validator: SafeParseReturnType<any, any>,
-  c: any,
-) {
+function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
     c.status(400);
     return c.json({
@@ -42,55 +23,63 @@ function handleValidationErrors(
 }
 
 export async function getAllCarriers(c: Context<EnvAPI>) {
-  const carriers = await asyncErrorWrapper<Carrier>(() => CarriersDS.getAll());
-  c.status(carriers ? 200 : 404);
+  const carriers = await CarriersDS.getAll();
+  const composed: Carrier[] = await Promise.all(
+    carriers.map(async (carrier) => ({
+      ...carrier,
+      services: await CarrierServiceDS.getByCarrierID(carrier.carrier_id),
+    })),
+  );
 
-  return c.json({
-    status: carriers ? "successs" : "error",
-    data: carriers,
-    msg: carriers ? "success retrieve" : "there are no carriers registered",
-  });
+  return c.json(
+    {
+      status: carriers ? "successs" : "error",
+      data: composed,
+    },
+    200,
+  );
 }
 
 export async function getCarrierById(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
-  const carrier = await asyncErrorWrapper<Carrier>(() => CarriersDS.get(id));
-  c.status(carrier ? 200 : 404);
+  const carrier = await CarriersDS.get(id);
+  const services = await CarrierServiceDS.getByCarrierID(id);
+  const composed: Carrier[] = [{ ...carrier[0], services }];
 
-  return c.json({
-    status: carrier ? "successs" : "error",
-    data: carrier,
-    msg: carrier ? "success retrieve" : "carrier not found",
-  });
+  return c.json(
+    {
+      status: carrier ? "successs" : "error",
+      data: composed,
+    },
+    200,
+  );
 }
 
 export async function getAllCarrierServices(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
-  const carrier = await asyncErrorWrapper<Service>(() =>
-    CarrierServiceDS.getByCarrier(id)
-  );
-  c.status(carrier ? 200 : 404);
+  const carrier = await CarrierServiceDS.getByCarrierID(id);
 
-  return c.json({
-    status: carrier ? "successs" : "error",
-    data: carrier,
-    msg: carrier ? "success retrieve" : "carrier services not found",
-  });
+  return c.json(
+    {
+      status: carrier ? "successs" : "error",
+      data: carrier,
+    },
+    200,
+  );
 }
 
 export async function getCarrierServiceById(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
-  const carrier = await asyncErrorWrapper<Service>(() =>
-    CarrierServiceDS.getByIds(carrier_id, service_id)
-  );
-  c.status(carrier ? 200 : 404);
+  const carrier = await CarrierServiceDS.getByIds(carrier_id, service_id);
 
-  return c.json({
-    status: carrier ? "successs" : "error",
-    data: carrier,
-    msg: carrier ? "success retrieve" : "carrier service not found",
-  });
+  return c.json(
+    {
+      status: carrier ? "successs" : "error",
+      data: carrier,
+    },
+    200,
+  );
 }
 
 export async function createCarrier(c: Context<EnvAPI>) {
@@ -98,17 +87,15 @@ export async function createCarrier(c: Context<EnvAPI>) {
   const validator = CreateCarrierSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
   const created = await CarriersDS.create(payload.carrier);
-  c.status(created?.insertId ? 200 : 404);
 
-  return c.json({
-    status: created?.insertId ? "successs" : "error",
-    data: {
-      id: created?.insertId,
+  return c.json(
+    {
+      status: created?.insertId ? "successs" : "error",
+      data: { id: created?.insertId },
+      msg: created?.insertId ? "carrier successfully created" : "cannot create carrier",
     },
-    msg: created?.insertId
-      ? "carrier successfully created"
-      : "cannot create carrier",
-  });
+    201,
+  );
 }
 
 export async function createService(c: Context<EnvAPI>) {
@@ -117,20 +104,18 @@ export async function createService(c: Context<EnvAPI>) {
   const validator = CreateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
   const created = await CarrierServiceDS.create({
-    ...payload.service as NewService,
+    ...(payload.service as NewService),
     carrier_id,
   });
-  c.status(created?.insertId ? 200 : 404);
 
-  return c.json({
-    status: created?.insertId ? "successs" : "error",
-    data: {
-      id: created?.insertId,
+  return c.json(
+    {
+      status: created?.insertId ? "successs" : "error",
+      data: { id: created?.insertId },
+      msg: created?.insertId ? "service successfully created" : "cannot create service",
     },
-    msg: created?.insertId
-      ? "service successfully created"
-      : "cannot create service",
-  });
+    201,
+  );
 }
 
 export async function updateCarrier(c: Context<EnvAPI>) {
@@ -139,18 +124,18 @@ export async function updateCarrier(c: Context<EnvAPI>) {
   const validator = UpdateCarrierSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
   const updated = await CarriersDS.update({
-    ...payload.carrier,
+    ...(payload.carrier as UpdateCarrier),
     carrier_id,
   });
-  c.status(updated?.affectedRows === 1 ? 200 : 404);
 
-  return c.json({
-    status: updated?.affectedRows === 1 ? "successs" : "error",
-    data: { carrier_id },
-    msg: updated?.affectedRows === 1
-      ? "service successfully updated"
-      : "cannot update service",
-  });
+  return c.json(
+    {
+      status: updated?.affectedRows === 1 ? "successs" : "error",
+      data: { carrier_id },
+      msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
+    },
+    200,
+  );
 }
 
 export async function updateService(c: Context<EnvAPI>) {
@@ -160,49 +145,35 @@ export async function updateService(c: Context<EnvAPI>) {
   const validator = UpdateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
   const updated = await CarrierServiceDS.update({
-    ...payload.service as UpdateService,
+    ...(payload.service as UpdateService),
     carrier_id,
     carrier_service_id: service_id,
   });
-  c.status(updated?.affectedRows === 1 ? 200 : 404);
 
-  return c.json({
-    status: updated?.affectedRows === 1 ? "successs" : "error",
-    data: { carrier_id, service_id },
-    msg: updated?.affectedRows === 1
-      ? "service successfully updated"
-      : "cannot update service",
-  });
+  return c.json(
+    {
+      status: updated?.affectedRows === 1 ? "successs" : "error",
+      data: { carrier_id, service_id },
+      msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
+    },
+    200,
+  );
 }
 
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
-  const deleted = await CarriersDS.delete(carrier_id);
-  c.status(deleted?.affectedRows === 1 ? 200 : 404);
+  await CarriersDS.delete(carrier_id);
 
-  return c.json({
-    status: deleted?.affectedRows === 1 ? "successs" : "error",
-    data: { carrier_id },
-    msg: deleted?.affectedRows === 1
-      ? "carrier successfully deleted"
-      : "cannot delete carrier",
-  });
+  return c.json(null, 204);
 }
 
 export async function deleteService(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
-  const deleted = await CarrierServiceDS.delete({
+  await CarrierServiceDS.delete({
     carrier_id,
     carrier_service_id: service_id,
   });
-  c.status(deleted?.affectedRows === 1 ? 200 : 404);
 
-  return c.json({
-    status: deleted?.affectedRows === 1 ? "successs" : "error",
-    data: { carrier_id, service_id },
-    msg: deleted?.affectedRows === 1
-      ? "carrier successfully deleted"
-      : "cannot delete carrier",
-  });
+  return c.json(null, 204);
 }

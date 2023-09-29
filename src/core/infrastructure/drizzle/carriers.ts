@@ -1,30 +1,25 @@
-import {
-  Carrier,
-  NewCarrier,
-  UpdateCarrier,
-} from "~/core/domain/carriers/entity";
-import { Transaction } from "~/core/domain/types";
-import { carriers } from "~/schema/carriers";
+import type { Carrier, NewCarrier, UpdateCarrier } from "~/core/domain/carriers/entity";
+import type { Transaction } from "~/core/domain/types";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { eq, sql } from "drizzle-orm";
+import { carriers } from "~/schema/carriers";
 
 export class CarriersDS {
-  static async get(carrier_id: number, tx?: Transaction) {
-    const fields = {
-      carrier_id: carriers.carrier_id,
-      name: carriers.name,
-      code: carriers.code,
-      account_number: carriers.account_number,
-    };
-
-    const results = await (tx || db).select(fields).from(carriers).where(
-      sql`carrier_id = ${carrier_id} AND active != FALSE`,
-    );
-
-    return results.length > 0 ? results[0] as Carrier : undefined;
+  static async get(carrier_id: number): Promise<Carrier[]> {
+    return db
+      .select({
+        carrier_id: carriers.carrier_id,
+        name: carriers.name,
+        code: carriers.code,
+        account_number: carriers.account_number,
+      })
+      .from(carriers)
+      .where(and(eq(carriers.carrier_id, carrier_id), ne(carriers.active, 0)))
+      .prepare()
+      .execute();
   }
 
-  static async getAll(tx?: Transaction) {
+  static getAll(): Promise<Carrier[]> {
     const fields = {
       carrier_id: carriers.carrier_id,
       name: carriers.name,
@@ -32,31 +27,29 @@ export class CarriersDS {
       account_number: carriers.account_number,
     };
 
-    const results = await (tx || db).select(fields).from(carriers).where(
-      sql`active != FALSE`,
-    );
-
-    return results.length > 0 ? results as Carrier[] : undefined;
+    return db.select(fields).from(carriers).where(ne(carriers.active, 0)).prepare().execute();
   }
 
   static async create(new_carrier: NewCarrier, tx?: Transaction) {
-    return (await (tx || db).insert(carriers).values(new_carrier).prepare()
-      .execute())[0];
+    return (await (tx || db).insert(carriers).values(new_carrier).prepare().execute())[0];
   }
 
-  static async createMany(new_carriers: NewCarrier[], tx?: Transaction) {
+  static createMany(new_carriers: NewCarrier[], tx?: Transaction) {
     return (tx || db).insert(carriers).values(new_carriers).prepare().execute();
   }
 
   static async update(carrier: UpdateCarrier, tx?: Transaction) {
-    return (await (tx || db).update(carriers).set(carrier).where(
-      sql`carrier_id = ${carrier.carrier_id}`,
-    ).prepare().execute())[0];
+    return (
+      await (tx || db)
+        .update(carriers)
+        .set(carrier)
+        .where(sql`carrier_id = ${carrier.carrier_id}`)
+        .prepare()
+        .execute()
+    )[0];
   }
 
   static async delete(carrier_id: number, tx?: Transaction) {
-    return (await (tx || db).update(carriers).set({ active: 0 }).where(
-      eq(carriers.carrier_id, carrier_id),
-    ).prepare().execute())[0];
+    return (await (tx || db).update(carriers).set({ active: 0 }).where(eq(carriers.carrier_id, carrier_id)).prepare().execute())[0];
   }
 }

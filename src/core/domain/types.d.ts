@@ -24,4 +24,3 @@ export type Transaction = MySqlTransaction<
   Record<string, never>,
   ExtractTablesWithRelations<Record<string, never>>
 >;
-

@@ -1,70 +1,77 @@
-import { Transaction } from "~/core/domain/types";
-import { carrier_services } from "~/schema/carriers";
+import type { DeleteService, NewService, Service, UpdateService } from "~/core/domain/carriers/entity";
+import type { Transaction } from "~/core/domain/types";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { eq, sql } from "drizzle-orm";
-import {
-  DeleteService,
-  NewService,
-  Service,
-  UpdateService,
-} from "~/core/domain/carriers/entity";
+import { carrier_services } from "~/schema/carriers";
 
 export class CarrierServiceDS {
-  static async getByCarrier(carrier_id: number, tx?: Transaction) {
-    const fields = {
-      carrier_service_id: carrier_services.carrier_service_id,
-      name: carrier_services.name,
-      type: carrier_services.type,
-      code: carrier_services.code,
-      carrier_id: carrier_services.carrier_id,
-    };
-    const results = await (tx || db).select(fields).from(carrier_services)
-      .where(sql`carrier_id = ${carrier_id}`);
-
-    return results.length > 0 ? results as Service[] : undefined;
+  static async getByCarrierID(carrier_id: number): Promise<Service[]> {
+    return db
+      .select({
+        carrier_service_id: carrier_services.carrier_service_id,
+        carrier_id: carrier_services.carrier_id,
+        name: carrier_services.name,
+        type: carrier_services.type,
+        code: carrier_services.code,
+      })
+      .from(carrier_services)
+      .where(and(eq(carrier_services.carrier_id, carrier_id), ne(carrier_services.active, 0)))
+      .prepare()
+      .execute();
   }
 
-  static async getByIds(
-    carrier_id: number,
-    service_id: number,
-    tx?: Transaction,
-  ) {
-    const fields = {
-      carrier_service_id: carrier_services.carrier_service_id,
-      name: carrier_services.name,
-      type: carrier_services.type,
-      code: carrier_services.code,
-      carrier_id: carrier_services.carrier_id,
-    };
-    const results = await (tx || db).select(fields).from(carrier_services)
+  static async getByIds(carrier_id: number, service_id: number): Promise<Service[]> {
+    return db
+      .select({
+        carrier_service_id: carrier_services.carrier_service_id,
+        carrier_id: carrier_services.carrier_id,
+        name: carrier_services.name,
+        type: carrier_services.type,
+        code: carrier_services.code,
+      })
+      .from(carrier_services)
       .where(
-        sql`carrier_id = ${carrier_id} AND carrier_service_id = ${service_id}`,
-      );
-
-    return results.length > 0 ? results[0] as Service : undefined;
+        and(
+          eq(carrier_services.carrier_id, carrier_id),
+          eq(carrier_services.carrier_service_id, service_id),
+          ne(carrier_services.active, 0),
+        ),
+      )
+      .prepare()
+      .execute();
   }
 
   static async create(new_service: NewService, tx?: Transaction) {
-    return (await (tx || db).insert(carrier_services).values(new_service)
-      .prepare().execute())[0];
+    return (await (tx || db).insert(carrier_services).values(new_service).prepare().execute())[0];
   }
 
   static async createMany(new_services: NewService[], tx?: Transaction) {
-    return tx
-      ? tx.insert(carrier_services).values(new_services).prepare().execute()
-      : db.insert(carrier_services).values(new_services).prepare().execute();
+    return (tx || db).insert(carrier_services).values(new_services).prepare().execute();
   }
 
   static async update(service: UpdateService, tx?: Transaction) {
-    return (await (tx || db).update(carrier_services).set(service).where(
-      sql`carrier_id = ${service.carrier_id} AND carrier_service_id = ${service.carrier_service_id}`,
-    )
-      .prepare().execute())[0];
+    return (
+      await (tx || db)
+        .update(carrier_services)
+        .set(service)
+        .where(
+          and(eq(carrier_services.carrier_id, service.carrier_id), eq(carrier_services.carrier_service_id, service.carrier_service_id)),
+        )
+        .prepare()
+        .execute()
+    )[0];
   }
 
   static async delete(service: DeleteService, tx?: Transaction) {
-    return (await (tx || db).delete(carrier_services).where(
-      sql`carrier_id = ${service.carrier_id} AND carrier_service_id = ${service.carrier_service_id}`,
-    ).prepare().execute())[0];
+    return (
+      await (tx || db)
+        .update(carrier_services)
+        .set({ active: 0 })
+        .where(
+          and(eq(carrier_services.carrier_id, service.carrier_id), eq(carrier_services.carrier_service_id, service.carrier_service_id)),
+        )
+        .prepare()
+        .execute()
+    )[0];
   }
 }

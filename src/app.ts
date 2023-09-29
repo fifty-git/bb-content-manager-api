@@ -7,14 +7,25 @@ import { createProduct, getProduct, getProducts } from "~/core/application/produ
 import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
+import {
+  createCarrier,
+  createService,
+  deleteCarrier,
+  deleteService,
+  getAllCarriers,
+  getAllCarrierServices,
+  getCarrierById,
+  getCarrierServiceById,
+  updateCarrier,
+  updateService,
+} from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
-import { createCarrier, createService, deleteCarrier, deleteService, getAllCarrierServices, getAllCarriers, getCarrierById, getCarrierServiceById, updateCarrier, updateService } from "./core/application/carriers-service";
 // import { profile_execution } from "~/modules/profiler";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();
-// app.use("*", uuid);
-// app.use("*", bindLogger);
+app.use("*", uuid);
+app.use("*", bindLogger);
 app.use(
   "/api/v1/*",
   cors({
@@ -25,8 +36,8 @@ app.use(
     },
   }),
 );
-// app.get("*", secureHeaders());
-// app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
+app.get("*", secureHeaders());
+app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
 app.get("/api/v1/content-manager/products", getProducts);

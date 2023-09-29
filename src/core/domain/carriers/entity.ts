@@ -1,27 +1,6 @@
 export enum ServiceType {
   DOM = "domestic",
-  INT = "international"
-}
-
-export interface Carrier {
-  carrier_id: number;
-  name: string;
-  code: string;
-  account_number: string;
-}
-
-export interface NewCarrier {
-  name: string;
-  code: string;
-  account_number: string;
-  active?: number;
-}
-
-export interface UpdateCarrier {
-  carrier_id?: number;
-  name?: string;
-  code?: string;
-  account_number?: string;
+  INT = "international",
 }
 
 export interface Service {
@@ -50,4 +29,26 @@ export interface UpdateService {
 export interface DeleteService {
   carrier_id: number;
   carrier_service_id: number;
+}
+
+export interface Carrier {
+  carrier_id: number;
+  name: string;
+  code: string;
+  account_number: string;
+  services?: Service[];
+}
+
+export interface NewCarrier {
+  name: string;
+  code: string;
+  account_number: string;
+  active?: number;
+}
+
+export interface UpdateCarrier {
+  carrier_id?: number;
+  name?: string;
+  code?: string;
+  account_number?: string;
 }

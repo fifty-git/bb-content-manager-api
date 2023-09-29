@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { datetime, index, int, mysqlEnum, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { ServiceType } from "~/core/domain/carriers/entity";
 
 export const carriers = mysqlTable(
   "carriers",
@@ -29,7 +30,8 @@ export const carrier_services = mysqlTable(
     carrier_service_id: int("carrier_service_id").autoincrement().notNull(),
     code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
-    type: mysqlEnum("type", ["domestic", "international"]).default("domestic").notNull(),
+    type: mysqlEnum("type", [ServiceType.DOM, ServiceType.INT]).default(ServiceType.DOM).notNull(),
+    active: tinyint("active").default(1).notNull(),
     carrier_id: int("carrier_id")
       .notNull()
       .references(() => carriers.carrier_id),
