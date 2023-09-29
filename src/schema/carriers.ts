@@ -7,7 +7,7 @@ export const carriers = mysqlTable(
     carrier_id: int("carrier_id").autoincrement().notNull(),
     code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
-    accountNumber: varchar("accountNumber", { length: 255 }).notNull(),
+    account_number: varchar("accountNumber", { length: 255 }).notNull(),
     active: tinyint("active").default(1).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
