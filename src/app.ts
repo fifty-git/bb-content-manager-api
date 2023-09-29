@@ -7,6 +7,18 @@ import { createProduct, getProduct, getProducts } from "~/core/application/produ
 import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
+import {
+  createCarrier,
+  createService,
+  deleteCarrier,
+  deleteService,
+  getAllCarriers,
+  getAllCarrierServices,
+  getCarrierById,
+  getCarrierServiceById,
+  updateCarrier,
+  updateService,
+} from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
 // import { profile_execution } from "~/modules/profiler";
 
@@ -35,6 +47,17 @@ app.post("/api/v1/content-manager/products", createProduct);
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
+
+app.get("/api/v1/content-manager/carriers", getAllCarriers);
+app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
+app.get("/api/v1/content-manager/carriers/:carrier_id/services", getAllCarrierServices);
+app.get("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", getCarrierServiceById);
+app.post("/api/v1/content-manager/carriers", createCarrier);
+app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService);
+app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
+app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
+app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
 app.all("*", () => {
