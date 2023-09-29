@@ -4,7 +4,7 @@ import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
 import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
-import {createVariant, deleteVariant, getVariants} from "~/core/application/variants-service";
+import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import { bindLogger, logger, uuid } from "./modules/logger";
