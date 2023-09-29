@@ -3,6 +3,7 @@ import { carrier_services } from "~/schema/carriers";
 import { db } from "~/modules/drizzle";
 import { eq, sql } from "drizzle-orm";
 import {
+  DeleteService,
   NewService,
   Service,
   UpdateService,
@@ -54,18 +55,16 @@ export class CarrierServiceDS {
       : db.insert(carrier_services).values(new_services).prepare().execute();
   }
 
-  static async update(service: Service, tx?: Transaction) {
-    return (tx || db).update(carrier_services).set(service).where(sql`carrier_id = ${service.carrier_id} AND carrier_service_id = ${service.carrier_service_id}`)
-      .prepare().execute();
+  static async update(service: UpdateService, tx?: Transaction) {
+    return (await (tx || db).update(carrier_services).set(service).where(
+      sql`carrier_id = ${service.carrier_id} AND carrier_service_id = ${service.carrier_service_id}`,
+    )
+      .prepare().execute())[0];
   }
 
-  static async delete(service_id: number, tx?: Transaction) {
-    return tx
-      ? tx.delete(carrier_services).where(
-        eq(carrier_services.carrier_id, service_id),
-      ).prepare().execute()
-      : db.delete(carrier_services).where(
-        eq(carrier_services.carrier_id, service_id),
-      ).prepare().execute();
+  static async delete(service: DeleteService, tx?: Transaction) {
+    return (await (tx || db).delete(carrier_services).where(
+      sql`carrier_id = ${service.carrier_id} AND carrier_service_id = ${service.carrier_service_id}`,
+    ).prepare().execute())[0];
   }
 }

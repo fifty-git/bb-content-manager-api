@@ -40,7 +40,8 @@ export class CarriersDS {
   }
 
   static async create(new_carrier: NewCarrier, tx?: Transaction) {
-    return (await (tx || db).insert(carriers).values(new_carrier).prepare().execute())[0];
+    return (await (tx || db).insert(carriers).values(new_carrier).prepare()
+      .execute())[0];
   }
 
   static async createMany(new_carriers: NewCarrier[], tx?: Transaction) {
@@ -48,12 +49,14 @@ export class CarriersDS {
   }
 
   static async update(carrier: UpdateCarrier, tx?: Transaction) {
-    return (tx || db).update(carriers).set(carrier).where().prepare().execute();
+    return (await (tx || db).update(carriers).set(carrier).where(
+      sql`carrier_id = ${carrier.carrier_id}`,
+    ).prepare().execute())[0];
   }
 
   static async delete(carrier_id: number, tx?: Transaction) {
-    return (tx || db).delete(carriers).where(
+    return (await (tx || db).update(carriers).set({ active: 0 }).where(
       eq(carriers.carrier_id, carrier_id),
-    ).prepare().execute();
+    ).prepare().execute())[0];
   }
 }

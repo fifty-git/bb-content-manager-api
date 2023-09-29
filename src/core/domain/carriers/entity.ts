@@ -40,8 +40,14 @@ export interface NewService {
 }
 
 export interface UpdateService {
+  carrier_service_id: number;
+  carrier_id: number;
   code?: string;
   name?: string;
   type?: ServiceType;
 }
 
+export interface DeleteService {
+  carrier_id: number;
+  carrier_service_id: number;
+}
