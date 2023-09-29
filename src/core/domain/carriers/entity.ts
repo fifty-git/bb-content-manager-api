@@ -47,7 +47,7 @@ export interface NewCarrier {
 }
 
 export interface UpdateCarrier {
-  carrier_id?: number;
+  carrier_id: number;
   name?: string;
   code?: string;
   account_number?: string;

@@ -1,6 +1,6 @@
 import type { Carrier, NewCarrier, UpdateCarrier } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { carriers } from "~/schema/carriers";
 
@@ -39,14 +39,7 @@ export class CarriersDS {
   }
 
   static async update(carrier: UpdateCarrier, tx?: Transaction) {
-    return (
-      await (tx || db)
-        .update(carriers)
-        .set(carrier)
-        .where(sql`carrier_id = ${carrier.carrier_id}`)
-        .prepare()
-        .execute()
-    )[0];
+    return (await (tx || db).update(carriers).set(carrier).where(eq(carriers.carrier_id, carrier.carrier_id)).prepare().execute())[0];
   }
 
   static async delete(carrier_id: number, tx?: Transaction) {
