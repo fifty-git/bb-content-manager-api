@@ -1,12 +1,21 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { eq, ne } from "drizzle-orm";
+import { and, eq, ilike } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_group_link, products } from "~/schema/products";
 
 export class ProductsDS {
   static async getAll() {
-    return db.select().from(products).where(ne(products.status, "inactive")).prepare().execute();
+    return db.select().from(products).where(eq(products.status, "active")).prepare().execute();
+  }
+
+  static async findByName(name: string) {
+    return db
+      .select()
+      .from(products)
+      .where(and(eq(products.status, "active"), ilike(products.name, `%${name}%`)))
+      .prepare()
+      .execute();
   }
 
   static async getByID(product_id: number) {

@@ -7,7 +7,8 @@ import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
 export async function getProducts(c: Context<EnvAPI>) {
-  const products = await ProductsDS.getAll();
+  const name = c.req.query("name");
+  const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
   const response = await Promise.all(
     products.map(async (product) => {
       const groups = await GroupsDS.getGroupByProductID(product.product_id);
