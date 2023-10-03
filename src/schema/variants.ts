@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
-import { datetime, decimal, int, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { datetime, decimal, int, mysqlEnum, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
 import { product_variants, products } from "~/schema/products";
-import {mysqlEnum} from "drizzle-orm/mysql-core/index";
 
 export const variant_options = mysqlTable(
   "variant_options",
