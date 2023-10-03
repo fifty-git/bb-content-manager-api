@@ -1,7 +1,8 @@
 import type { NewVariant } from "~/core/domain/variants/entity";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { product_variants, variant_option_values, variant_options } from "~/schema/products";
+import { product_variants } from "~/schema/products";
+import { variant_option_values, variant_options } from "~/schema/variants";
 
 export class VariantsDS {
   static async getAll(product_id: number) {
@@ -25,7 +26,6 @@ export class VariantsDS {
       .select({
         variant_option_id: variant_options.variant_option_id,
         name: variant_options.dropdown_name,
-        product_exists: variant_options.product_exists,
         creates_po: variant_options.creates_po,
       })
       .from(variant_options)
