@@ -1,19 +1,20 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, like } from "drizzle-orm";
+import { and, eq, like, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
+import { logger } from "~/modules/logger";
 import { product_group_link, products } from "~/schema/products";
 
 export class ProductsDS {
   static async getAll() {
-    return db.select().from(products).where(eq(products.status, "active")).prepare().execute();
+    return db.select().from(products).where(ne(products.status, "inactive")).prepare().execute();
   }
 
   static async findByName(name: string) {
     return db
       .select()
       .from(products)
-      .where(and(eq(products.status, "active"), like(products.name, `%${name}%`)))
+      .where(and(ne(products.status, "inactive"), like(products.name, `%${name}%`)))
       .prepare()
       .execute();
   }
