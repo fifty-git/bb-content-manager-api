@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { datetime, decimal, index, int, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
-import { options_catalog, products } from "~/schema/products";
+import { products } from "~/schema/products";
 
 export const bundles = mysqlTable(
   "bundles",
@@ -23,28 +23,28 @@ export const bundles = mysqlTable(
     };
   },
 );
-export const bundle_options = mysqlTable(
-  "bundle_options",
+
+export const bundle_group_link = mysqlTable(
+  "bundle_group_link",
   {
-    bundle_option_id: int("bundle_option_id").autoincrement().notNull(),
-    bundle_id: int("bundle_id").references(() => bundles.bundle_id),
-    option_catalog_id: int("option_catalog_id").references(() => options_catalog.option_catalog_id),
-    created_at: datetime("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updated_at: datetime("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    bundle_group_id: int("bundle_group_id").autoincrement().notNull(),
+    bundle_id: int("bundle_id")
+      .notNull()
+      .references(() => bundles.bundle_id),
+    group_id: int("group_id")
+      .notNull()
+      .references(() => groups.group_id),
   },
   (table) => {
     return {
-      bundle_options_bundle_option_id: primaryKey(table.bundle_option_id),
+      bundle_group_link_bundle_group_id: primaryKey(table.bundle_group_id),
+      bundle_group_link_pk2: unique("bundle_group_link_pk2").on(table.group_id, table.bundle_id),
     };
   },
 );
 
-export const bundle_products = mysqlTable(
-  "bundle_products",
+export const bundle_product_link = mysqlTable(
+  "bundle_product_link",
   {
     bundle_product_id: int("bundle_product_id").autoincrement().notNull(),
     bundle_id: int("bundle_id")
@@ -60,9 +60,7 @@ export const bundle_products = mysqlTable(
   },
   (table) => {
     return {
-      bundle_id: index("bundle_id").on(table.bundle_id),
-      product_id: index("product_id").on(table.product_id),
-      bundle_products_bundle_product_id: primaryKey(table.bundle_product_id),
+      bundle_product_link_bundle_product_id: primaryKey(table.bundle_product_id),
     };
   },
 );
@@ -86,25 +84,6 @@ export const bundle_variants = mysqlTable(
     return {
       bundle_id: index("bundle_id").on(table.bundle_id),
       bundle_variants_bundle_variant_id: primaryKey(table.bundle_variant_id),
-    };
-  },
-);
-
-export const bundle_group_link = mysqlTable(
-  "bundle_group_link",
-  {
-    bundle_group_id: int("bundle_group_id").autoincrement().notNull(),
-    bundle_id: int("bundle_id")
-      .notNull()
-      .references(() => bundles.bundle_id),
-    group_id: int("group_id")
-      .notNull()
-      .references(() => groups.group_id),
-  },
-  (table) => {
-    return {
-      bundle_group_link_bundle_group_id: primaryKey(table.bundle_group_id),
-      bundle_group_link_pk2: unique("bundle_group_link_pk2").on(table.group_id, table.bundle_id),
     };
   },
 );
