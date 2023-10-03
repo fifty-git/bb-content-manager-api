@@ -64,8 +64,8 @@ app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
 app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
-app.all("*", () => {
-  throw new NotFoundError();
+app.all("*", (c) => {
+  throw new NotFoundError(c.req.path);
 });
 app.onError(handleErrors);
 logger.info(`Running at http://localhost:${port}`);
