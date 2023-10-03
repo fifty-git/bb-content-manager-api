@@ -25,7 +25,7 @@ export class VariantsDS {
     return db
       .select({
         variant_option_id: variant_options.variant_option_id,
-        name: variant_options.dropdown_name,
+        dropdown_name: variant_options.dropdown_name,
         creates_po: variant_options.creates_po,
       })
       .from(variant_options)
@@ -38,7 +38,7 @@ export class VariantsDS {
   static async getOptionValues(variant_option_id: number) {
     return db
       .select({
-        name: variant_option_values.value,
+        value: variant_option_values.value,
         additional_price: variant_option_values.additional_price,
         sku: variant_option_values.sku,
         is_default: variant_option_values.is_default,
