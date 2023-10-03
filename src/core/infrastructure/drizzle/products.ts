@@ -1,6 +1,6 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, ilike } from "drizzle-orm";
+import { and, eq, like } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_group_link, products } from "~/schema/products";
 
@@ -13,7 +13,7 @@ export class ProductsDS {
     return db
       .select()
       .from(products)
-      .where(and(eq(products.status, "active"), ilike(products.name, `%${name}%`)))
+      .where(and(eq(products.status, "active"), like(products.name, `%${name}%`)))
       .prepare()
       .execute();
   }
