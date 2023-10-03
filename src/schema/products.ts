@@ -79,7 +79,8 @@ export const product_variants = mysqlTable(
     units: int("units").notNull(),
     measure_units: varchar("measure_units", { length: 20 }).notNull(),
     upc: varchar("upc", { length: 50 }).default("").notNull(),
-    active: boolean("active").default(true).notNull(),
+    display_order: int("display_order").default(0).notNull(),
+    status: mysqlEnum("status", ["inactive", "active"]).default("active").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

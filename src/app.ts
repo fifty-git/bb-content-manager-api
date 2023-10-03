@@ -5,7 +5,7 @@ import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
 import { createOptions } from "~/core/application/options-service";
 import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
-import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
+import {createVariant, deleteVariant, disableVariant, getVariants, reorderVariants} from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import {
@@ -47,6 +47,8 @@ app.post("/api/v1/content-manager/products", createProduct);
 
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
+app.post("/api/v1/content-manager/products/:product_id/variants/order", reorderVariants);
+app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deactivate", disableVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
 app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createOptions);
 

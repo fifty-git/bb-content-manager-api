@@ -16,7 +16,8 @@ export class VariantsDS {
         upc: product_variants.upc,
       })
       .from(product_variants)
-      .where(and(eq(product_variants.active, true), eq(product_variants.product_id, product_id)))
+      .where(and(eq(product_variants.status, "active"), eq(product_variants.product_id, product_id)))
+      .orderBy(product_variants.display_order)
       .prepare()
       .execute();
   }
@@ -54,10 +55,33 @@ export class VariantsDS {
     return db.insert(product_variants).values(data).prepare().execute();
   }
 
+  static async reorder(display_order: number, variant_id: number, product_id: number) {
+    return db
+      .update(product_variants)
+      .set({ display_order })
+      .where(
+        and(
+          eq(product_variants.product_id, product_id),
+          eq(product_variants.variant_id, variant_id),
+          eq(product_variants.status, "active"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
   static async disableVariant(product_id: number, variant_id: number) {
     return db
       .update(product_variants)
-      .set({ active: false })
+      .set({ status: "inactive" })
+      .where(and(eq(product_variants.product_id, product_id), eq(product_variants.variant_id, variant_id)))
+      .prepare()
+      .execute();
+  }
+
+  static async delete(product_id: number, variant_id: number) {
+    return db
+      .delete(product_variants)
       .where(and(eq(product_variants.product_id, product_id), eq(product_variants.variant_id, variant_id)))
       .prepare()
       .execute();
