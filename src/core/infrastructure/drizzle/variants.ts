@@ -16,7 +16,7 @@ export class VariantsDS {
         upc: product_variants.upc,
       })
       .from(product_variants)
-      .where(and(eq(product_variants.active, 1), eq(product_variants.product_id, product_id)))
+      .where(and(eq(product_variants.active, true), eq(product_variants.product_id, product_id)))
       .prepare()
       .execute();
   }
@@ -57,7 +57,7 @@ export class VariantsDS {
   static async disableVariant(product_id: number, variant_id: number) {
     return db
       .update(product_variants)
-      .set({ active: 0 })
+      .set({ active: false })
       .where(and(eq(product_variants.product_id, product_id), eq(product_variants.variant_id, variant_id)))
       .prepare()
       .execute();

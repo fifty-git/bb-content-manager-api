@@ -16,14 +16,13 @@ export async function createOptions(c: Context<EnvAPI>) {
   const last_display_order = await OptionsDS.getLastDisplayOrder(variant_id);
   const option = {
     ...validator.data,
-    creates_po: Number(validator.data.creates_po),
     display_order: last_display_order + 1,
   };
   const [{ insertId }] = await OptionsDS.create(option);
 
   // Option values creation
   const option_values = validator.data.options.map((option_value, index) => {
-    return { ...option_value, variant_option_id: insertId, display_order: index, is_default: Number(option_value.is_default) };
+    return { ...option_value, variant_option_id: insertId, display_order: index };
   });
   await OptionsDS.createOptionValues(option_values);
 

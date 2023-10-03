@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
+import { boolean, datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
 import { tags } from "~/schema/tags";
 
@@ -11,7 +11,7 @@ export const products = mysqlTable(
     description: varchar("description", { length: 2000 }).default("").notNull(),
     upc: varchar("upc", { length: 50 }),
     status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
-    is_standalone: tinyint("is_standalone").default(1).notNull(),
+    is_standalone: boolean("is_standalone").default(true).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -79,7 +79,7 @@ export const product_variants = mysqlTable(
     units: int("units").notNull(),
     measure_units: varchar("measure_units", { length: 20 }).notNull(),
     upc: varchar("upc", { length: 50 }).default("").notNull(),
-    active: tinyint("active").default(1).notNull(),
+    active: boolean("active").default(true).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -104,7 +104,7 @@ export const product_varieties = mysqlTable(
     name: varchar("name", { length: 255 }).notNull(),
     sku: varchar("sku", { length: 255 }).notNull(),
     cost: decimal("cost", { precision: 6, scale: 2 }).default("0.00").notNull(),
-    active: tinyint("active").default(1).notNull(),
+    active: boolean("active").default(true).notNull(),
     quality: mysqlEnum("quality", ["A", "B", "C"]).default("A").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)

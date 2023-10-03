@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { datetime, decimal, index, int, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
+import { boolean, datetime, decimal, index, int, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
 import { products } from "~/schema/products";
 
@@ -9,7 +9,7 @@ export const bundles = mysqlTable(
     bundle_id: int("bundle_id").autoincrement().notNull(),
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
-    active: tinyint("active").default(1).notNull(),
+    active: boolean("active").default(true).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -74,7 +74,7 @@ export const bundle_variants = mysqlTable(
       .references(() => bundles.bundle_id),
     name: varchar("name", { length: 255 }).notNull(),
     price: decimal("price", { precision: 6, scale: 2 }).notNull(),
-    active: tinyint("active").default(0).notNull(),
+    active: boolean("active").default(false).notNull(),
     created_at: datetime("created_at", { mode: "string" }).default(sql`CURRENT_TIMESTAMP`),
     updated_at: datetime("updated_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)

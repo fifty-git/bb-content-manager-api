@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { createOptions } from "~/core/application/options-service";
 import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
@@ -20,7 +21,6 @@ import {
   updateService,
 } from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
-import {createOptions} from "~/core/application/options-service";
 // import { profile_execution } from "~/modules/profiler";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);

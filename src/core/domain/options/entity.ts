@@ -1,7 +1,7 @@
 export interface NewVariantOption {
   variant_id: number;
   dropdown_name: string;
-  creates_po: number;
+  creates_po: boolean;
   display_order: number;
 }
 
@@ -11,6 +11,6 @@ export interface NewVariantOV {
   value: string;
   additional_price: string;
   sku: string;
-  is_default: number;
+  is_default: boolean;
   display_order: number;
 }
