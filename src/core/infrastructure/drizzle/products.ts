@@ -9,11 +9,12 @@ export class ProductsDS {
     return db.select().from(products).where(ne(products.status, "inactive")).prepare().execute();
   }
 
-  static async findByName(name: string) {
+  static async findByName(name: string, limit = 10) {
     return db
       .select()
       .from(products)
       .where(and(ne(products.status, "inactive"), like(products.name, `%${name}%`)))
+      .limit(limit)
       .prepare()
       .execute();
   }
