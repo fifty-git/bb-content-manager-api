@@ -17,8 +17,8 @@ export class CustomError extends Error {
 }
 
 export class NotFoundError extends CustomError {
-  constructor(path: string, message = "Not Found", tag = "untagged") {
-    super(`${message} (${path})`, 404, tag);
+  constructor(message = "Not Found", tag = "untagged") {
+    super(message, 404, tag);
   }
 }
 
