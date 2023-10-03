@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { datetime, decimal, int, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
 import { product_variants, products } from "~/schema/products";
+import {mysqlEnum} from "drizzle-orm/mysql-core/index";
 
 export const variant_options = mysqlTable(
   "variant_options",
@@ -10,6 +11,7 @@ export const variant_options = mysqlTable(
     dropdown_name: varchar("dropdown_name", { length: 100 }).notNull(),
     creates_po: tinyint("creates_po").notNull(),
     display_order: int("display_order").default(0).notNull(),
+    status: mysqlEnum("status", ["inactive", "active"]).default("active").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, text, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
+import { datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, tinyint, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
 import { tags } from "~/schema/tags";
 
@@ -8,7 +8,7 @@ export const products = mysqlTable(
   {
     product_id: int("product_id").autoincrement().notNull(),
     name: varchar("name", { length: 255 }).notNull(),
-    description: text("description").notNull(),
+    description: varchar("description", { length: 2000 }).default("").notNull(),
     upc: varchar("upc", { length: 50 }),
     status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     is_standalone: tinyint("is_standalone").default(1).notNull(),

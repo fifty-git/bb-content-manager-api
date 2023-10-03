@@ -20,6 +20,7 @@ import {
   updateService,
 } from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
+import {createOptions} from "~/core/application/options-service";
 // import { profile_execution } from "~/modules/profiler";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
@@ -47,6 +48,7 @@ app.post("/api/v1/content-manager/products", createProduct);
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
+app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createOptions);
 
 app.get("/api/v1/content-manager/carriers", getAllCarriers);
 app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
