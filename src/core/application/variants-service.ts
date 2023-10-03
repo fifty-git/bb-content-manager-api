@@ -61,6 +61,7 @@ export async function reorderVariants(c: Context<EnvAPI>) {
       VariantsDS.reorder(index, variant_id, validator.data.product_id);
     }),
   );
+  return c.json({ status: "success", msg: "Variants were reordered successfully" });
 }
 
 export async function disableVariant(c: Context<EnvAPI>) {
