@@ -35,7 +35,7 @@ export async function getAllCarriers(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carriers ? "successs" : "error",
+      status: carriers ? "success" : "error",
       data: composed,
     },
     200,
@@ -50,7 +50,7 @@ export async function getCarrierById(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: composed,
     },
     200,
@@ -63,7 +63,7 @@ export async function getAllCarrierServices(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: carrier,
     },
     200,
@@ -77,7 +77,7 @@ export async function getCarrierServiceById(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: carrier,
     },
     200,
@@ -92,7 +92,7 @@ export async function createCarrier(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: created?.insertId ? "successs" : "error",
+      status: created?.insertId ? "success" : "error",
       data: { id: created?.insertId },
       msg: created?.insertId ? "carrier successfully created" : "cannot create carrier",
     },
@@ -112,7 +112,7 @@ export async function createService(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: created?.insertId ? "successs" : "error",
+      status: created?.insertId ? "success" : "error",
       data: { id: created?.insertId },
       msg: created?.insertId ? "service successfully created" : "cannot create service",
     },
@@ -132,7 +132,7 @@ export async function updateCarrier(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: updated?.affectedRows === 1 ? "successs" : "error",
+      status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id },
       msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
     },
@@ -154,7 +154,7 @@ export async function updateService(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: updated?.affectedRows === 1 ? "successs" : "error",
+      status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id, service_id },
       msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
     },
