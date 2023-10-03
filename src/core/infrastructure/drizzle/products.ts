@@ -2,7 +2,6 @@ import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, eq, like, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { logger } from "~/modules/logger";
 import { product_group_link, products } from "~/schema/products";
 
 export class ProductsDS {
