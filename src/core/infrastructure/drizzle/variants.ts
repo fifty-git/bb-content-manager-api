@@ -1,5 +1,5 @@
 import type { NewVariant } from "~/core/domain/variants/entity";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_variants } from "~/schema/products";
 import { variant_option_values, variant_options } from "~/schema/variants";
@@ -27,6 +27,8 @@ export class VariantsDS {
       .select({ display_order: product_variants.display_order })
       .from(product_variants)
       .where(and(eq(product_variants.product_id, product_id), eq(product_variants.status, "active")))
+      .orderBy(desc(product_variants.display_order))
+      .limit(1)
       .prepare()
       .execute();
     if (!results || results.length === 0) return 0;

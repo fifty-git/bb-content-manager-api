@@ -44,7 +44,7 @@ export async function createVariant(c: Context<EnvAPI>) {
 
   // Variant creation
   const last_display_order = await VariantsDS.getLastDisplayOrder(product_id);
-  await VariantsDS.create({ ...validator.data, display_order: last_display_order });
+  await VariantsDS.create({ ...validator.data, display_order: last_display_order + 1 });
   return c.json({ status: "success", msg: "Variant creation was completed successfully!" }, 201);
 }
 

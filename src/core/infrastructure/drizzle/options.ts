@@ -1,5 +1,5 @@
 import type { NewVariantOption, NewVariantOV } from "~/core/domain/options/entity";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { variant_option_values, variant_options } from "~/schema/variants";
 
@@ -17,6 +17,8 @@ export class OptionsDS {
       .select({ display_order: variant_options.display_order })
       .from(variant_options)
       .where(and(eq(variant_options.variant_id, variant_id), eq(variant_options.status, "active")))
+      .orderBy(desc(variant_options.display_order))
+      .limit(1)
       .prepare()
       .execute();
     if (!results || results.length === 0) return 0;
