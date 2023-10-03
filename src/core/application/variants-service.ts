@@ -43,7 +43,8 @@ export async function createVariant(c: Context<EnvAPI>) {
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Variant creation
-  await VariantsDS.create(validator.data);
+  const last_display_order = await VariantsDS.getLastDisplayOrder(product_id);
+  await VariantsDS.create({ ...validator.data, display_order: last_display_order });
   return c.json({ status: "success", msg: "Variant creation was completed successfully!" }, 201);
 }
 
@@ -56,11 +57,7 @@ export async function reorderVariants(c: Context<EnvAPI>) {
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Variant reordering
-  await Promise.all(
-    validator.data.variants.map((variant_id, index) => {
-      VariantsDS.reorder(index, variant_id, validator.data.product_id);
-    }),
-  );
+  await Promise.all(validator.data.variants.map((variant_id, index) => VariantsDS.reorder(index, variant_id, validator.data.product_id)));
   return c.json({ status: "success", msg: "Variants were reordered successfully" });
 }
 

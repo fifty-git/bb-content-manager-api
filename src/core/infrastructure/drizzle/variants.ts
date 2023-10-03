@@ -22,6 +22,17 @@ export class VariantsDS {
       .execute();
   }
 
+  static async getLastDisplayOrder(product_id: number) {
+    const results = await db
+      .select({ display_order: product_variants.display_order })
+      .from(product_variants)
+      .where(and(eq(product_variants.product_id, product_id), eq(product_variants.status, "active")))
+      .prepare()
+      .execute();
+    if (!results || results.length === 0) return 0;
+    return results[0].display_order;
+  }
+
   static async getOptions(variant_id: number) {
     return db
       .select({

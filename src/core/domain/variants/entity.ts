@@ -14,4 +14,5 @@ export interface NewVariant {
   measure_units: string;
   price: string;
   upc: string;
+  display_order: number;
 }
