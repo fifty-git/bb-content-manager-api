@@ -1,10 +1,22 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { ne } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { bundle_group_link, bundles } from "~/schema/bundles";
 
 export class BundlesDS {
+  static async getByID(bundle_id: number) {
+    const results = await db
+      .select()
+      .from(bundles)
+      .where(and(ne(bundles.status, "inactive"), eq(bundles.bundle_id, bundle_id)))
+      .limit(1)
+      .prepare()
+      .execute();
+    if (!results || results.length === 0) return null;
+    return results[0];
+  }
+
   static async getAll() {
     return db.select().from(bundles).where(ne(bundles.status, "inactive")).prepare().execute();
   }
