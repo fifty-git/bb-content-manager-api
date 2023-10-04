@@ -12,20 +12,7 @@ async function getProductsWithGroups(name: string | undefined) {
     products.map(async (product) => {
       const groups = await GroupsDS.getGroupByProductID(product.product_id);
       const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
-      return { ...product, product_type: "single", groups, subgroups };
-    }),
-  );
-}
-
-async function getBundlesWithGroups(name: string | undefined) {
-  if (name) return []; // Don't search bundles by name
-
-  const bundles = await BundlesDS.getAll();
-  return Promise.all(
-    bundles.map(async (bundle) => {
-      const groups = await GroupsDS.getGroupByBundleID(bundle.bundle_id);
-      const subgroups = await GroupsDS.getSubgroupByBundleID(bundle.bundle_id);
-      return { ...bundle, product_type: "bundle", groups, subgroups };
+      return { ...product, id: product.product_id, product_type: "single", groups, subgroups };
     }),
   );
 }
@@ -33,8 +20,7 @@ async function getBundlesWithGroups(name: string | undefined) {
 export async function getProducts(c: Context<EnvAPI>) {
   const name = c.req.query("name");
   const products = await getProductsWithGroups(name);
-  const bundles = await getBundlesWithGroups(name);
-  return c.json({ status: "success", data: [...products, ...bundles] });
+  return c.json({ status: "success", data: products });
 }
 
 export async function getProduct(c: Context<EnvAPI>) {

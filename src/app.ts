@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { getBundles } from "~/core/application/bundles-service";
 import { createOptions } from "~/core/application/options-service";
 import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { createVariant, deleteVariant, disableVariant, getVariants, reorderVariants } from "~/core/application/variants-service";
@@ -44,6 +45,8 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
+
+app.get("/api/v1/content-manager/bundles", getBundles);
 
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
