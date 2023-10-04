@@ -1,9 +1,14 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
+import { ne } from "drizzle-orm/index";
 import { db } from "~/modules/drizzle";
 import { bundle_group_link, bundles } from "~/schema/bundles";
 
 export class BundlesDS {
+  static async getAll() {
+    return db.select().from(bundles).where(ne(bundles.status, "inactive")).prepare().execute();
+  }
+
   static async create(new_product: NewProduct, tx?: Transaction) {
     if (tx) return tx.insert(bundles).values(new_product).prepare().execute();
     return db.insert(bundles).values(new_product).prepare().execute();

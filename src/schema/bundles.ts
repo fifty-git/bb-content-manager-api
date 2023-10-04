@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, datetime, decimal, index, int, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
+import {boolean, datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar} from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
 import { products } from "~/schema/products";
 
@@ -9,7 +9,7 @@ export const bundles = mysqlTable(
     bundle_id: int("bundle_id").autoincrement().notNull(),
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
-    active: boolean("active").default(true).notNull(),
+    status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

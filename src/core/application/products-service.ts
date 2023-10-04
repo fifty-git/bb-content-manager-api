@@ -6,17 +6,35 @@ import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
-export async function getProducts(c: Context<EnvAPI>) {
-  const name = c.req.query("name");
+async function getProductsWithGroups(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
-  const response = await Promise.all(
+  return Promise.all(
     products.map(async (product) => {
       const groups = await GroupsDS.getGroupByProductID(product.product_id);
       const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
-      return { ...product, groups, subgroups };
+      return { ...product, product_type: "single", groups, subgroups };
     }),
   );
-  return c.json({ status: "success", data: response });
+}
+
+async function getBundlesWithGroups(name: string | undefined) {
+  if (name) return []; // Don't search bundles by name
+
+  const bundles = await BundlesDS.getAll();
+  return Promise.all(
+    bundles.map(async (bundle) => {
+      const groups = await GroupsDS.getGroupByBundleID(bundle.bundle_id);
+      const subgroups = await GroupsDS.getSubgroupByBundleID(bundle.bundle_id);
+      return { ...bundle, product_type: "bundle", groups, subgroups };
+    }),
+  );
+}
+
+export async function getProducts(c: Context<EnvAPI>) {
+  const name = c.req.query("name");
+  const products = await getProductsWithGroups(name);
+  const bundles = await getBundlesWithGroups(name);
+  return c.json({ status: "success", data: [...products, ...bundles] });
 }
 
 export async function getProduct(c: Context<EnvAPI>) {
