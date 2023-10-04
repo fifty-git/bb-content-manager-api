@@ -9,9 +9,8 @@ export const products = mysqlTable(
     product_id: int("product_id").autoincrement().notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
-    upc: varchar("upc", { length: 50 }),
-    status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
+    status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

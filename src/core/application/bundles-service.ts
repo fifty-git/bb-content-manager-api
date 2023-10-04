@@ -7,9 +7,9 @@ async function getBundlesWithGroups() {
   const bundles = await BundlesDS.getAll();
   return Promise.all(
     bundles.map(async (bundle) => {
-      const groups = await GroupsDS.getGroupByBundleID(bundle.bundle_id);
-      const subgroups = await GroupsDS.getSubgroupByBundleID(bundle.bundle_id);
-      return { ...bundle, product_type: "bundle", groups, subgroups };
+      const group = await GroupsDS.getGroupByBundleID(bundle.bundle_id);
+      const subgroup = await GroupsDS.getSubgroupByBundleID(bundle.bundle_id);
+      return { ...bundle, product_type: "bundle", group, subgroup };
     }),
   );
 }
