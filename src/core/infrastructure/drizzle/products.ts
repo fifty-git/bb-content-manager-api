@@ -1,13 +1,22 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { eq } from "drizzle-orm";
+import { and, eq, like, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_group_link, products } from "~/schema/products";
 
 export class ProductsDS {
   static async getAll() {
-    // TODO remove where
-    return db.select().from(products).where(eq(products.product_id, 46)).prepare().execute();
+    return db.select().from(products).where(ne(products.status, "inactive")).prepare().execute();
+  }
+
+  static async findByName(name: string, limit = 10) {
+    return db
+      .select()
+      .from(products)
+      .where(and(ne(products.status, "inactive"), like(products.name, `%${name}%`)))
+      .limit(limit)
+      .prepare()
+      .execute();
   }
 
   static async getByID(product_id: number) {

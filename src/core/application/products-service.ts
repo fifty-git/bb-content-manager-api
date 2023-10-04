@@ -6,32 +6,37 @@ import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
-export async function getProducts(c: Context<EnvAPI>) {
-  const products = await ProductsDS.getAll();
-  const response = await Promise.all(
+async function getProductsWithGroups(name: string | undefined) {
+  const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
+  return Promise.all(
     products.map(async (product) => {
-      const groups = await GroupsDS.getGroupByProductID(product.product_id);
-      const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
-      return { ...product, groups, subgroups };
+      const group = await GroupsDS.getGroupByProductID(product.product_id);
+      const subgroup = await GroupsDS.getSubgroupByProductID(product.product_id);
+      return { ...product, id: product.product_id, product_type: "single", group, subgroup };
     }),
   );
-  return c.json({ products: response });
+}
+
+export async function getProducts(c: Context<EnvAPI>) {
+  const name = c.req.query("name");
+  const products = await getProductsWithGroups(name);
+  return c.json({ status: "success", data: products });
 }
 
 export async function getProduct(c: Context<EnvAPI>) {
-  const id = c.req.param("id");
+  const id = c.req.param("product_id");
   const product = await ProductsDS.getByID(+id);
-  if (!product) return c.json({ product });
+  if (!product) return c.json({ status: "success", data: product });
 
-  const groups = await GroupsDS.getGroupByProductID(product.product_id);
-  const subgroups = await GroupsDS.getSubgroupByProductID(product.product_id);
-  return c.json({ product: { ...product, groups, subgroups } });
+  const group = await GroupsDS.getGroupByProductID(product.product_id);
+  const subgroup = await GroupsDS.getSubgroupByProductID(product.product_id);
+  return c.json({ status: "success", data: { ...product, group, subgroup } });
 }
 
 export async function createProduct(c: Context<EnvAPI>) {
   // Validator
   const validator = CreateProductsAPISchema.safeParse(await c.req.json());
-  if (!validator.success) return c.json({ status: 400, msg: "Incorrect payload" }, 400);
+  if (!validator.success) return c.json({ status: "error", msg: "Incorrect payload" }, 400);
 
   // Product creation
   const singles = validator.data.products.filter((product) => product.product_type === "single");
@@ -57,5 +62,5 @@ export async function createProduct(c: Context<EnvAPI>) {
     });
   }
 
-  return c.json({ status: 200, msg: "Product creation was completed successfully!" });
+  return c.json({ status: "success", msg: "Product creation was completed successfully!" });
 }

@@ -3,9 +3,24 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { getBundle, getBundles } from "~/core/application/bundles-service";
+import { createOptions } from "~/core/application/options-service";
 import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
+import { createVariant, deleteVariant, disableVariant, getVariants, reorderVariants } from "~/core/application/variants-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
+import {
+  createCarrier,
+  createService,
+  deleteCarrier,
+  deleteService,
+  getAllCarriers,
+  getAllCarrierServices,
+  getCarrierById,
+  getCarrierServiceById,
+  updateCarrier,
+  updateService,
+} from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { groupsRouter } from "./routes/groups";
 
@@ -28,12 +43,34 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
 app.get("/api/v1/content-manager/products", getProducts);
-app.get("/api/v1/content-manager/products/:id", getProduct);
+app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
 app.route("/api/v1/content-manager/groups", groupsRouter);
 
+app.get("/api/v1/content-manager/bundles", getBundles);
+app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
+
+app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
+app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
+app.put("/api/v1/content-manager/products/:product_id/variants/order", reorderVariants);
+app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deactivate", disableVariant);
+app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
+app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createOptions);
+
+app.get("/api/v1/content-manager/carriers", getAllCarriers);
+app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
+app.get("/api/v1/content-manager/carriers/:carrier_id/services", getAllCarrierServices);
+app.get("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", getCarrierServiceById);
+app.post("/api/v1/content-manager/carriers", createCarrier);
+app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService);
+app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
+app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
+app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
+
 // 404 Not found
-app.all("*", () => {
+app.all("*", (c) => {
+  logger.error(`Not found - METHOD: ${c.req.method} - PATH: (${c.req.path})`);
   throw new NotFoundError();
 });
 app.onError(handleErrors);

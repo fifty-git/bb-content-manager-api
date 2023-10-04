@@ -15,3 +15,14 @@ export interface UpdateGroup {
   name?: string;
   parent_group_id?: number | null;
 }
+
+export interface Group {
+  group_id: number;
+  name: string;
+}
+
+export interface Subgroup {
+  group_id: number;
+  name: string;
+  parent_group_id: number;
+}
