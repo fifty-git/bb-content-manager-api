@@ -1,10 +1,10 @@
-import type { NewVariant } from "~/core/domain/variants/entity";
+import type { NewVariant } from "~/core/domain/product-variants/entity";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
+import { variant_option_values, variant_options } from "~/schema/product-variants";
 import { product_variants } from "~/schema/products";
-import { variant_option_values, variant_options } from "~/schema/variants";
 
-export class VariantsDS {
+export class ProductVariantsDS {
   static async getAll(product_id: number) {
     return db
       .select({

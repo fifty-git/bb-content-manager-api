@@ -1,9 +1,9 @@
+import type { Variant } from "~/core/domain/product-variants/entity";
 import type { EnvAPI } from "~/core/domain/types";
-import type { Variant } from "~/core/domain/variants/entity";
 import type { Context } from "hono";
-import { CreateVariantAPISchema } from "~/core/domain/variants/validator/create-variant-validator";
-import { ReorderVariantsAPISchema } from "~/core/domain/variants/validator/reorder-variants-validator";
-import { VariantsDS } from "~/core/infrastructure/drizzle/variants";
+import { CreateVariantAPISchema } from "~/core/domain/product-variants/validator/create-variant-validator";
+import { ReorderVariantsAPISchema } from "~/core/domain/product-variants/validator/reorder-variants-validator";
+import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 
 async function getVariantOptions(variants: Variant[]) {
   return await Promise.all(
@@ -18,23 +18,23 @@ async function getVariantOptions(variants: Variant[]) {
 }
 
 async function getVariantOptionValues(variant: Variant) {
-  const variant_options = await VariantsDS.getOptions(variant.variant_id);
+  const variant_options = await ProductVariantsDS.getOptions(variant.variant_id);
   return await Promise.all(
     variant_options.map(async (option) => {
-      const options = await VariantsDS.getOptionValues(option.variant_option_id);
+      const options = await ProductVariantsDS.getOptionValues(option.variant_option_id);
       return { ...option, options };
     }),
   );
 }
 
-export async function getVariants(c: Context<EnvAPI>) {
+export async function getProductVariants(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
-  const variants = await VariantsDS.getAll(+product_id);
+  const variants = await ProductVariantsDS.getAll(+product_id);
   const with_options = await getVariantOptions(variants);
   return c.json({ status: "success", data: with_options }, 200);
 }
 
-export async function createVariant(c: Context<EnvAPI>) {
+export async function createProductVariant(c: Context<EnvAPI>) {
   // Validator
   const product_id = parseInt(c.req.param("product_id"), 10);
   const data = await c.req.json();
@@ -43,12 +43,12 @@ export async function createVariant(c: Context<EnvAPI>) {
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Variant creation
-  const last_display_order = await VariantsDS.getLastDisplayOrder(product_id);
-  await VariantsDS.create({ ...validator.data, display_order: last_display_order + 1 });
+  const last_display_order = await ProductVariantsDS.getLastDisplayOrder(product_id);
+  await ProductVariantsDS.create({ ...validator.data, display_order: last_display_order + 1 });
   return c.json({ status: "success", msg: "Variant creation was completed successfully!" }, 201);
 }
 
-export async function reorderVariants(c: Context<EnvAPI>) {
+export async function reorderProductVariants(c: Context<EnvAPI>) {
   // Validator
   const product_id = parseInt(c.req.param("product_id"), 10);
   const data = await c.req.json();
@@ -57,20 +57,22 @@ export async function reorderVariants(c: Context<EnvAPI>) {
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Variant reordering
-  await Promise.all(validator.data.variants.map((variant_id, index) => VariantsDS.reorder(index, variant_id, validator.data.product_id)));
+  await Promise.all(
+    validator.data.variants.map((variant_id, index) => ProductVariantsDS.reorder(index, variant_id, validator.data.product_id)),
+  );
   return c.json({ status: "success", msg: "Variants were reordered successfully" });
 }
 
-export async function disableVariant(c: Context<EnvAPI>) {
+export async function disableProductVariant(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variant_id = c.req.param("variant_id");
-  await VariantsDS.disableVariant(+product_id, +variant_id);
+  await ProductVariantsDS.disableVariant(+product_id, +variant_id);
   return c.json(null, 204);
 }
 
-export async function deleteVariant(c: Context<EnvAPI>) {
+export async function deleteProductVariant(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variant_id = c.req.param("variant_id");
-  await VariantsDS.delete(+product_id, +variant_id);
+  await ProductVariantsDS.delete(+product_id, +variant_id);
   return c.json(null, 204);
 }

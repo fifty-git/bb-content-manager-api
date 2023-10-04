@@ -14,7 +14,7 @@ const OptionSchema = z.object({
   is_default: z.boolean(),
 });
 
-export const CreateOptionsAPISchema = z.object({
+export const CreateProductOptionsAPISchema = z.object({
   product_id: z.number().min(1, "Product ID is invalid"),
   variant_id: z.number().min(1, "Variant ID is invalid"),
   options: z
