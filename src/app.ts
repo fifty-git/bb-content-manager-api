@@ -3,11 +3,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
-import {createProduct, getProduct, getProducts} from "~/core/application/products-service";
+import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import { bindLogger, logger, uuid } from "./modules/logger";
-// import { profile_execution } from "~/modules/profiler";
+import { groupsRouter } from "./routes/groups";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();
@@ -30,7 +30,7 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
-
+app.route("/api/v1/content-manager/groups", groupsRouter);
 
 // 404 Not found
 app.all("*", () => {
