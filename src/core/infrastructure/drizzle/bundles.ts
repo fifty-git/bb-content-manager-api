@@ -1,6 +1,6 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { ne } from "drizzle-orm/index";
+import { ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { bundle_group_link, bundles } from "~/schema/bundles";
 
