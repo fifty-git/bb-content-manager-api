@@ -56,8 +56,8 @@ export class ProductsDS {
       .execute();
   }
 
-  static async delete(product_id: number) {
-    return db
+  static async delete(product_id: number, tx?: Transaction) {
+    return (tx ?? db)
       .delete(products)
       .where(and(eq(products.product_id, product_id), eq(products.status, "inactive")))
       .prepare()

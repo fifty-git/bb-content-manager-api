@@ -85,7 +85,7 @@ export async function deleteProduct(c: Context<EnvAPI>) {
     await ProductsDS.deleteTags(+id, tx);
 
     // Delete product
-    await ProductsDS.delete(+id);
+    await ProductsDS.delete(+id, tx);
   });
 
   return c.json(null, 204);
