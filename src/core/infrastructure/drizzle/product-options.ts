@@ -27,6 +27,7 @@ export class ProductOptionsDS {
   }
 
   static async deleteManyByVariantID(variant_ids: number[], tx?: Transaction) {
+    if (variant_ids.length === 0) return;
     return (tx ?? db).delete(variant_options).where(inArray(variant_options.variant_id, variant_ids));
   }
 }
