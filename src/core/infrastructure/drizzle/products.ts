@@ -7,7 +7,7 @@ import { product_group_link, product_tag_link, products } from "~/schema/product
 
 export class ProductsDS {
   static async getAll() {
-    return db.select().from(products).where(ne(products.status, "inactive")).prepare().execute();
+    return db.select().from(products).prepare().execute();
   }
 
   static async findByName(name: string, limit = 10) {
