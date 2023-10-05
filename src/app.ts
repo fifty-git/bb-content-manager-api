@@ -63,8 +63,8 @@ app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
 app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
 app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);
 
-app.get("/api/v1/content-manager/bundles", getBundles);
-app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
+// app.get("/api/v1/content-manager/bundles", getBundles);
+// app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
 
 app.get("/api/v1/content-manager/products/:product_id/variants", getProductVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createProductVariant);
@@ -73,12 +73,12 @@ app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deact
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteProductVariant);
 app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createProductOptions);
 
-app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
-app.post("/api/v1/content-manager/bundles/:bundle_id/variants", createBundleVariant);
-app.put("/api/v1/content-manager/bundles/:bundle_id/variants/order", reorderBundleVariants);
-app.put("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/deactivate", disableBundleVariant);
-app.delete("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id", deleteBundleVariant);
-app.post("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/options", createBundleOptions);
+// app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
+// app.post("/api/v1/content-manager/bundles/:bundle_id/variants", createBundleVariant);
+// app.put("/api/v1/content-manager/bundles/:bundle_id/variants/order", reorderBundleVariants);
+// app.put("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/deactivate", disableBundleVariant);
+// app.delete("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id", deleteBundleVariant);
+// app.post("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/options", createBundleOptions);
 
 app.get("/api/v1/content-manager/carriers", getAllCarriers);
 app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
