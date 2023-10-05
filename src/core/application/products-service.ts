@@ -55,18 +55,23 @@ export async function createProduct(c: Context<EnvAPI>) {
 
 export async function enableProduct(c: Context<EnvAPI>) {
   const id = c.req.param("product_id");
+  c.var.log.info(`Product to be enabled: ${id}`);
+
   await ProductsDS.enable(+id);
   return c.json({ status: "success", msg: `Product ${id} was enabled successfully` });
 }
 
 export async function disableProduct(c: Context<EnvAPI>) {
   const id = c.req.param("product_id");
+  c.var.log.info(`Product to be disabled: ${id}`);
+
   await ProductsDS.disable(+id);
   return c.json({ status: "success", msg: `Product ${id} was disabled successfully` });
 }
 
 export async function deleteProduct(c: Context<EnvAPI>) {
   const id = c.req.param("product_id");
+  c.var.log.info(`Product to be deleted: ${id}`);
 
   await db.transaction(async (tx) => {
     // Delete dependencies
