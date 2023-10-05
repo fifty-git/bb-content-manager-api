@@ -4,9 +4,9 @@ import { CreateProductOptionsAPISchema } from "~/core/domain/product-options/val
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 
 export async function createProductOptions(c: Context<EnvAPI>) {
-  // Validator
   const product_id = parseInt(c.req.param("product_id"), 10);
   const variant_id = parseInt(c.req.param("variant_id"), 10);
+  c.var.log.info(`Creating options for product ID ${product_id} - Variant ID: ${variant_id}`);
   const data = await c.req.json();
   const validator = CreateProductOptionsAPISchema.safeParse({ ...data, product_id, variant_id });
   if (!validator.success)

@@ -50,6 +50,7 @@ export async function createBundleVariant(c: Context<EnvAPI>) {
 
 export async function reorderBundleVariants(c: Context<EnvAPI>) {
   const bundle_id = parseInt(c.req.param("bundle_id"), 10);
+  c.var.log.info(`Reordering variants for bundle ID ${bundle_id}`);
   const data = await c.req.json();
   const validator = ReorderBundleVariantsAPISchema.safeParse({ ...data, bundle_id });
   if (!validator.success)

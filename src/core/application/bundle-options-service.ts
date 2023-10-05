@@ -6,6 +6,7 @@ import { BundleOptionsDS } from "~/core/infrastructure/drizzle/bundle-options";
 export async function createBundleOptions(c: Context<EnvAPI>) {
   const bundle_id = parseInt(c.req.param("bundle_id"), 10);
   const variant_id = parseInt(c.req.param("variant_id"), 10);
+  c.var.log.info(`Creating options for bundle ID ${bundle_id} - Variant ID: ${variant_id}`);
   const data = await c.req.json();
   const validator = CreateBundleOptionsAPISchema.safeParse({ ...data, bundle_id, variant_id });
   if (!validator.success)
