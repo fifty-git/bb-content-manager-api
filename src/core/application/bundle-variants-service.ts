@@ -66,7 +66,7 @@ export async function reorderBundleVariants(c: Context<EnvAPI>) {
 export async function disableBundleVariant(c: Context<EnvAPI>) {
   const bundle_id = c.req.param("bundle_id");
   const variant_id = c.req.param("variant_id");
-  await BundleVariantsDS.disableVariant(+bundle_id, +variant_id);
+  await BundleVariantsDS.disable(+bundle_id, +variant_id);
   return c.json(null, 204);
 }
 

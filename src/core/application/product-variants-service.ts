@@ -66,7 +66,7 @@ export async function reorderProductVariants(c: Context<EnvAPI>) {
 export async function disableProductVariant(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variant_id = c.req.param("variant_id");
-  await ProductVariantsDS.disableVariant(+product_id, +variant_id);
+  await ProductVariantsDS.disable(+product_id, +variant_id);
   return c.json(null, 204);
 }
 

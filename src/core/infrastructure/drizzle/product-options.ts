@@ -1,5 +1,6 @@
 import type { NewVariantOption, NewVariantOV } from "~/core/domain/product-options/entity";
-import { and, desc, eq } from "drizzle-orm";
+import type { Transaction } from "~/core/domain/types";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { variant_option_values, variant_options } from "~/schema/product-variants";
 
@@ -23,5 +24,9 @@ export class ProductOptionsDS {
       .execute();
     if (!results || results.length === 0) return 0;
     return results[0].display_order;
+  }
+
+  static async deleteManyByVariantID(variant_ids: number[], tx?: Transaction) {
+    return (tx ?? db).delete(variant_options).where(inArray(variant_options.variant_id, variant_ids));
   }
 }

@@ -83,7 +83,7 @@ export class BundleVariantsDS {
       .execute();
   }
 
-  static async disableVariant(bundle_id: number, bundle_variant_id: number) {
+  static async disable(bundle_id: number, bundle_variant_id: number) {
     return db
       .update(bundle_variants)
       .set({ status: "inactive" })

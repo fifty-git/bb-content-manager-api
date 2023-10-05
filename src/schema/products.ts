@@ -10,6 +10,7 @@ export const products = mysqlTable(
     name: varchar("name", { length: 255 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
+    product_type: mysqlEnum("product_type", ["single", "bundle"]).default("single").notNull(),
     status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)

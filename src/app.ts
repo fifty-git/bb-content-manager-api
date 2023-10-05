@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { createBundleOptions } from "~/core/application/bundle-options-service";
 import {
   createBundleVariant,
   deleteBundleVariant,
@@ -19,7 +20,7 @@ import {
   getProductVariants,
   reorderProductVariants,
 } from "~/core/application/product-variants-service";
-import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
+import { createProduct, deleteProduct, disableProduct, enableProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import {
@@ -35,7 +36,6 @@ import {
   updateService,
 } from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
-import {createBundleOptions} from "~/core/application/bundle-options-service";
 // import { profile_execution } from "~/modules/profiler";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
@@ -59,6 +59,9 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
+app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
+app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
+app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);
 
 app.get("/api/v1/content-manager/bundles", getBundles);
 app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
