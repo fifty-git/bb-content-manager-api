@@ -36,6 +36,7 @@ export async function getBundleVariants(c: Context<EnvAPI>) {
 
 export async function createBundleVariant(c: Context<EnvAPI>) {
   const bundle_id = parseInt(c.req.param("bundle_id"), 10);
+  c.var.log.info(`Creating variant for bundle ID ${bundle_id}`);
   const data = await c.req.json();
   const validator = CreateBundleVariantAPISchema.safeParse({ ...data, bundle_id });
   if (!validator.success)

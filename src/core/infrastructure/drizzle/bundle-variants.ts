@@ -11,6 +11,8 @@ export class BundleVariantsDS {
         bundle_variant_id: bundle_variants.bundle_variant_id,
         name: bundle_variants.name,
         price: bundle_variants.price,
+        units: bundle_variants.units,
+        measure_units: bundle_variants.measure_units,
         upc: bundle_variants.upc,
       })
       .from(bundle_variants)
