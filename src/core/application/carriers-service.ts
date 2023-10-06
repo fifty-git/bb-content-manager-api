@@ -1,4 +1,4 @@
-import type { Carrier, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import { Status, type Carrier, type NewService, type UpdateCarrier, type UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
@@ -168,14 +168,14 @@ export async function activateCarrier(c: Context<EnvAPI>) {
   await db.transaction(async (tx) => {
     await CarriersDS.update({
       carrier_id,
-      active: 1,
+      active: Status.ACTIVE,
     }, tx);
 
     const services = await CarrierServiceDS.getAllByCarrierID(carrier_id);
     const updates = services.map((service) => CarrierServiceDS.update({
       carrier_id: service.carrier_id,
       carrier_service_id: service.carrier_service_id,
-      active: 1
+      active: Status.ACTIVE
     }, tx));
 
     return Promise.all(updates);
@@ -191,7 +191,7 @@ export async function activateService(c: Context<EnvAPI>) {
   await CarrierServiceDS.update({
     carrier_id,
     carrier_service_id: service_id,
-    active: 1
+    active: Status.ACTIVE
   });
 
   return c.json(null, 204);
@@ -202,14 +202,14 @@ export async function deactivateCarrier(c: Context<EnvAPI>) {
   await db.transaction(async (tx) => {
     await CarriersDS.update({
       carrier_id,
-      active: 0,
+      active: Status.INACTIVE
     }, tx);
 
     const services = await CarrierServiceDS.getByCarrierID(carrier_id);
     const updates = services.map((service) => CarrierServiceDS.update({
       carrier_id: service.carrier_id,
       carrier_service_id: service.carrier_service_id,
-      active: 0
+      active: Status.INACTIVE
     }, tx));
 
     return Promise.all(updates);
@@ -225,7 +225,7 @@ export async function deactivateService(c: Context<EnvAPI>) {
   await CarrierServiceDS.update({
     carrier_id,
     carrier_service_id: service_id,
-    active: 0,
+    active: Status.INACTIVE
   });
 
   return c.json(null, 204);

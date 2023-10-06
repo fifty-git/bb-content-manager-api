@@ -3,6 +3,11 @@ export enum ServiceType {
   INT = "international",
 }
 
+export enum Status {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
 export interface Service {
   carrier_service_id: number;
   carrier_id: number;
@@ -24,7 +29,7 @@ export interface UpdateService {
   code?: string;
   name?: string;
   type?: ServiceType;
-  active?: 0 | 1;
+  active?: Status;
 }
 
 export interface DeleteService {
@@ -51,5 +56,5 @@ export interface UpdateCarrier {
   name?: string;
   code?: string;
   account_number?: string;
-  active?: 0 | 1;
+  active?: Status;
 }

@@ -1,4 +1,4 @@
-import type { DeleteService, NewService, Service, UpdateService } from "~/core/domain/carriers/entity";
+import { Status, type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
@@ -15,7 +15,7 @@ export class CarrierServiceDS {
         code: carrier_services.code,
       })
       .from(carrier_services)
-      .where(and(eq(carrier_services.carrier_id, carrier_id), ne(carrier_services.active, 0)))
+      .where(and(eq(carrier_services.carrier_id, carrier_id), ne(carrier_services.active, Status.INACTIVE)))
       .prepare()
       .execute();
   }
@@ -49,7 +49,7 @@ export class CarrierServiceDS {
         and(
           eq(carrier_services.carrier_id, carrier_id),
           eq(carrier_services.carrier_service_id, service_id),
-          ne(carrier_services.active, 0),
+          ne(carrier_services.active, Status.INACTIVE),
         ),
       )
       .prepare()
