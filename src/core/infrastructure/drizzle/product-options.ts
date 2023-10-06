@@ -5,6 +5,21 @@ import { db } from "~/modules/drizzle";
 import { variant_option_values, variant_options } from "~/schema/product-variants";
 
 export class ProductOptionsDS {
+  static async reorder(display_order: number, variant_option_id: number, variant_id: number) {
+    return db
+      .update(variant_options)
+      .set({ display_order })
+      .where(
+        and(
+          eq(variant_options.variant_option_id, variant_option_id),
+          eq(variant_options.variant_id, variant_id),
+          eq(variant_options.status, "active"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
   static async create(data: NewVariantOption) {
     return db.insert(variant_options).values(data).prepare().execute();
   }

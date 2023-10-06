@@ -12,7 +12,7 @@ import { secureHeaders } from "hono/secure-headers";
 //   reorderBundleVariants,
 // } from "~/core/application/bundle-variants-service";
 // import { getBundle, getBundles } from "~/core/application/bundles-service";
-import { createProductOptions } from "~/core/application/product-options-service";
+import {createProductOptions, reorderProductOptions} from "~/core/application/product-options-service";
 import {
   createProductVariant,
   deleteProductVariant,
@@ -72,6 +72,7 @@ app.put("/api/v1/content-manager/products/:product_id/variants/order", reorderPr
 app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deactivate", disableProductVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteProductVariant);
 app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createProductOptions);
+app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/options/order", reorderProductOptions);
 
 // app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
 // app.post("/api/v1/content-manager/bundles/:bundle_id/variants", createBundleVariant);
