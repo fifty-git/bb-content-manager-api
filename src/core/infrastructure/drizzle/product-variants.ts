@@ -1,4 +1,5 @@
 import type { NewVariant } from "~/core/domain/product-variants/entity";
+import type { Transaction } from "~/core/domain/types";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { variant_option_values, variant_options } from "~/schema/product-variants";
@@ -20,6 +21,10 @@ export class ProductVariantsDS {
       .orderBy(product_variants.display_order)
       .prepare()
       .execute();
+  }
+
+  static async getByProductID(product_id: number, tx?: Transaction) {
+    return (tx ?? db).select().from(product_variants).where(eq(product_variants.product_id, product_id));
   }
 
   static async getLastDisplayOrder(product_id: number) {
@@ -83,7 +88,7 @@ export class ProductVariantsDS {
       .execute();
   }
 
-  static async disableVariant(product_id: number, variant_id: number) {
+  static async disable(product_id: number, variant_id: number) {
     return db
       .update(product_variants)
       .set({ status: "inactive" })
@@ -98,5 +103,9 @@ export class ProductVariantsDS {
       .where(and(eq(product_variants.product_id, product_id), eq(product_variants.variant_id, variant_id)))
       .prepare()
       .execute();
+  }
+
+  static async deleteManyByProductID(product_id: number, tx?: Transaction) {
+    return (tx ?? db).delete(product_variants).where(eq(product_variants.product_id, product_id));
   }
 }

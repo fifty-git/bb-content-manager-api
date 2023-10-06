@@ -74,6 +74,8 @@ export const bundle_variants = mysqlTable(
       .references(() => bundles.bundle_id),
     name: varchar("name", { length: 255 }).notNull(),
     price: decimal("price", { precision: 6, scale: 2 }).notNull(),
+    units: int("units").notNull(),
+    measure_units: varchar("measure_units", { length: 20 }).notNull(),
     upc: varchar("upc", { length: 50 }).default("").notNull(),
     display_order: int("display_order").default(0).notNull(),
     status: mysqlEnum("status", ["inactive", "active"]).default("active").notNull(),
