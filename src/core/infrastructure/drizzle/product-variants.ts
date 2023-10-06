@@ -8,14 +8,7 @@ import { product_variants } from "~/schema/products";
 export class ProductVariantsDS {
   static async getAll(product_id: number) {
     return db
-      .select({
-        variant_id: product_variants.variant_id,
-        name: product_variants.name,
-        units: product_variants.units,
-        measure_units: product_variants.measure_units,
-        price: product_variants.price,
-        upc: product_variants.upc,
-      })
+      .select()
       .from(product_variants)
       .where(and(eq(product_variants.status, "active"), eq(product_variants.product_id, product_id)))
       .orderBy(product_variants.display_order)
