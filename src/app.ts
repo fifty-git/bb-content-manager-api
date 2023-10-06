@@ -36,6 +36,8 @@ import {
   updateService,
 } from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
+import { groupsRouter } from "./routes/groups";
+import {createBundleOptions} from "~/core/application/bundle-options-service";
 // import { profile_execution } from "~/modules/profiler";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
@@ -59,6 +61,8 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
+app.route("/api/v1/content-manager/groups", groupsRouter);
+
 app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
 app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
 app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);

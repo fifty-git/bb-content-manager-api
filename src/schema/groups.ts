@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { datetime, foreignKey, int, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
+import { datetime, foreignKey, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
 
 export const groups = mysqlTable(
   "groups",
@@ -7,6 +7,7 @@ export const groups = mysqlTable(
     group_id: int("group_id").autoincrement().notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     parent_group_id: int("parent_group_id"),
+    status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
