@@ -1,9 +1,9 @@
-import type { NewVariantOption, NewVariantOV } from "~/core/domain/options/entity";
+import type { NewVariantOption, NewVariantOV } from "~/core/domain/product-options/entity";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { variant_option_values, variant_options } from "~/schema/variants";
+import { variant_option_values, variant_options } from "~/schema/product-variants";
 
-export class OptionsDS {
+export class ProductOptionsDS {
   static async create(data: NewVariantOption) {
     return db.insert(variant_options).values(data).prepare().execute();
   }
