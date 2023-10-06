@@ -1,4 +1,4 @@
-import type { Carrier, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import { Status, type Carrier, type NewService, type UpdateCarrier, type UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
@@ -10,6 +10,7 @@ import {
 } from "../domain/carriers/validator/create-carrier";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
+import { db } from "~/modules/drizzle";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -162,9 +163,107 @@ export async function updateService(c: Context<EnvAPI>) {
   );
 }
 
+export async function activateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+  const results = await db.transaction(async (tx) => {
+    await CarriersDS.update({
+      carrier_id,
+      status: Status.ACTIVE,
+    }, tx);
+
+    const updates = services.map((service) => CarrierServiceDS.update({
+      carrier_id: service.carrier_id,
+      carrier_service_id: service.carrier_service_id,
+      status: Status.ACTIVE
+    }, tx));
+
+    return Promise.all(updates);
+  });
+
+  return c.json({
+    status: results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length ? "success" : "failed",
+    msg: "carrier activated successfully",
+    data: {
+      carrier_id,
+      carrier_service_id: services.map((service) => service.carrier_service_id)
+    },
+  }, 200);
+}
+
+export async function activateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  const updated = await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    status: Status.ACTIVE
+  });
+
+  return c.json({
+    status: updated.affectedRows === 1 ? "success" : "failed",
+    msg: "service activated successfully",
+    data: { carrier_id, service_id }
+  }, 200);
+}
+
+export async function deactivateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+  const results = await db.transaction(async (tx) => {
+    await CarriersDS.update({
+      carrier_id,
+      status: Status.INACTIVE,
+    }, tx);
+
+    const updates = services.map((service) => CarrierServiceDS.update({
+      carrier_id: service.carrier_id,
+      carrier_service_id: service.carrier_service_id,
+      status: Status.INACTIVE
+    }, tx));
+
+    return Promise.all(updates);
+  });
+
+  return c.json({
+    status: results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length ? "success" : "failed",
+    msg: "carrier activated successfully",
+    data: {
+      carrier_id,
+      carrier_service_id: services.map((service) => service.carrier_service_id)
+    },
+  }, 200);
+}
+
+export async function deactivateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  const updated = await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    status: Status.INACTIVE
+  });
+
+  return c.json({
+    status: updated.affectedRows === 1 ? "success" : "failed",
+    msg: "service activated successfully",
+    data: { carrier_id, service_id }
+  }, 200);
+}
+
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
-  await CarriersDS.delete(carrier_id);
+  await db.transaction(async (tx) => {
+    const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+    const deletes = services.map((service) => {
+      return CarrierServiceDS.delete({
+      carrier_id: service.carrier_id,
+      carrier_service_id: service.carrier_service_id
+    }, tx)
+    });
+    await Promise.all(deletes);
+    return CarriersDS.delete(carrier_id, tx);
+  });
 
   return c.json(null, 204);
 }

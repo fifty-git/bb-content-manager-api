@@ -1,6 +1,6 @@
-import type { DeleteService, NewService, Service, UpdateService } from "~/core/domain/carriers/entity";
+import { type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { carrier_services } from "~/schema/carriers";
 
@@ -13,9 +13,10 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
+        status: carrier_services.status,
       })
       .from(carrier_services)
-      .where(and(eq(carrier_services.carrier_id, carrier_id), ne(carrier_services.active, 0)))
+      .where(eq(carrier_services.carrier_id, carrier_id))
       .prepare()
       .execute();
   }
@@ -28,13 +29,13 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
+        status: carrier_services.status,
       })
       .from(carrier_services)
       .where(
         and(
           eq(carrier_services.carrier_id, carrier_id),
-          eq(carrier_services.carrier_service_id, service_id),
-          ne(carrier_services.active, 0),
+          eq(carrier_services.carrier_service_id, service_id)
         ),
       )
       .prepare()
@@ -65,8 +66,7 @@ export class CarrierServiceDS {
   static async delete(service: DeleteService, tx?: Transaction) {
     return (
       await (tx || db)
-        .update(carrier_services)
-        .set({ active: 0 })
+        .delete(carrier_services)
         .where(
           and(eq(carrier_services.carrier_id, service.carrier_id), eq(carrier_services.carrier_service_id, service.carrier_service_id)),
         )
