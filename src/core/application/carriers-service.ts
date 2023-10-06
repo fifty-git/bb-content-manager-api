@@ -134,7 +134,7 @@ export async function updateCarrier(c: Context<EnvAPI>) {
     {
       status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id },
-      msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
+      msg: updated?.affectedRows === 1 ? "carrier successfully updated" : "cannot update carrier",
     },
     200,
   );
