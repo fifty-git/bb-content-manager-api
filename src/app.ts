@@ -57,7 +57,7 @@ app.use(
   }),
 );
 app.get("*", secureHeaders());
-// app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
+app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
 app.get("/api/v1/content-manager/products", getProducts);
