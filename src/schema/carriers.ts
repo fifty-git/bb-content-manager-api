@@ -9,7 +9,7 @@ export const carriers = mysqlTable(
     code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     account_number: varchar("accountNumber", { length: 255 }).notNull(),
-    active: mysqlEnum("active", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
+    status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -31,7 +31,7 @@ export const carrier_services = mysqlTable(
     code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     type: mysqlEnum("type", [ServiceType.DOM, ServiceType.INT]).default(ServiceType.DOM).notNull(),
-    active: mysqlEnum("active", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
+    status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
     carrier_id: int("carrier_id")
       .notNull()
       .references(() => carriers.carrier_id),

@@ -1,6 +1,6 @@
-import { Status, type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
+import { type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { carrier_services } from "~/schema/carriers";
 
@@ -13,21 +13,7 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
-      })
-      .from(carrier_services)
-      .where(and(eq(carrier_services.carrier_id, carrier_id), ne(carrier_services.active, Status.INACTIVE)))
-      .prepare()
-      .execute();
-  }
-
-  static getAllByCarrierID(carrier_id: number): Promise<Service[]> {
-    return db
-      .select({
-        carrier_service_id: carrier_services.carrier_service_id,
-        carrier_id: carrier_services.carrier_id,
-        name: carrier_services.name,
-        type: carrier_services.type,
-        code: carrier_services.code,
+        status: carrier_services.status,
       })
       .from(carrier_services)
       .where(eq(carrier_services.carrier_id, carrier_id))
@@ -43,13 +29,13 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
+        status: carrier_services.status,
       })
       .from(carrier_services)
       .where(
         and(
           eq(carrier_services.carrier_id, carrier_id),
-          eq(carrier_services.carrier_service_id, service_id),
-          ne(carrier_services.active, Status.INACTIVE),
+          eq(carrier_services.carrier_service_id, service_id)
         ),
       )
       .prepare()

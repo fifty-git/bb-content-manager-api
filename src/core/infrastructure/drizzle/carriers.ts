@@ -1,6 +1,6 @@
-import { Status, type Carrier, type NewCarrier, type UpdateCarrier } from "~/core/domain/carriers/entity";
+import { type Carrier, type NewCarrier, type UpdateCarrier } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, ne } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { carriers } from "~/schema/carriers";
 
@@ -12,9 +12,10 @@ export class CarriersDS {
         name: carriers.name,
         code: carriers.code,
         account_number: carriers.account_number,
+        status: carriers.status,
       })
       .from(carriers)
-      .where(and(eq(carriers.carrier_id, carrier_id), ne(carriers.active, Status.INACTIVE)))
+      .where(eq(carriers.carrier_id, carrier_id))
       .prepare()
       .execute();
   }
@@ -25,9 +26,10 @@ export class CarriersDS {
       name: carriers.name,
       code: carriers.code,
       account_number: carriers.account_number,
+      status: carriers.status,
     };
 
-    return db.select(fields).from(carriers).where(ne(carriers.active, Status.INACTIVE)).prepare().execute();
+    return db.select(fields).from(carriers).prepare().execute();
   }
 
   static async create(new_carrier: NewCarrier, tx?: Transaction) {

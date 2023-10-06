@@ -168,14 +168,14 @@ export async function activateCarrier(c: Context<EnvAPI>) {
   await db.transaction(async (tx) => {
     await CarriersDS.update({
       carrier_id,
-      active: Status.ACTIVE,
+      status: Status.ACTIVE,
     }, tx);
 
-    const services = await CarrierServiceDS.getAllByCarrierID(carrier_id);
+    const services = await CarrierServiceDS.getByCarrierID(carrier_id);
     const updates = services.map((service) => CarrierServiceDS.update({
       carrier_id: service.carrier_id,
       carrier_service_id: service.carrier_service_id,
-      active: Status.ACTIVE
+      status: Status.ACTIVE
     }, tx));
 
     return Promise.all(updates);
@@ -191,7 +191,7 @@ export async function activateService(c: Context<EnvAPI>) {
   await CarrierServiceDS.update({
     carrier_id,
     carrier_service_id: service_id,
-    active: Status.ACTIVE
+    status: Status.ACTIVE
   });
 
   return c.json(null, 204);
@@ -202,14 +202,14 @@ export async function deactivateCarrier(c: Context<EnvAPI>) {
   await db.transaction(async (tx) => {
     await CarriersDS.update({
       carrier_id,
-      active: Status.INACTIVE
+      status: Status.INACTIVE
     }, tx);
 
     const services = await CarrierServiceDS.getByCarrierID(carrier_id);
     const updates = services.map((service) => CarrierServiceDS.update({
       carrier_id: service.carrier_id,
       carrier_service_id: service.carrier_service_id,
-      active: Status.INACTIVE
+      status: Status.INACTIVE
     }, tx));
 
     return Promise.all(updates);
@@ -225,7 +225,7 @@ export async function deactivateService(c: Context<EnvAPI>) {
   await CarrierServiceDS.update({
     carrier_id,
     carrier_service_id: service_id,
-    active: Status.INACTIVE
+    status: Status.INACTIVE
   });
 
   return c.json(null, 204);
@@ -235,7 +235,7 @@ export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   await db.transaction(async (tx) => {
     try {
-      const services = await CarrierServiceDS.getAllByCarrierID(carrier_id);
+      const services = await CarrierServiceDS.getByCarrierID(carrier_id);
       const deletes = services.map((service) => {
         return CarrierServiceDS.delete({
         carrier_id: service.carrier_id,
