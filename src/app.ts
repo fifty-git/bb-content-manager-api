@@ -3,8 +3,24 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
-import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
-import { createVariant, deleteVariant, getVariants } from "~/core/application/variants-service";
+// import { createBundleOptions } from "~/core/application/bundle-options-service";
+// import {
+//   createBundleVariant,
+//   deleteBundleVariant,
+//   disableBundleVariant,
+//   getBundleVariants,
+//   reorderBundleVariants,
+// } from "~/core/application/bundle-variants-service";
+// import { getBundle, getBundles } from "~/core/application/bundles-service";
+import {createProductOptions, reorderProductOptions} from "~/core/application/product-options-service";
+import {
+  createProductVariant,
+  deleteProductVariant,
+  disableProductVariant,
+  getProductVariants,
+  reorderProductVariants,
+} from "~/core/application/product-variants-service";
+import { createProduct, deleteProduct, disableProduct, enableProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import {
@@ -47,10 +63,30 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 app.get("/api/v1/content-manager/products", getProducts);
 app.get("/api/v1/content-manager/products/:product_id", getProduct);
 app.post("/api/v1/content-manager/products", createProduct);
-
+app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
+app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
+app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
+// app.get("/api/v1/content-manager/bundles", getBundles);
+// app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
+
+app.get("/api/v1/content-manager/products/:product_id/variants", getProductVariants);
+app.post("/api/v1/content-manager/products/:product_id/variants", createProductVariant);
+app.put("/api/v1/content-manager/products/:product_id/variants/order", reorderProductVariants);
+app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deactivate", disableProductVariant);
+app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteProductVariant);
+app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createProductOptions);
+app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/options/order", reorderProductOptions);
+
+// app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
+// app.post("/api/v1/content-manager/bundles/:bundle_id/variants", createBundleVariant);
+// app.put("/api/v1/content-manager/bundles/:bundle_id/variants/order", reorderBundleVariants);
+// app.put("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/deactivate", disableBundleVariant);
+// app.delete("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id", deleteBundleVariant);
+// app.post("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/options", createBundleOptions);
+
 app.get("/api/v1/content-manager/carriers", getAllCarriers);
 app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
 app.get("/api/v1/content-manager/carriers/:carrier_id/services", getAllCarrierServices);
@@ -67,7 +103,8 @@ app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/de
 app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
-app.all("*", () => {
+app.all("*", (c) => {
+  logger.error(`Not found - METHOD: ${c.req.method} - PATH: (${c.req.path})`);
   throw new NotFoundError();
 });
 app.onError(handleErrors);

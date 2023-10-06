@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 const NewProductSchema = z.object({
-  name: z.string(),
+  name: z.string().nonempty("Product name must not be empty"),
   group_id: z.number().optional(),
   subgroup_id: z.number().optional(),
-  product_type: z.string(),
+  is_standalone: z.boolean(),
+  product_type: z.union([z.literal("single"), z.literal("bundle")]),
 });
 
 export const CreateProductsAPISchema = z.object({
