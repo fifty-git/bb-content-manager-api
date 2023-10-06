@@ -20,6 +20,21 @@ export class CarrierServiceDS {
       .execute();
   }
 
+  static getAllByCarrierID(carrier_id: number): Promise<Service[]> {
+    return db
+      .select({
+        carrier_service_id: carrier_services.carrier_service_id,
+        carrier_id: carrier_services.carrier_id,
+        name: carrier_services.name,
+        type: carrier_services.type,
+        code: carrier_services.code,
+      })
+      .from(carrier_services)
+      .where(eq(carrier_services.carrier_id, carrier_id))
+      .prepare()
+      .execute();
+  }
+
   static async getByIds(carrier_id: number, service_id: number): Promise<Service[]> {
     return db
       .select({
@@ -65,8 +80,7 @@ export class CarrierServiceDS {
   static async delete(service: DeleteService, tx?: Transaction) {
     return (
       await (tx || db)
-        .update(carrier_services)
-        .set({ active: 0 })
+        .delete(carrier_services)
         .where(
           and(eq(carrier_services.carrier_id, service.carrier_id), eq(carrier_services.carrier_service_id, service.carrier_service_id)),
         )

@@ -43,6 +43,6 @@ export class CarriersDS {
   }
 
   static async delete(carrier_id: number, tx?: Transaction) {
-    return (await (tx || db).update(carriers).set({ active: 0 }).where(eq(carriers.carrier_id, carrier_id)).prepare().execute())[0];
+    return (await (tx || db).delete(carriers).where(eq(carriers.carrier_id, carrier_id)).prepare().execute())[0];
   }
 }

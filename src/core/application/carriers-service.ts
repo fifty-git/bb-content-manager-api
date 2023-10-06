@@ -10,6 +10,7 @@ import {
 } from "../domain/carriers/validator/create-carrier";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
+import { db } from "~/modules/drizzle";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -162,9 +163,92 @@ export async function updateService(c: Context<EnvAPI>) {
   );
 }
 
+export async function activateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  await db.transaction(async (tx) => {
+    await CarriersDS.update({
+      carrier_id,
+      active: 1,
+    }, tx);
+
+    const services = await CarrierServiceDS.getAllByCarrierID(carrier_id);
+    const updates = services.map((service) => CarrierServiceDS.update({
+      carrier_id: service.carrier_id,
+      carrier_service_id: service.carrier_service_id,
+      active: 1
+    }, tx));
+
+    return Promise.all(updates);
+  });
+
+
+  return c.json(null, 204);
+}
+
+export async function activateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    active: 1
+  });
+
+  return c.json(null, 204);
+}
+
+export async function deactivateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  await db.transaction(async (tx) => {
+    await CarriersDS.update({
+      carrier_id,
+      active: 0,
+    }, tx);
+
+    const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+    const updates = services.map((service) => CarrierServiceDS.update({
+      carrier_id: service.carrier_id,
+      carrier_service_id: service.carrier_service_id,
+      active: 0
+    }, tx));
+
+    return Promise.all(updates);
+  });
+
+
+  return c.json(null, 204);
+}
+
+export async function deactivateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    active: 0,
+  });
+
+  return c.json(null, 204);
+}
+
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
-  await CarriersDS.delete(carrier_id);
+  await db.transaction(async (tx) => {
+    try {
+      const services = await CarrierServiceDS.getAllByCarrierID(carrier_id);
+      const deletes = services.map((service) => {
+        return CarrierServiceDS.delete({
+        carrier_id: service.carrier_id,
+        carrier_service_id: service.carrier_service_id
+      }, tx)
+      });
+      await Promise.all(deletes);
+      return CarriersDS.delete(carrier_id, tx);
+    } catch(error) {
+      console.error(error);
+      tx.rollback();
+    }
+  });
 
   return c.json(null, 204);
 }

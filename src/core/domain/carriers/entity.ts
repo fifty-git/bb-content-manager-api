@@ -24,6 +24,7 @@ export interface UpdateService {
   code?: string;
   name?: string;
   type?: ServiceType;
+  active?: 0 | 1;
 }
 
 export interface DeleteService {
@@ -43,7 +44,6 @@ export interface NewCarrier {
   name: string;
   code: string;
   account_number: string;
-  active?: number;
 }
 
 export interface UpdateCarrier {
@@ -51,4 +51,5 @@ export interface UpdateCarrier {
   name?: string;
   code?: string;
   account_number?: string;
+  active?: 0 | 1;
 }
