@@ -24,8 +24,12 @@ import { createProduct, deleteProduct, disableProduct, enableProduct, getProduct
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import {
+    activateCarrier,
+  activateService,
   createCarrier,
   createService,
+  deactivateCarrier,
+  deactivateService,
   deleteCarrier,
   deleteService,
   getAllCarriers,
@@ -65,7 +69,6 @@ app.route("/api/v1/content-manager/groups", groupsRouter);
 app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
 app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
 app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);
-
 // app.get("/api/v1/content-manager/bundles", getBundles);
 // app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
 
@@ -92,7 +95,11 @@ app.post("/api/v1/content-manager/carriers", createCarrier);
 app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService);
 app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
 app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
+app.put("/api/v1/content-manager/carriers/:carrier_id/activate", activateCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/deactivate", deactivateCarrier);
 app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/activate", activateService);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/deactivate", deactivateService);
 app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
