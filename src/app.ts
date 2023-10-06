@@ -8,8 +8,12 @@ import { createVariant, deleteVariant, getVariants } from "~/core/application/va
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import {
+    activateCarrier,
+  activateService,
   createCarrier,
   createService,
+  deactivateCarrier,
+  deactivateService,
   deleteCarrier,
   deleteService,
   getAllCarriers,
@@ -47,7 +51,6 @@ app.post("/api/v1/content-manager/products", createProduct);
 app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
 app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
 app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
-
 app.get("/api/v1/content-manager/carriers", getAllCarriers);
 app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
 app.get("/api/v1/content-manager/carriers/:carrier_id/services", getAllCarrierServices);
@@ -56,7 +59,11 @@ app.post("/api/v1/content-manager/carriers", createCarrier);
 app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService);
 app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
 app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
+app.put("/api/v1/content-manager/carriers/:carrier_id/activate", activateCarrier);
+app.delete("/api/v1/content-manager/carriers/:carrier_id/deactivate", deactivateCarrier);
 app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/activate", activateService);
+app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/deactivate", deactivateService);
 app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
