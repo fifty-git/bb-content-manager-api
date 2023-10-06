@@ -57,7 +57,7 @@ app.use(
   }),
 );
 app.get("*", secureHeaders());
-app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
+// app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
 app.get("/api/v1/content-manager/products", getProducts);
@@ -93,10 +93,10 @@ app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService)
 app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
 app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
 app.put("/api/v1/content-manager/carriers/:carrier_id/activate", activateCarrier);
-app.delete("/api/v1/content-manager/carriers/:carrier_id/deactivate", deactivateCarrier);
+app.put("/api/v1/content-manager/carriers/:carrier_id/deactivate", deactivateCarrier);
 app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
 app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/activate", activateService);
-app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/deactivate", deactivateService);
+app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id/deactivate", deactivateService);
 app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
 
 // 404 Not found
