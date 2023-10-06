@@ -23,7 +23,7 @@ groupsRouter.delete("/:id", deleteGroup);
 groupsRouter.post("", createGroup);
 
 // GET Requests
-groupsRouter.get("/:parent_group_id/subgroups/:id", getSubgroupById);
+groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:id", getGroupById);
 groupsRouter.get("", getGroups);

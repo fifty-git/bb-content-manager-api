@@ -8,7 +8,7 @@ import { product_group_link } from "~/schema/products";
 
 export class GroupsDS {
   static async updateGroup(group_id: number, group: UpdateGroup) {
-    const prepared = db.update(groups).set(group).where(eq(groups.group_id, group_id));
+    const prepared = db.update(groups).set(group).where(eq(groups.group_id, group_id)).prepare();
     const results = await prepared.execute();
     return results[0];
   }
@@ -18,18 +18,9 @@ export class GroupsDS {
     const subGroupsIDs = subGroups.map((group) => group.group_id);
     return db.transaction(async (tx) => {
       if (subGroupsIDs.length) {
-        await tx
-          .update(groups)
-          .set({ status: "inactive" })
-          .where(
-            inArray(
-              groups.group_id,
-              subGroups.map((group) => group.group_id),
-            ),
-          )
-          .execute();
+        await tx.update(groups).set({ status: "inactive" }).where(inArray(groups.group_id, subGroupsIDs)).prepare().execute();
       }
-      await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).execute();
+      await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
     });
   }
 
@@ -38,17 +29,9 @@ export class GroupsDS {
     const subGroupsIDs = subGroups.map((group) => group.group_id);
     return db.transaction(async (tx) => {
       if (subGroupsIDs.length) {
-        await tx
-          .delete(groups)
-          .where(
-            inArray(
-              groups.group_id,
-              subGroups.map((group) => group.group_id),
-            ),
-          )
-          .execute();
+        await tx.delete(groups).where(inArray(groups.group_id, subGroupsIDs)).prepare().execute();
       }
-      await tx.delete(groups).where(eq(groups.group_id, group_id)).execute();
+      await tx.delete(groups).where(eq(groups.group_id, group_id)).prepare().execute();
     });
   }
 
@@ -58,12 +41,14 @@ export class GroupsDS {
   }
 
   static async getSubgroupById(parentGroupId: number, subgroupID: number) {
-    return db
+    const results = await db
       .select({ group_id: groups.group_id, name: groups.name, parent_group_id: groups.parent_group_id })
       .from(groups)
       .where(and(eq(groups.group_id, subgroupID), eq(groups.parent_group_id, parentGroupId))) // Filtrar por group_id y parent_group_id
       .prepare()
       .execute();
+    if (!results || results.length === 0) return null;
+    return results[0];
   }
 
   static async getSubgroupsByParentGroupId(parentGroupId: number) {

@@ -8,12 +8,12 @@ export interface GroupEntity {
 
 export interface NewGroup {
   name: string;
-  parent_group_id?: number | null;
+  parent_group_id?: number;
 }
 
 export interface UpdateGroup {
-  name?: string;
-  parent_group_id?: number | null;
+  name: string;
+  parent_group_id?: number;
 }
 
 export interface Group {
