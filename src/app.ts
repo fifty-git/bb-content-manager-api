@@ -66,9 +66,6 @@ app.post("/api/v1/content-manager/products", createProduct);
 app.put("/api/v1/content-manager/products/:product_id/activate", enableProduct);
 app.put("/api/v1/content-manager/products/:product_id/deactivate", disableProduct);
 app.delete("/api/v1/content-manager/products/:product_id", deleteProduct);
-app.get("/api/v1/content-manager/products/:product_id/variants", getVariants);
-app.post("/api/v1/content-manager/products/:product_id/variants", createVariant);
-app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteVariant);
 // app.get("/api/v1/content-manager/bundles", getBundles);
 // app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
 
