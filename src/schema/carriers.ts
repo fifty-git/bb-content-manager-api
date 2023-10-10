@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { datetime, index, int, mysqlEnum, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { datetime, index, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
 import { ServiceType, Status } from "~/core/domain/carriers/entity";
 
 export const carriers = mysqlTable(

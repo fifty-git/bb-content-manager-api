@@ -9,7 +9,7 @@ import {
   UpdateServiceSchema,
 } from "../domain/carriers/validator/create-carrier";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
-import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
+import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { db } from "~/modules/drizzle";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {

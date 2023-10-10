@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
-import { datetime, index, int, mysqlTable, primaryKey, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { boolean, datetime, index, int, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
 import { carrier_services, carriers } from "~/schema/carriers";
-import { product_varieties } from "~/schema/products";
+import { product_varieties } from "~/schema/product-varieties";
 
 export const farms = mysqlTable(
   "farms",
@@ -11,7 +11,7 @@ export const farms = mysqlTable(
     country: varchar("country", { length: 50 }).notNull(),
     city: varchar("city", { length: 255 }).notNull(),
     email: varchar("email", { length: 50 }).notNull(),
-    active: tinyint("active").default(1).notNull(),
+    active: boolean("active").default(true).notNull(),
     carrier_id: int("carrier_id")
       .notNull()
       .references(() => carriers.carrier_id),

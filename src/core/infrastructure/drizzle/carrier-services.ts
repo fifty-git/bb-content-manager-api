@@ -1,6 +1,6 @@
-import { type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, eq } from "drizzle-orm";
+import { type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import { db } from "~/modules/drizzle";
 import { carrier_services } from "~/schema/carriers";
 
@@ -32,12 +32,7 @@ export class CarrierServiceDS {
         status: carrier_services.status,
       })
       .from(carrier_services)
-      .where(
-        and(
-          eq(carrier_services.carrier_id, carrier_id),
-          eq(carrier_services.carrier_service_id, service_id)
-        ),
-      )
+      .where(and(eq(carrier_services.carrier_id, carrier_id), eq(carrier_services.carrier_service_id, service_id)))
       .prepare()
       .execute();
   }

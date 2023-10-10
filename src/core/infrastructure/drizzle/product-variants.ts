@@ -2,8 +2,7 @@ import type { NewVariant } from "~/core/domain/product-variants/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { variant_option_values, variant_options } from "~/schema/product-variants";
-import { product_variants } from "~/schema/products";
+import { product_variants, variant_option_values, variant_options } from "~/schema/product-variants";
 
 export class ProductVariantsDS {
   static async getAll(product_id: number) {

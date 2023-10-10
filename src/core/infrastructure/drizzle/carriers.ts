@@ -1,6 +1,6 @@
-import { type Carrier, type NewCarrier, type UpdateCarrier } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
 import { eq } from "drizzle-orm";
+import { type Carrier, type NewCarrier, type UpdateCarrier } from "~/core/domain/carriers/entity";
 import { db } from "~/modules/drizzle";
 import { carriers } from "~/schema/carriers";
 
