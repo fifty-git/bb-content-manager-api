@@ -11,6 +11,7 @@ import { variantsRouter } from "~/routes/product-variants";
 import { productsRouter } from "~/routes/products";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { groupsRouter } from "./routes/groups";
+import {salesChannelsRouter} from "~/routes/sales-channels";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();
@@ -35,6 +36,7 @@ app.route("/api/v1/content-manager/groups", groupsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants", variantsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", optionsRouter);
 app.route("/api/v1/content-manager/carriers", carriersRouter);
+app.route("/api/v1/content-manager/sales-channels", salesChannelsRouter);
 
 // 404 Not found
 app.all("*", (c) => {
