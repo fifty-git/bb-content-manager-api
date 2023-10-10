@@ -38,7 +38,8 @@ export async function getProduct(c: Context<EnvAPI>) {
 export async function createProduct(c: Context<EnvAPI>) {
   // Validator
   const validator = CreateProductsAPISchema.safeParse(await c.req.json());
-  if (!validator.success) return c.json({ status: "error", msg: "Incorrect payload" }, 400);
+  if (!validator.success)
+    return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Product creation
   c.var.log.info(`Products to be created: ${validator.data.products.length}`);
