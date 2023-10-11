@@ -80,11 +80,32 @@ export class ProductVariantsDS {
       .execute();
   }
 
+  static async enable(product_id: number, variant_id: number) {
+    return db
+      .update(product_variants)
+      .set({ status: "active" })
+      .where(
+        and(
+          eq(product_variants.product_id, product_id),
+          eq(product_variants.variant_id, variant_id),
+          eq(product_variants.status, "inactive"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
   static async disable(product_id: number, variant_id: number) {
     return db
       .update(product_variants)
       .set({ status: "inactive" })
-      .where(and(eq(product_variants.product_id, product_id), eq(product_variants.variant_id, variant_id)))
+      .where(
+        and(
+          eq(product_variants.product_id, product_id),
+          eq(product_variants.variant_id, variant_id),
+          eq(product_variants.status, "active"),
+        ),
+      )
       .prepare()
       .execute();
   }

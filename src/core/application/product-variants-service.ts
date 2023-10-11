@@ -63,6 +63,13 @@ export async function reorderProductVariants(c: Context<EnvAPI>) {
   return c.json({ status: "success", msg: "Variants were reordered successfully" });
 }
 
+export async function enableProductVariant(c: Context<EnvAPI>) {
+  const product_id = c.req.param("product_id");
+  const variant_id = c.req.param("variant_id");
+  await ProductVariantsDS.enable(+product_id, +variant_id);
+  return c.json(null, 204);
+}
+
 export async function disableProductVariant(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variant_id = c.req.param("variant_id");
