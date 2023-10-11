@@ -41,6 +41,50 @@ export class ProductOptionsDS {
     return results[0].display_order;
   }
 
+  static async enable(variant_id: number, variant_option_id: number) {
+    return db
+      .update(variant_options)
+      .set({ status: "active" })
+      .where(
+        and(
+          eq(variant_options.variant_id, variant_id),
+          eq(variant_options.variant_option_id, variant_option_id),
+          eq(variant_options.status, "inactive"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
+  static async disable(variant_id: number, variant_option_id: number) {
+    return db
+      .update(variant_options)
+      .set({ status: "inactive" })
+      .where(
+        and(
+          eq(variant_options.variant_id, variant_id),
+          eq(variant_options.variant_option_id, variant_option_id),
+          eq(variant_options.status, "active"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
+  static async delete(variant_id: number, variant_option_id: number) {
+    return db
+      .delete(variant_options)
+      .where(
+        and(
+          eq(variant_options.variant_id, variant_id),
+          eq(variant_options.variant_option_id, variant_option_id),
+          eq(variant_options.status, "inactive"),
+        ),
+      )
+      .prepare()
+      .execute();
+  }
+
   static async deleteManyByVariantID(variant_ids: number[], tx?: Transaction) {
     if (variant_ids.length === 0) return;
     return (tx ?? db).delete(variant_options).where(inArray(variant_options.variant_id, variant_ids));

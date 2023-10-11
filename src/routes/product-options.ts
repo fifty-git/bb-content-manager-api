@@ -1,7 +1,16 @@
 import { Hono } from "hono";
-import { createProductOptions, reorderProductOptions } from "~/core/application/product-options-service";
+import {
+  createProductOptionsByVariant,
+  deleteProductOption,
+  disableProductOption,
+  enableProductOption,
+  reorderProductOptions,
+} from "~/core/application/product-options-service";
 
 export const optionsRouter = new Hono();
 
-optionsRouter.post("/", createProductOptions);
+optionsRouter.post("/", createProductOptionsByVariant);
 optionsRouter.put("/order", reorderProductOptions);
+optionsRouter.put("/options/:variant_option_id/activate", enableProductOption);
+optionsRouter.put("/options/:variant_option_id/deactivate", disableProductOption);
+optionsRouter.delete("/options/:variant_option_id", deleteProductOption);

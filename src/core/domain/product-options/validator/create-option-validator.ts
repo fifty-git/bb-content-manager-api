@@ -27,3 +27,15 @@ export const CreateProductOptionsAPISchema = z.object({
   dropdown_name: z.string().trim().nonempty("Option dropdown name is required and cannot be empty."),
   creates_po: z.boolean(),
 });
+export const CreateProductOptionsAllAPISchema = z.object({
+  product_id: z.number().min(1, "Product ID is invalid"),
+  options: z
+    .array(OptionSchema)
+    .nonempty("Options array shouldn't be empty.")
+    .refine((options) => {
+      const names = options.map((option) => option.value);
+      return new Set(names).size === names.length;
+    }, "Option names should be unique within the array."),
+  dropdown_name: z.string().trim().nonempty("Option dropdown name is required and cannot be empty."),
+  creates_po: z.boolean(),
+});
