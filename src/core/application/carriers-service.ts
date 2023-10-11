@@ -227,7 +227,7 @@ export async function deactivateCarrier(c: Context<EnvAPI>) {
 
   return c.json({
     status: results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length ? "success" : "failed",
-    msg: "carrier activated successfully",
+    msg: "carrier deactivated successfully",
     data: {
       carrier_id,
       carrier_service_id: services.map((service) => service.carrier_service_id)
@@ -246,7 +246,7 @@ export async function deactivateService(c: Context<EnvAPI>) {
 
   return c.json({
     status: updated.affectedRows === 1 ? "success" : "failed",
-    msg: "service activated successfully",
+    msg: "service deactivated successfully",
     data: { carrier_id, service_id }
   }, 200);
 }
