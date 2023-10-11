@@ -50,6 +50,7 @@ export class ProductVariantsDS {
   static async getOptionValues(variant_option_id: number) {
     return db
       .select({
+        product_id: variant_option_values.product_id,
         value: variant_option_values.value,
         additional_price: variant_option_values.additional_price,
         sku: variant_option_values.sku,
