@@ -51,7 +51,7 @@ export async function createProduct(c: Context<EnvAPI>) {
     });
   }
 
-  return c.json({ status: "success", msg: "Product creation was completed successfully!" });
+  return c.json({ status: "success", msg: "Product creation was completed successfully!" }, 201);
 }
 
 export async function enableProduct(c: Context<EnvAPI>) {
