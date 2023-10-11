@@ -38,6 +38,7 @@ export class ProductVariantsDS {
         variant_option_id: variant_options.variant_option_id,
         dropdown_name: variant_options.dropdown_name,
         creates_po: variant_options.creates_po,
+        status: variant_options.status,
       })
       .from(variant_options)
       .where(eq(variant_options.variant_id, variant_id))
