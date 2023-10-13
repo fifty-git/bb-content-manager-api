@@ -11,6 +11,6 @@ export const optionsRouter = new Hono();
 
 optionsRouter.post("/", createProductOptionsByVariant);
 optionsRouter.put("/order", reorderProductOptions);
-optionsRouter.put("/options/:variant_option_id/activate", enableProductOption);
-optionsRouter.put("/options/:variant_option_id/deactivate", disableProductOption);
-optionsRouter.delete("/options/:variant_option_id", deleteProductOption);
+optionsRouter.put("/:variant_option_id/activate", enableProductOption);
+optionsRouter.put("/:variant_option_id/deactivate", disableProductOption);
+optionsRouter.delete("/:variant_option_id", deleteProductOption);
