@@ -1,5 +1,3 @@
-
-
 // app.get("/api/v1/content-manager/bundles", getBundles);
 // app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
 // app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
