@@ -8,18 +8,26 @@ export enum Status {
   INACTIVE = "inactive",
 }
 
+type NumericRange<Limit extends number, Result extends Array<unknown> = [1]> = Result["length"] extends Limit
+  ? Result
+  : NumericRange<Limit, [...Result, Result["length"]]>;
+
+export type TransitDays = NumericRange<128>[number];
+
 export interface Service {
   carrier_service_id: number;
   carrier_id: number;
   code: string;
   name: string;
   type: ServiceType;
+  transit_days: TransitDays;
   status: Status;
 }
 
 export interface NewService {
   code: string;
   name: string;
+  transit_days: TransitDays;
   type?: ServiceType;
   carrier_id: number;
 }

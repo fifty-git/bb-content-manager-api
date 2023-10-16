@@ -1,3 +1,4 @@
+import type { TransitDays } from "~/core/domain/carriers/entity";
 import { sql } from "drizzle-orm";
 import { datetime, index, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
 import { ServiceType, Status } from "~/core/domain/carriers/entity";
@@ -31,6 +32,7 @@ export const carrier_services = mysqlTable(
     code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     type: mysqlEnum("type", [ServiceType.DOM, ServiceType.INT]).default(ServiceType.DOM).notNull(),
+    transit_days: int("transit_days").default(63).notNull().$type<TransitDays>(),
     status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
     carrier_id: int("carrier_id")
       .notNull()

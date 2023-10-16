@@ -13,6 +13,7 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
+        transit_days: carrier_services.transit_days,
         status: carrier_services.status,
       })
       .from(carrier_services)
@@ -29,6 +30,7 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
+        transit_days: carrier_services.transit_days,
         status: carrier_services.status,
       })
       .from(carrier_services)
