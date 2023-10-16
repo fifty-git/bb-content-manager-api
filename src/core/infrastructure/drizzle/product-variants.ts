@@ -9,7 +9,7 @@ export class ProductVariantsDS {
     return db
       .select()
       .from(product_variants)
-      .where(and(eq(product_variants.status, "active"), eq(product_variants.product_id, product_id)))
+      .where(eq(product_variants.product_id, product_id))
       .orderBy(product_variants.display_order)
       .prepare()
       .execute();
