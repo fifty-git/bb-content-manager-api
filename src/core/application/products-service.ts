@@ -1,5 +1,6 @@
 import type { ClonedVariantOption, ClonedVariantOV } from "~/core/domain/product-options/entity";
 import type { ClonedVariant } from "~/core/domain/product-variants/entity";
+import type { ClonedProduct } from "~/core/domain/products/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
@@ -69,6 +70,9 @@ export async function cloneProduct(c: Context<EnvAPI>) {
   // Transaction for product cloning
   await db.transaction(async (tx) => {
     // Basic Product cloning
+    const cloned_product: ClonedProduct = { ...validator.data };
+    delete cloned_product.product_id;
+
     const [{ insertId }] = await ProductsDS.create(validator.data, tx);
     if (validator.data.group_id && validator.data.group_id !== 0) await ProductsDS.addGroup(insertId, validator.data.group_id, tx);
     if (validator.data.subgroup_id && validator.data.subgroup_id !== 0) await ProductsDS.addGroup(insertId, validator.data.subgroup_id, tx);
