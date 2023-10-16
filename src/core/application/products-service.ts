@@ -73,7 +73,7 @@ export async function cloneProduct(c: Context<EnvAPI>) {
     const cloned_product: ClonedProduct = { ...validator.data };
     delete cloned_product.product_id;
 
-    const [{ insertId }] = await ProductsDS.create(validator.data, tx);
+    const [{ insertId }] = await ProductsDS.create(cloned_product, tx);
     if (validator.data.group_id && validator.data.group_id !== 0) await ProductsDS.addGroup(insertId, validator.data.group_id, tx);
     if (validator.data.subgroup_id && validator.data.subgroup_id !== 0) await ProductsDS.addGroup(insertId, validator.data.subgroup_id, tx);
 
