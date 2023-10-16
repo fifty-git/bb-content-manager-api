@@ -10,7 +10,7 @@ export class ProductVariantsDS {
       .select()
       .from(product_variants)
       .where(eq(product_variants.product_id, product_id))
-      .orderBy(product_variants.status, product_variants.display_order, product_variants.name)
+      .orderBy(desc(product_variants.status), product_variants.display_order, product_variants.name)
       .prepare()
       .execute();
   }
