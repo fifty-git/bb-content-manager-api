@@ -10,7 +10,6 @@ const OptionSchema = z.object({
     .refine((price) => parseFloat(price) >= 0, {
       message: "Additional price should be 0.00 or more.",
     }),
-  sku: z.string().trim(),
   is_default: z.boolean(),
 });
 

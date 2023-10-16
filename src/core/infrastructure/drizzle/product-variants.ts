@@ -53,7 +53,6 @@ export class ProductVariantsDS {
         product_id: variant_option_values.product_id,
         value: variant_option_values.value,
         additional_price: variant_option_values.additional_price,
-        sku: variant_option_values.sku,
         is_default: variant_option_values.is_default,
       })
       .from(variant_option_values)
