@@ -82,7 +82,7 @@ export async function cloneProduct(c: Context<EnvAPI>) {
     for (const variant of variants) {
       const cloned: ClonedVariant = { ...variant };
       delete cloned.variant_id;
-      cloned.product_id = product_id;
+      cloned.product_id = insertId;
       const [{ insertId: variantInsertId }] = await ProductVariantsDS.create(cloned, tx);
 
       // Product options cloning
