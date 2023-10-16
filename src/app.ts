@@ -9,9 +9,9 @@ import { carriersRouter } from "~/routes/carriers";
 import { optionsRouter } from "~/routes/product-options";
 import { variantsRouter } from "~/routes/product-variants";
 import { productsRouter } from "~/routes/products";
+import { salesChannelsRouter } from "~/routes/sales-channels";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { groupsRouter } from "./routes/groups";
-import {salesChannelsRouter} from "~/routes/sales-channels";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();

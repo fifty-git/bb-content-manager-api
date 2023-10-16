@@ -63,8 +63,8 @@ export class ProductVariantsDS {
       .execute();
   }
 
-  static async create(data: NewVariant) {
-    return db.insert(product_variants).values(data).prepare().execute();
+  static async create(data: NewVariant, tx?: Transaction) {
+    return (tx ?? db).insert(product_variants).values(data).prepare().execute();
   }
 
   static async reorder(display_order: number, variant_id: number, product_id: number) {

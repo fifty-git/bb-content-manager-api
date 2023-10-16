@@ -36,7 +36,7 @@ export const variant_options = mysqlTable(
   "variant_options",
   {
     variant_option_id: int("variant_option_id").autoincrement().notNull(),
-    variant_id: int("variant_id").references(() => product_variants.variant_id),
+    variant_id: int("variant_id").references(() => product_variants.variant_id).notNull(),
     dropdown_name: varchar("dropdown_name", { length: 100 }).notNull(),
     creates_po: boolean("creates_po").notNull(),
     display_order: int("display_order").default(0).notNull(),
@@ -65,7 +65,6 @@ export const variant_option_values = mysqlTable(
     product_id: int("product_id").references(() => products.product_id),
     value: varchar("value", { length: 100 }).notNull(),
     additional_price: decimal("additional_price", { precision: 10, scale: 2 }).default("0.00").notNull(),
-    sku: varchar("sku", { length: 100 }).default("").notNull(),
     is_default: boolean("is_default").default(false).notNull(),
     display_order: int("display_order").default(0).notNull(),
     created_at: datetime("created_at", { mode: "string" })

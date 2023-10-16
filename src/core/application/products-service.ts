@@ -1,6 +1,9 @@
+import type { ClonedVariantOption, ClonedVariantOV } from "~/core/domain/product-options/entity";
+import type { ClonedVariant } from "~/core/domain/product-variants/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
+import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
@@ -53,6 +56,53 @@ export async function createProduct(c: Context<EnvAPI>) {
   }
 
   return c.json({ status: "success", msg: "Product creation was completed successfully!" }, 201);
+}
+
+export async function cloneProduct(c: Context<EnvAPI>) {
+  const product_id = parseInt(c.req.param("product_id"), 10);
+  c.var.log.info(`Cloning product from product ID ${product_id}`);
+  const data = await c.req.json();
+  const validator = CloneProductAPISchema.safeParse({ ...data, product_id });
+  if (!validator.success)
+    return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
+
+  // Transaction for product cloning
+  await db.transaction(async (tx) => {
+    // Basic Product cloning
+    const [{ insertId }] = await ProductsDS.create(validator.data, tx);
+    if (validator.data.group_id && validator.data.group_id !== 0) await ProductsDS.addGroup(insertId, validator.data.group_id, tx);
+    if (validator.data.subgroup_id && validator.data.subgroup_id !== 0) await ProductsDS.addGroup(insertId, validator.data.subgroup_id, tx);
+
+    // Product variants cloning
+    const variants = await ProductVariantsDS.getByProductID(validator.data.product_id, tx);
+    for (const variant of variants) {
+      const cloned: ClonedVariant = { ...variant };
+      delete cloned.variant_id;
+      cloned.product_id = product_id;
+      const [{ insertId: variantInsertId }] = await ProductVariantsDS.create(cloned, tx);
+
+      // Product options cloning
+      const options = await ProductOptionsDS.getByVariantID(variant.variant_id, tx);
+      for (const option of options) {
+        const cloned_option: ClonedVariantOption = { ...option };
+        delete cloned_option.variant_option_id;
+        cloned_option.variant_id = variantInsertId;
+        const [{ insertId: optionInsertId }] = await ProductOptionsDS.create(cloned_option, tx);
+
+        // Product option values cloning
+        const option_values = await ProductOptionsDS.getOptionValues(option.variant_option_id, tx);
+        for (const ov of option_values) {
+          const cloned_ov: ClonedVariantOV = { ...ov };
+          delete cloned_ov.variant_option_value_id;
+          cloned_ov.variant_option_id = optionInsertId;
+          await ProductOptionsDS.createOptionValue(cloned_ov, tx);
+        }
+      }
+    }
+    // TODO Product media cloning
+  });
+
+  return c.json({ status: "success", msg: `Product ${product_id} was cloned successfully!` }, 201);
 }
 
 export async function createProductOptions(c: Context<EnvAPI>) {
