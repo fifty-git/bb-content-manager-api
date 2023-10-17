@@ -1,4 +1,5 @@
 import type { NewProductTag } from "~/core/domain/product-tags/entity";
+import type { Transaction } from "~/core/domain/types";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_tag_link } from "~/schema/product-tag-link";
@@ -16,13 +17,13 @@ export class ProductTagsDS {
       })
       .from(product_tag_link)
       .leftJoin(tags, eq(product_tag_link.tag_id, tags.tag_id))
-      .where(and(eq(product_tag_link.product_id, product_id)))
+      .where(eq(product_tag_link.product_id, product_id))
       .prepare()
       .execute();
   }
 
-  static async create(data: NewProductTag) {
-    return db.insert(product_tag_link).values(data).prepare().execute();
+  static async create(data: NewProductTag, tx?: Transaction) {
+    return (tx ?? db).insert(product_tag_link).values(data).prepare().execute();
   }
 
   static async delete(product_id: number, tag_id: number) {

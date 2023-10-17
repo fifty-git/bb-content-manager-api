@@ -3,6 +3,7 @@ import type { Context } from "hono";
 import { CreateTagAPISchema } from "~/core/domain/tags/validator/create-tag-validator";
 import { ProductTagsDS } from "~/core/infrastructure/drizzle/product-tags";
 import { TagsDS } from "~/core/infrastructure/drizzle/tags";
+import { db } from "~/modules/drizzle";
 
 export async function getProductTags(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
@@ -18,17 +19,13 @@ export async function createProductTag(c: Context<EnvAPI>) {
   if (!validator.success)
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
-  // Tag creation
-  const [{ insertId }] = await TagsDS.create(data);
-
   // Product Tag creation
-  const option = {
-    tag_id: insertId,
-    product_id,
-  };
-  await ProductTagsDS.create(option);
+  await db.transaction(async (tx) => {
+    const [{ insertId }] = await TagsDS.create(data, tx);
+    await ProductTagsDS.create({ tag_id: insertId, product_id }, tx);
+  });
 
-  return c.json({ status: "success", msg: `Tags for product ID ${insertId} were created successfully!` }, 201);
+  return c.json({ status: "success", msg: `Tags for product ID ${product_id} were created successfully!` }, 201);
 }
 
 export async function deleteProductTag(c: Context<EnvAPI>) {
