@@ -16,7 +16,6 @@ import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-
 import { CarrierServiceHighSeasonsDS } from "../infrastructure/drizzle/carrier-service-high-seasons";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
-import _ from "lodash";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -95,7 +94,7 @@ export async function getCarrierById(c: Context<EnvAPI>) {
 export async function getAllCarrierServices(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
   const services = await CarrierServiceDS.getByCarrierID(id);
-  const composedServices = services.map(async (service) => {
+  const composedServices = await Promise.all(services.map(async (service) => {
     const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
     const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
     const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
@@ -106,7 +105,7 @@ export async function getAllCarrierServices(c: Context<EnvAPI>) {
       days,
       high_seasons,
     };
-  });
+  }));
 
   return c.json(
     {
