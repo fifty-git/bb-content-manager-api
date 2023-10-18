@@ -38,7 +38,6 @@ export const bundle_variant_option_values = mysqlTable(
     product_id: int("product_id").references(() => products.product_id),
     value: varchar("value", { length: 100 }).notNull(),
     additional_price: decimal("additional_price", { precision: 10, scale: 2 }).default("0.00").notNull(),
-    sku: varchar("sku", { length: 100 }).default("").notNull(),
     is_default: boolean("is_default").default(false).notNull(),
     display_order: int("display_order").default(0).notNull(),
     created_at: datetime("created_at", { mode: "string" })

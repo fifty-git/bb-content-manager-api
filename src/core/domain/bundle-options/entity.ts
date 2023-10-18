@@ -10,7 +10,6 @@ export interface NewBundleVariantOV {
   product_id: null | number;
   value: string;
   additional_price: string;
-  sku: string;
   is_default: boolean;
   display_order: number;
 }

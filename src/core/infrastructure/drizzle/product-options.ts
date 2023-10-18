@@ -5,6 +5,19 @@ import { db } from "~/modules/drizzle";
 import { variant_option_values, variant_options } from "~/schema/product-variants";
 
 export class ProductOptionsDS {
+  static async getByVariantID(variant_id: number, tx?: Transaction) {
+    return (tx ?? db).select().from(variant_options).where(eq(variant_options.variant_id, variant_id)).prepare().execute();
+  }
+
+  static async getOptionValues(variant_option_id: number, tx?: Transaction) {
+    return (tx ?? db)
+      .select()
+      .from(variant_option_values)
+      .where(eq(variant_option_values.variant_option_id, variant_option_id))
+      .prepare()
+      .execute();
+  }
+
   static async reorder(display_order: number, variant_option_id: number, variant_id: number) {
     return db
       .update(variant_options)
@@ -20,12 +33,16 @@ export class ProductOptionsDS {
       .execute();
   }
 
-  static async create(data: NewVariantOption) {
-    return db.insert(variant_options).values(data).prepare().execute();
+  static async create(data: NewVariantOption, tx?: Transaction) {
+    return (tx ?? db).insert(variant_options).values(data).prepare().execute();
   }
 
-  static async createOptionValues(data: NewVariantOV[]) {
-    return db.insert(variant_option_values).values(data).prepare().execute();
+  static async createOptionValue(data: NewVariantOV, tx?: Transaction) {
+    return (tx ?? db).insert(variant_option_values).values(data).prepare().execute();
+  }
+
+  static async createOptionValues(data: NewVariantOV[], tx?: Transaction) {
+    return (tx ?? db).insert(variant_option_values).values(data).prepare().execute();
   }
 
   static async getLastDisplayOrder(variant_id: number) {

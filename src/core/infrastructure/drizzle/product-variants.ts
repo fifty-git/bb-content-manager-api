@@ -9,8 +9,8 @@ export class ProductVariantsDS {
     return db
       .select()
       .from(product_variants)
-      .where(and(eq(product_variants.status, "active"), eq(product_variants.product_id, product_id)))
-      .orderBy(product_variants.display_order)
+      .where(eq(product_variants.product_id, product_id))
+      .orderBy(desc(product_variants.status), product_variants.display_order)
       .prepare()
       .execute();
   }
@@ -53,7 +53,6 @@ export class ProductVariantsDS {
         product_id: variant_option_values.product_id,
         value: variant_option_values.value,
         additional_price: variant_option_values.additional_price,
-        sku: variant_option_values.sku,
         is_default: variant_option_values.is_default,
       })
       .from(variant_option_values)
@@ -63,8 +62,8 @@ export class ProductVariantsDS {
       .execute();
   }
 
-  static async create(data: NewVariant) {
-    return db.insert(product_variants).values(data).prepare().execute();
+  static async create(data: NewVariant, tx?: Transaction) {
+    return (tx ?? db).insert(product_variants).values(data).prepare().execute();
   }
 
   static async reorder(display_order: number, variant_id: number, product_id: number) {

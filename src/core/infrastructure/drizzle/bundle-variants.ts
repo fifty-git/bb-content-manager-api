@@ -54,7 +54,6 @@ export class BundleVariantsDS {
       .select({
         value: bundle_variant_option_values.value,
         additional_price: bundle_variant_option_values.additional_price,
-        sku: bundle_variant_option_values.sku,
         is_default: bundle_variant_option_values.is_default,
       })
       .from(bundle_variant_option_values)

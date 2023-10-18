@@ -6,7 +6,7 @@ export const tags = mysqlTable(
   {
     tag_id: int("tag_id").autoincrement().notNull(),
     name: varchar("name", { length: 255 }).notNull(),
-    type: mysqlEnum("type", ["PRODUCT", "ORDER", "PURCHASE ORDER", "SEARCHABLE"]).default("PRODUCT").notNull(),
+    type: mysqlEnum("type", ["product", "order", "purchase-order", "searchable"]).default("product").notNull(),
     created_at: datetime("created_at", { mode: "string" }).default(sql`CURRENT_TIMESTAMP`),
     updated_at: datetime("updated_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)

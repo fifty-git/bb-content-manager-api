@@ -6,18 +6,20 @@ import { carriers } from "~/schema/carriers";
 
 export class CarriersDS {
   static async get(carrier_id: number): Promise<Carrier> {
-    return (await db
-      .select({
-        carrier_id: carriers.carrier_id,
-        name: carriers.name,
-        code: carriers.code,
-        account_number: carriers.account_number,
-        status: carriers.status,
-      })
-      .from(carriers)
-      .where(eq(carriers.carrier_id, carrier_id))
-      .prepare()
-      .execute())[0];
+    return (
+      await db
+        .select({
+          carrier_id: carriers.carrier_id,
+          name: carriers.name,
+          code: carriers.code,
+          account_number: carriers.account_number,
+          status: carriers.status,
+        })
+        .from(carriers)
+        .where(eq(carriers.carrier_id, carrier_id))
+        .prepare()
+        .execute()
+    )[0];
   }
 
   static getAll(): Promise<Carrier[]> {

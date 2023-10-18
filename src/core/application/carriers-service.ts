@@ -35,18 +35,20 @@ export async function getAllCarriers(c: Context<EnvAPI>) {
   const composed = await Promise.all(
     carriers.map(async (carrier) => {
       const services = await CarrierServiceDS.getByCarrierID(carrier.carrier_id);
-      const composedServices = await Promise.all(services.map(async (service) => {
-        const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
-        const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-        const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+      const composedServices = await Promise.all(
+        services.map(async (service) => {
+          const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+          const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+          const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
-        return {
-          ...service,
-          cities,
-          days,
-          high_seasons,
-        };
-      }));
+          return {
+            ...service,
+            cities,
+            days,
+            high_seasons,
+          };
+        }),
+      );
 
       return {
         ...carrier,
@@ -68,18 +70,20 @@ export async function getCarrierById(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
   const carrier = await CarriersDS.get(id);
   const services = await CarrierServiceDS.getByCarrierID(id);
-  const composedServices = await Promise.all(services.map(async (service) => {
-    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
-    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+  const composedServices = await Promise.all(
+    services.map(async (service) => {
+      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
-    return {
-      ...service,
-      cities,
-      days,
-      high_seasons,
-    };
-  }));
+      return {
+        ...service,
+        cities,
+        days,
+        high_seasons,
+      };
+    }),
+  );
   const composed = [{ ...carrier, services: composedServices }];
 
   return c.json(
@@ -94,18 +98,20 @@ export async function getCarrierById(c: Context<EnvAPI>) {
 export async function getAllCarrierServices(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
   const services = await CarrierServiceDS.getByCarrierID(id);
-  const composedServices = await Promise.all(services.map(async (service) => {
-    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
-    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+  const composedServices = await Promise.all(
+    services.map(async (service) => {
+      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
-    return {
-      ...service,
-      cities,
-      days,
-      high_seasons,
-    };
-  }));
+      return {
+        ...service,
+        cities,
+        days,
+        high_seasons,
+      };
+    }),
+  );
 
   return c.json(
     {
@@ -120,18 +126,20 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
   const services = await CarrierServiceDS.getByIDs(carrier_id, service_id);
-  const composedServices = services.map(async (service) => {
-    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
-    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+  const composedServices = await Promise.all(
+    services.map(async (service) => {
+      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
-    return {
-      ...service,
-      cities,
-      days,
-      high_seasons,
-    };
-  });
+      return {
+        ...service,
+        cities,
+        days,
+        high_seasons,
+      };
+    }),
+  );
 
   return c.json(
     {
@@ -249,7 +257,7 @@ export async function updateService(c: Context<EnvAPI>) {
       );
 
       if (service.cities) {
-        const cities = service.cities.map((city) => ({ ...city, carrier_service_id: service_id}));
+        const cities = service.cities.map((city) => ({ ...city, carrier_service_id: service_id }));
         await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
         await CarrierServiceCitiesDS.createMany(cities, tx);
       }
@@ -261,11 +269,15 @@ export async function updateService(c: Context<EnvAPI>) {
 
       if (service.high_seasons) {
         await CarrierServiceHighSeasonsDS.deleteByServiceID(service_id, tx);
-        await CarrierServiceHighSeasonsDS.createMany(service.high_seasons.map((high_season) => ({
-          ...high_season,
-          start_date: new Date(high_season.start_date),
-          end_date: new Date(high_season.end_date),
-        })), service_id, tx);
+        await CarrierServiceHighSeasonsDS.createMany(
+          service.high_seasons.map((high_season) => ({
+            ...high_season,
+            start_date: new Date(high_season.start_date),
+            end_date: new Date(high_season.end_date),
+          })),
+          service_id,
+          tx,
+        );
       }
 
       return true;
