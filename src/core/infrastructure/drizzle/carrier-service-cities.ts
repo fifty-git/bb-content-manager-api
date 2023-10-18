@@ -22,7 +22,7 @@ export class CarrierServiceCitiesDS {
   }
 
   static async createMany(cities: NewCarrierServiceCity[], tx?: Transaction) {
-    return Promise.all(cities.map((city) => (tx || db).insert(carrier_service_cities).values(city).prepare().execute()));
+    return (tx || db).insert(carrier_service_cities).values(cities).prepare().execute();
   }
 
   static async updateMany(cities: ServiceCity[], tx?: Transaction) {

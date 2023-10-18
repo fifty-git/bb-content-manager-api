@@ -21,18 +21,16 @@ export class CarrierServiceHighSeasonsDS {
   }
 
   static async createMany(high_seasons: ServiceHighSeason[], service_id: number, tx?: Transaction) {
-    return Promise.all(
-      high_seasons.map((high_season) =>
-        (tx || db)
-          .insert(carrier_service_high_seasons)
-          .values({
-            carrier_service_id: service_id,
-            ...high_season,
-          })
-          .prepare()
-          .execute(),
-      ),
-    );
+    return (tx || db)
+      .insert(carrier_service_high_seasons)
+      .values(
+        high_seasons.map((high_season) => ({
+          carrier_service_id: service_id,
+          ...high_season,
+        })),
+      )
+      .prepare()
+      .execute();
   }
 
   static async updateMany(high_seasons: ServiceHighSeason[], service_id: number, tx?: Transaction) {

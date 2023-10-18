@@ -17,18 +17,16 @@ export class CarrierServiceDaysDS {
   }
 
   static async createMany(days: Days[], service_id: number, tx?: Transaction) {
-    return Promise.all(
-      days.map((day) =>
-        (tx || db)
-          .insert(carrier_service_days)
-          .values({
-            carrier_service_id: service_id,
-            day_name: day,
-          })
-          .prepare()
-          .execute(),
-      ),
-    );
+    return (tx || db)
+      .insert(carrier_service_days)
+      .values(
+        days.map((day) => ({
+          carrier_service_id: service_id,
+          day_name: day,
+        })),
+      )
+      .prepare()
+      .execute();
   }
 
   static async deleteByServiceID(service_id: number, tx?: Transaction) {
