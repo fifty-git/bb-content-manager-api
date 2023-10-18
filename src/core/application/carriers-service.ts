@@ -1,16 +1,22 @@
+import type { Days, NewCarrierServiceCity, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
-import { type Carrier, type NewService, Status, type UpdateCarrier, type UpdateService } from "../domain/carriers/entity";
+import { logger } from "~/modules/logger";
+import { Status } from "../domain/carriers/entity";
 import {
   CreateCarrierSchema,
   CreateServiceSchema,
   UpdateCarrierSchema,
   UpdateServiceSchema,
 } from "../domain/carriers/validator/create-carrier";
+import { CarrierServiceCitiesDS } from "../infrastructure/drizzle/carrier-service-cities";
+import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
+import { CarrierServiceHighSeasonsDS } from "../infrastructure/drizzle/carrier-service-high-seasons";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
+import _ from "lodash";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -27,11 +33,27 @@ function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any
 
 export async function getAllCarriers(c: Context<EnvAPI>) {
   const carriers = await CarriersDS.getAll();
-  const composed: Carrier[] = await Promise.all(
-    carriers.map(async (carrier) => ({
-      ...carrier,
-      services: await CarrierServiceDS.getByCarrierID(carrier.carrier_id),
-    })),
+  const composed = await Promise.all(
+    carriers.map(async (carrier) => {
+      const services = await CarrierServiceDS.getByCarrierID(carrier.carrier_id);
+      const composedServices = await Promise.all(services.map(async (service) => {
+        const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+        const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+        const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+
+        return {
+          ...service,
+          cities,
+          days,
+          high_seasons,
+        };
+      }));
+
+      return {
+        ...carrier,
+        services: composedServices,
+      };
+    }),
   );
 
   return c.json(
@@ -47,7 +69,19 @@ export async function getCarrierById(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
   const carrier = await CarriersDS.get(id);
   const services = await CarrierServiceDS.getByCarrierID(id);
-  const composed: Carrier[] = [{ ...carrier[0], services }];
+  const composedServices = await Promise.all(services.map(async (service) => {
+    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+
+    return {
+      ...service,
+      cities,
+      days,
+      high_seasons,
+    };
+  }));
+  const composed = [{ ...carrier, services: composedServices }];
 
   return c.json(
     {
@@ -60,26 +94,50 @@ export async function getCarrierById(c: Context<EnvAPI>) {
 
 export async function getAllCarrierServices(c: Context<EnvAPI>) {
   const id = Number(c.req.param("carrier_id"));
-  const carrier = await CarrierServiceDS.getByCarrierID(id);
+  const services = await CarrierServiceDS.getByCarrierID(id);
+  const composedServices = services.map(async (service) => {
+    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+
+    return {
+      ...service,
+      cities,
+      days,
+      high_seasons,
+    };
+  });
 
   return c.json(
     {
-      status: carrier ? "success" : "error",
-      data: carrier,
+      status: composedServices ? "success" : "error",
+      data: composedServices,
     },
     200,
   );
 }
 
-export async function getCarrierServiceById(c: Context<EnvAPI>) {
+export async function getCarrierServicesById(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
-  const carrier = await CarrierServiceDS.getByIds(carrier_id, service_id);
+  const services = await CarrierServiceDS.getByIDs(carrier_id, service_id);
+  const composedServices = services.map(async (service) => {
+    const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+    const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
+    const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
+
+    return {
+      ...service,
+      cities,
+      days,
+      high_seasons,
+    };
+  });
 
   return c.json(
     {
-      status: carrier ? "success" : "error",
-      data: carrier,
+      status: composedServices ? "success" : "error",
+      data: composedServices,
     },
     200,
   );
@@ -106,9 +164,38 @@ export async function createService(c: Context<EnvAPI>) {
   const payload = await c.req.json();
   const validator = CreateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
-  const created = await CarrierServiceDS.create({
-    ...(payload.service as NewService),
-    carrier_id,
+
+  const created = await db.transaction(async (tx) => {
+    try {
+      const insertedService = await CarrierServiceDS.create(
+        {
+          ...(payload.service as NewService),
+          carrier_id,
+        },
+        tx,
+      );
+      const cities: NewCarrierServiceCity[] = payload.service.cities.map((city: NewCarrierServiceCity) => ({
+        ...city,
+        carrier_service_id: insertedService.insertId,
+      }));
+      const days: Days[] = payload.service.days;
+      await CarrierServiceCitiesDS.createMany(cities, tx);
+      await CarrierServiceDaysDS.createMany(days, insertedService.insertId, tx);
+
+      if (payload.service.high_seasons) {
+        const seasons = payload.service.high_seasons.map((high_season: any) => ({
+          ...high_season,
+          start_date: new Date(high_season.start_date),
+          end_date: new Date(high_season.end_date),
+        }));
+        await CarrierServiceHighSeasonsDS.createMany(seasons, insertedService.insertId, tx);
+      }
+
+      return insertedService;
+    } catch (error) {
+      logger.error(error);
+      tx.rollback();
+    }
   });
 
   return c.json(
@@ -145,19 +232,55 @@ export async function updateService(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
   const payload = await c.req.json();
+  const service: UpdateService = payload.service;
   const validator = UpdateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
-  const updated = await CarrierServiceDS.update({
-    ...(payload.service as UpdateService),
-    carrier_id,
-    carrier_service_id: service_id,
+
+  const updated = await db.transaction(async (tx) => {
+    try {
+      await CarrierServiceDS.update(
+        {
+          code: service.code,
+          name: service.name,
+          type: service.type,
+          carrier_id,
+          carrier_service_id: service_id,
+        },
+        tx,
+      );
+
+      if (service.cities) {
+        const cities = service.cities.map((city) => ({ ...city, carrier_service_id: service_id}));
+        await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
+        await CarrierServiceCitiesDS.createMany(cities, tx);
+      }
+
+      if (service.days) {
+        await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
+        await CarrierServiceDaysDS.createMany(service.days, service_id, tx);
+      }
+
+      if (service.high_seasons) {
+        await CarrierServiceHighSeasonsDS.deleteByServiceID(service_id, tx);
+        await CarrierServiceHighSeasonsDS.createMany(service.high_seasons.map((high_season) => ({
+          ...high_season,
+          start_date: new Date(high_season.start_date),
+          end_date: new Date(high_season.end_date),
+        })), service_id, tx);
+      }
+
+      return true;
+    } catch (error) {
+      logger.error(error);
+      tx.rollback();
+    }
   });
 
   return c.json(
     {
-      status: updated?.affectedRows === 1 ? "success" : "error",
+      status: updated ? "success" : "error",
       data: { carrier_id, service_id },
-      msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
+      msg: updated ? "service successfully updated" : "cannot update service",
     },
     200,
   );
@@ -287,31 +410,43 @@ export async function deactivateService(c: Context<EnvAPI>) {
 
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
-  await db.transaction(async (tx) => {
-    const services = await CarrierServiceDS.getByCarrierID(carrier_id);
-    const deletes = services.map((service) => {
-      return CarrierServiceDS.delete(
-        {
-          carrier_id: service.carrier_id,
-          carrier_service_id: service.carrier_service_id,
-        },
-        tx,
-      );
-    });
-    await Promise.all(deletes);
-    return CarriersDS.delete(carrier_id, tx);
+  const deleted = await db.transaction(async (tx) => {
+    try {
+      const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+      await Promise.all(services.map((service) => CarrierServiceCitiesDS.deleteByServiceID(service.carrier_service_id, tx)));
+      await Promise.all(services.map((service) => CarrierServiceDaysDS.deleteByServiceID(service.carrier_service_id, tx)));
+      await Promise.all(services.map((service) => CarrierServiceHighSeasonsDS.deleteByServiceID(service.carrier_service_id, tx)));
+      await CarrierServiceDS.deleteByCarrierID(carrier_id, tx);
+      return CarriersDS.delete(carrier_id, tx);
+    } catch (error) {
+      logger.error(error);
+      tx.rollback();
+    }
   });
 
-  return c.json(null, 204);
+  return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);
 }
 
 export async function deleteService(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
-  await CarrierServiceDS.delete({
-    carrier_id,
-    carrier_service_id: service_id,
+  const deleted = await db.transaction(async (tx) => {
+    try {
+      await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
+      await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
+      await CarrierServiceHighSeasonsDS.deleteByServiceID(service_id, tx);
+      return CarrierServiceDS.delete(
+        {
+          carrier_id,
+          carrier_service_id: service_id,
+        },
+        tx,
+      );
+    } catch (error) {
+      logger.error(error);
+      tx.rollback();
+    }
   });
 
-  return c.json(null, 204);
+  return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);
 }

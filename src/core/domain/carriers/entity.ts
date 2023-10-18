@@ -8,11 +8,36 @@ export enum Status {
   INACTIVE = "inactive",
 }
 
-type NumericRange<Limit extends number, Result extends Array<unknown> = [1]> = Result["length"] extends Limit
-  ? Result
-  : NumericRange<Limit, [...Result, Result["length"]]>;
+export enum Days {
+  MON = "mon",
+  TUE = "tue",
+  WED = "wed",
+  THU = "thu",
+  FRI = "fri",
+  SAT = "sat",
+  SUN = "sun",
+}
 
-export type TransitDays = NumericRange<128>[number];
+export interface ServiceCity {
+  carrier_service_city_id: number;
+  city_id: number;
+  city_name: string;
+  transit_days: number;
+}
+
+export interface NewCarrierServiceCity {
+  carrier_service_id: number;
+  city_id: number;
+  city_name: string;
+  transit_days: number;
+}
+
+export interface ServiceHighSeason {
+  carrier_service_high_season_id: number;
+  start_date: Date;
+  end_date: Date;
+  extra_time: number;
+}
 
 export interface Service {
   carrier_service_id: number;
@@ -20,14 +45,12 @@ export interface Service {
   code: string;
   name: string;
   type: ServiceType;
-  transit_days: TransitDays;
   status: Status;
 }
 
 export interface NewService {
   code: string;
   name: string;
-  transit_days: TransitDays;
   type?: ServiceType;
   carrier_id: number;
 }
@@ -38,6 +61,9 @@ export interface UpdateService {
   code?: string;
   name?: string;
   type?: ServiceType;
+  cities?: ServiceCity[];
+  high_seasons?: ServiceHighSeason[];
+  days?: Days[];
   status?: Status;
 }
 

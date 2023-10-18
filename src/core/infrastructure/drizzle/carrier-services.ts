@@ -13,7 +13,6 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
-        transit_days: carrier_services.transit_days,
         status: carrier_services.status,
       })
       .from(carrier_services)
@@ -22,7 +21,7 @@ export class CarrierServiceDS {
       .execute();
   }
 
-  static async getByIds(carrier_id: number, service_id: number): Promise<Service[]> {
+  static async getByIDs(carrier_id: number, service_id: number): Promise<Service[]> {
     return db
       .select({
         carrier_service_id: carrier_services.carrier_service_id,
@@ -30,7 +29,6 @@ export class CarrierServiceDS {
         name: carrier_services.name,
         type: carrier_services.type,
         code: carrier_services.code,
-        transit_days: carrier_services.transit_days,
         status: carrier_services.status,
       })
       .from(carrier_services)
@@ -70,5 +68,9 @@ export class CarrierServiceDS {
         .prepare()
         .execute()
     )[0];
+  }
+
+  static async deleteByCarrierID(carrier_id: number, tx?: Transaction) {
+    return (tx || db).delete(carrier_services).where(eq(carrier_services.carrier_id, carrier_id));
   }
 }
