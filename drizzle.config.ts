@@ -9,5 +9,5 @@ export default {
   introspect: {
     casing: "preserve",
   },
-  tablesFilter: ["variant*"],
+  tablesFilter: ["product_tag_link"],
 } satisfies Config;

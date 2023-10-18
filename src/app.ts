@@ -7,6 +7,7 @@ import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
 import { carriersRouter } from "~/routes/carriers";
 import { optionsRouter } from "~/routes/product-options";
+import { tagsRouter } from "~/routes/product-tags";
 import { variantsRouter } from "~/routes/product-variants";
 import { productsRouter } from "~/routes/products";
 import { salesChannelsRouter } from "~/routes/sales-channels";
@@ -35,6 +36,7 @@ app.route("/api/v1/content-manager/products", productsRouter);
 app.route("/api/v1/content-manager/groups", groupsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants", variantsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", optionsRouter);
+app.route("/api/v1/content-manager/products/:product_id/tags", tagsRouter);
 app.route("/api/v1/content-manager/carriers", carriersRouter);
 app.route("/api/v1/content-manager/sales-channels", salesChannelsRouter);
 
