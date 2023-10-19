@@ -25,7 +25,7 @@ app.use(
     credentials: true,
     origin: (origin) => {
       if (origin.endsWith(".fiftyflowers.com") || origin === "https://fiftyflowers.com") return origin;
-      return "http://localhost:5000";
+      return `http://localhost:${port}`;
     },
   }),
 );
