@@ -10,6 +10,9 @@
     "drizzle": "bun run drizzle-kit introspect:mysql"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.23.2",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.6",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "bun-types": "latest",
@@ -22,6 +25,7 @@
     "eslint-plugin-react": "latest",
     "eslint-plugin-simple-import-sort": "latest",
     "eslint-plugin-unused-imports": "latest",
+    "jest": "^29.7.0",
     "pino-pretty": "^10.2.0",
     "prettier": "^3.0.3",
     "typescript": "5.1.6"
