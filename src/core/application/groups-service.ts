@@ -23,6 +23,14 @@ export async function updateGroup(c: Context<EnvAPI>) {
   return c.json({ msg: "Group updated successfully" });
 }
 
+export async function activateGroup(c: Context<EnvAPI>) {
+  const groupId = parseInt(c.req.param("id"), 10);
+  const group = await GroupsDS.getGroupById(groupId);
+  if (!group) return c.json({ msg: "Group not found" }, 404);
+  await GroupsDS.activateGroup(groupId);
+  return c.json({ msg: "Group activated successfully" });
+}
+
 export async function deactivateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
   const group = await GroupsDS.getGroupById(groupId);
