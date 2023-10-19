@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  activateGroup,
   createGroup,
   deactivateGroup,
   deleteGroup,
@@ -14,6 +15,7 @@ export const groupsRouter = new Hono();
 
 // PUT Requests
 groupsRouter.put("/:id/deactivate", deactivateGroup);
+groupsRouter.put("/:id/activate", activateGroup);
 groupsRouter.put("/:id", updateGroup);
 
 // DELETE Requests
