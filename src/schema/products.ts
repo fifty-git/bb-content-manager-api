@@ -1,15 +1,21 @@
 import { sql } from "drizzle-orm";
-import { boolean, datetime, decimal, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
+import { boolean, datetime, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
+import { sales_channels } from "~/schema/sales-channels";
 import { tags } from "~/schema/tags";
 
 export const products = mysqlTable(
   "products",
   {
     product_id: int("product_id").autoincrement().notNull(),
+    sales_channel_id: int("sales_channel_id")
+      .default(1)
+      .notNull()
+      .references(() => sales_channels.sales_channel_id),
     name: varchar("name", { length: 255 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
+    product_type: mysqlEnum("product_type", ["single", "bundle"]).default("single").notNull(),
     status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -62,60 +68,6 @@ export const product_tag_link = mysqlTable(
     return {
       product_id: index("product_id").on(table.product_id),
       tag_id: index("tag_id").on(table.tag_id),
-    };
-  },
-);
-
-export const product_variants = mysqlTable(
-  "product_variants",
-  {
-    variant_id: int("variant_id").autoincrement().notNull(),
-    product_id: int("product_id")
-      .notNull()
-      .references(() => products.product_id),
-    name: varchar("name", { length: 255 }).notNull(),
-    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-    units: int("units").notNull(),
-    measure_units: varchar("measure_units", { length: 20 }).notNull(),
-    upc: varchar("upc", { length: 50 }).default("").notNull(),
-    display_order: int("display_order").default(0).notNull(),
-    status: mysqlEnum("status", ["inactive", "active"]).default("active").notNull(),
-    created_at: datetime("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updated_at: datetime("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      product_variants_variant_id: primaryKey(table.variant_id),
-    };
-  },
-);
-
-export const product_varieties = mysqlTable(
-  "product_varieties",
-  {
-    product_variety_id: int("product_variety_id").autoincrement().notNull(),
-    product_id: int("product_id")
-      .notNull()
-      .references(() => products.product_id),
-    name: varchar("name", { length: 255 }).notNull(),
-    sku: varchar("sku", { length: 255 }).notNull(),
-    cost: decimal("cost", { precision: 6, scale: 2 }).default("0.00").notNull(),
-    active: boolean("active").default(true).notNull(),
-    quality: mysqlEnum("quality", ["A", "B", "C"]).default("A").notNull(),
-    created_at: datetime("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updated_at: datetime("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      product_varieties_product_variety_id: primaryKey(table.product_variety_id),
     };
   },
 );

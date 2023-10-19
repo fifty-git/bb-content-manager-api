@@ -8,5 +8,7 @@ export const CreateBundleVariantAPISchema = z.object({
     .string()
     .refine((price) => PRICE_REGEX.test(price), "Invalid price format. Price should have up to two decimal places and no currency symbols")
     .refine((price) => parseFloat(price) > 0, "Price must be greater than zero"),
+  measure_units: z.string().nonempty("Measure unit is required and cannot be empty"),
+  units: z.number().refine((value) => value > 0, "Units must be greater than zero"),
   upc: z.string(),
 });

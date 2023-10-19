@@ -35,8 +35,8 @@ export async function getProductVariants(c: Context<EnvAPI>) {
 }
 
 export async function createProductVariant(c: Context<EnvAPI>) {
-  // Validator
   const product_id = parseInt(c.req.param("product_id"), 10);
+  c.var.log.info(`Creating variant for product ID ${product_id}`);
   const data = await c.req.json();
   const validator = CreateVariantAPISchema.safeParse({ ...data, product_id });
   if (!validator.success)
@@ -49,8 +49,8 @@ export async function createProductVariant(c: Context<EnvAPI>) {
 }
 
 export async function reorderProductVariants(c: Context<EnvAPI>) {
-  // Validator
   const product_id = parseInt(c.req.param("product_id"), 10);
+  c.var.log.info(`Reordering variants for product ID ${product_id}`);
   const data = await c.req.json();
   const validator = ReorderVariantsAPISchema.safeParse({ ...data, product_id });
   if (!validator.success)
@@ -63,11 +63,18 @@ export async function reorderProductVariants(c: Context<EnvAPI>) {
   return c.json({ status: "success", msg: "Variants were reordered successfully" });
 }
 
+export async function enableProductVariant(c: Context<EnvAPI>) {
+  const product_id = c.req.param("product_id");
+  const variant_id = c.req.param("variant_id");
+  await ProductVariantsDS.enable(+product_id, +variant_id);
+  return c.json({ status: "success", msg: `Variant ${variant_id} was enabled successfully` }, 200);
+}
+
 export async function disableProductVariant(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const variant_id = c.req.param("variant_id");
-  await ProductVariantsDS.disableVariant(+product_id, +variant_id);
-  return c.json(null, 204);
+  await ProductVariantsDS.disable(+product_id, +variant_id);
+  return c.json({ status: "success", msg: `Variant ${variant_id} was disabled successfully` }, 200);
 }
 
 export async function deleteProductVariant(c: Context<EnvAPI>) {

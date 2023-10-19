@@ -1,15 +1,16 @@
-import type { Carrier, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
+import { db } from "~/modules/drizzle";
+import { type Carrier, type NewService, Status, type UpdateCarrier, type UpdateService } from "../domain/carriers/entity";
 import {
   CreateCarrierSchema,
   CreateServiceSchema,
   UpdateCarrierSchema,
   UpdateServiceSchema,
 } from "../domain/carriers/validator/create-carrier";
+import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
-import { CarrierServiceDS } from "../infrastructure/drizzle/carrierServices";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -35,7 +36,7 @@ export async function getAllCarriers(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carriers ? "successs" : "error",
+      status: carriers ? "success" : "error",
       data: composed,
     },
     200,
@@ -50,7 +51,7 @@ export async function getCarrierById(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: composed,
     },
     200,
@@ -63,7 +64,7 @@ export async function getAllCarrierServices(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: carrier,
     },
     200,
@@ -77,7 +78,7 @@ export async function getCarrierServiceById(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: carrier ? "successs" : "error",
+      status: carrier ? "success" : "error",
       data: carrier,
     },
     200,
@@ -92,7 +93,7 @@ export async function createCarrier(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: created?.insertId ? "successs" : "error",
+      status: created?.insertId ? "success" : "error",
       data: { id: created?.insertId },
       msg: created?.insertId ? "carrier successfully created" : "cannot create carrier",
     },
@@ -112,7 +113,7 @@ export async function createService(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: created?.insertId ? "successs" : "error",
+      status: created?.insertId ? "success" : "error",
       data: { id: created?.insertId },
       msg: created?.insertId ? "service successfully created" : "cannot create service",
     },
@@ -132,9 +133,9 @@ export async function updateCarrier(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: updated?.affectedRows === 1 ? "successs" : "error",
+      status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id },
-      msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
+      msg: updated?.affectedRows === 1 ? "carrier successfully updated" : "cannot update carrier",
     },
     200,
   );
@@ -154,7 +155,7 @@ export async function updateService(c: Context<EnvAPI>) {
 
   return c.json(
     {
-      status: updated?.affectedRows === 1 ? "successs" : "error",
+      status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id, service_id },
       msg: updated?.affectedRows === 1 ? "service successfully updated" : "cannot update service",
     },
@@ -162,9 +163,144 @@ export async function updateService(c: Context<EnvAPI>) {
   );
 }
 
+export async function activateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+  const results = await db.transaction(async (tx) => {
+    await CarriersDS.update(
+      {
+        carrier_id,
+        status: Status.ACTIVE,
+      },
+      tx,
+    );
+
+    const updates = services.map((service) =>
+      CarrierServiceDS.update(
+        {
+          carrier_id: service.carrier_id,
+          carrier_service_id: service.carrier_service_id,
+          status: Status.ACTIVE,
+        },
+        tx,
+      ),
+    );
+
+    return Promise.all(updates);
+  });
+
+  return c.json(
+    {
+      status:
+        results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length
+          ? "success"
+          : "failed",
+      msg: "carrier activated successfully",
+      data: {
+        carrier_id,
+        carrier_service_id: services.map((service) => service.carrier_service_id),
+      },
+    },
+    200,
+  );
+}
+
+export async function activateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  const updated = await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    status: Status.ACTIVE,
+  });
+
+  return c.json(
+    {
+      status: updated.affectedRows === 1 ? "success" : "failed",
+      msg: "service activated successfully",
+      data: { carrier_id, service_id },
+    },
+    200,
+  );
+}
+
+export async function deactivateCarrier(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+  const results = await db.transaction(async (tx) => {
+    await CarriersDS.update(
+      {
+        carrier_id,
+        status: Status.INACTIVE,
+      },
+      tx,
+    );
+
+    const updates = services.map((service) =>
+      CarrierServiceDS.update(
+        {
+          carrier_id: service.carrier_id,
+          carrier_service_id: service.carrier_service_id,
+          status: Status.INACTIVE,
+        },
+        tx,
+      ),
+    );
+
+    return Promise.all(updates);
+  });
+
+  return c.json(
+    {
+      status:
+        results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length
+          ? "success"
+          : "failed",
+      msg: "carrier deactivated successfully",
+      data: {
+        carrier_id,
+        carrier_service_id: services.map((service) => service.carrier_service_id),
+      },
+    },
+    200,
+  );
+}
+
+export async function deactivateService(c: Context<EnvAPI>) {
+  const carrier_id = Number(c.req.param("carrier_id"));
+  const service_id = Number(c.req.param("service_id"));
+  const updated = await CarrierServiceDS.update({
+    carrier_id,
+    carrier_service_id: service_id,
+    status: Status.INACTIVE,
+  });
+
+  return c.json(
+    {
+      status: updated.affectedRows === 1 ? "success" : "failed",
+      msg: "service deactivated successfully",
+      data: { carrier_id, service_id },
+    },
+    200,
+  );
+}
+
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
-  await CarriersDS.delete(carrier_id);
+  await db.transaction(async (tx) => {
+    const services = await CarrierServiceDS.getByCarrierID(carrier_id);
+    const deletes = services.map((service) => {
+      return CarrierServiceDS.delete(
+        {
+          carrier_id: service.carrier_id,
+          carrier_service_id: service.carrier_service_id,
+        },
+        tx,
+      );
+    });
+    await Promise.all(deletes);
+    return CarriersDS.delete(carrier_id, tx);
+  });
 
   return c.json(null, 204);
 }

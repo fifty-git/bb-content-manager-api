@@ -3,38 +3,14 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
-import { createBundleOptions } from "~/core/application/bundle-options-service";
-import {
-  createBundleVariant,
-  deleteBundleVariant,
-  disableBundleVariant,
-  getBundleVariants,
-  reorderBundleVariants,
-} from "~/core/application/bundle-variants-service";
-import { getBundle, getBundles } from "~/core/application/bundles-service";
-import { createProductOptions } from "~/core/application/product-options-service";
-import {
-  createProductVariant,
-  deleteProductVariant,
-  disableProductVariant,
-  getProductVariants,
-  reorderProductVariants,
-} from "~/core/application/product-variants-service";
-import { createProduct, getProduct, getProducts } from "~/core/application/products-service";
 import { JWT_SECRET } from "~/modules/env";
 import { handleErrors, NotFoundError } from "~/modules/errors";
-import {
-  createCarrier,
-  createService,
-  deleteCarrier,
-  deleteService,
-  getAllCarriers,
-  getAllCarrierServices,
-  getCarrierById,
-  getCarrierServiceById,
-  updateCarrier,
-  updateService,
-} from "./core/application/carriers-service";
+import { carriersRouter } from "~/routes/carriers";
+import { optionsRouter } from "~/routes/product-options";
+import { tagsRouter } from "~/routes/product-tags";
+import { variantsRouter } from "~/routes/product-variants";
+import { productsRouter } from "~/routes/products";
+import { salesChannelsRouter } from "~/routes/sales-channels";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { groupsRouter } from "./routes/groups";
 
@@ -56,38 +32,13 @@ app.get("*", secureHeaders());
 app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
-app.get("/api/v1/content-manager/products", getProducts);
-app.get("/api/v1/content-manager/products/:product_id", getProduct);
-app.post("/api/v1/content-manager/products", createProduct);
+app.route("/api/v1/content-manager/products", productsRouter);
 app.route("/api/v1/content-manager/groups", groupsRouter);
-
-app.get("/api/v1/content-manager/bundles", getBundles);
-app.get("/api/v1/content-manager/bundles/:bundle_id", getBundle);
-
-app.get("/api/v1/content-manager/products/:product_id/variants", getProductVariants);
-app.post("/api/v1/content-manager/products/:product_id/variants", createProductVariant);
-app.put("/api/v1/content-manager/products/:product_id/variants/order", reorderProductVariants);
-app.put("/api/v1/content-manager/products/:product_id/variants/:variant_id/deactivate", disableProductVariant);
-app.delete("/api/v1/content-manager/products/:product_id/variants/:variant_id", deleteProductVariant);
-app.post("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", createProductOptions);
-
-app.get("/api/v1/content-manager/bundles/:bundle_id/variants", getBundleVariants);
-app.post("/api/v1/content-manager/bundles/:bundle_id/variants", createBundleVariant);
-app.put("/api/v1/content-manager/bundles/:bundle_id/variants/order", reorderBundleVariants);
-app.put("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/deactivate", disableBundleVariant);
-app.delete("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id", deleteBundleVariant);
-app.post("/api/v1/content-manager/bundles/:bundle_id/variants/:variant_id/options", createBundleOptions);
-
-app.get("/api/v1/content-manager/carriers", getAllCarriers);
-app.get("/api/v1/content-manager/carriers/:carrier_id", getCarrierById);
-app.get("/api/v1/content-manager/carriers/:carrier_id/services", getAllCarrierServices);
-app.get("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", getCarrierServiceById);
-app.post("/api/v1/content-manager/carriers", createCarrier);
-app.post("/api/v1/content-manager/carriers/:carrier_id/services", createService);
-app.put("/api/v1/content-manager/carriers/:carrier_id", updateCarrier);
-app.put("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", updateService);
-app.delete("/api/v1/content-manager/carriers/:carrier_id", deleteCarrier);
-app.delete("/api/v1/content-manager/carriers/:carrier_id/services/:service_id", deleteService);
+app.route("/api/v1/content-manager/products/:product_id/variants", variantsRouter);
+app.route("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", optionsRouter);
+app.route("/api/v1/content-manager/products/:product_id/tags", tagsRouter);
+app.route("/api/v1/content-manager/carriers", carriersRouter);
+app.route("/api/v1/content-manager/sales-channels", salesChannelsRouter);
 
 // 404 Not found
 app.all("*", (c) => {

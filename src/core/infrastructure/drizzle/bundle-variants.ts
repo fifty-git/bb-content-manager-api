@@ -11,6 +11,8 @@ export class BundleVariantsDS {
         bundle_variant_id: bundle_variants.bundle_variant_id,
         name: bundle_variants.name,
         price: bundle_variants.price,
+        units: bundle_variants.units,
+        measure_units: bundle_variants.measure_units,
         upc: bundle_variants.upc,
       })
       .from(bundle_variants)
@@ -52,7 +54,6 @@ export class BundleVariantsDS {
       .select({
         value: bundle_variant_option_values.value,
         additional_price: bundle_variant_option_values.additional_price,
-        sku: bundle_variant_option_values.sku,
         is_default: bundle_variant_option_values.is_default,
       })
       .from(bundle_variant_option_values)
@@ -81,7 +82,7 @@ export class BundleVariantsDS {
       .execute();
   }
 
-  static async disableVariant(bundle_id: number, bundle_variant_id: number) {
+  static async disable(bundle_id: number, bundle_variant_id: number) {
     return db
       .update(bundle_variants)
       .set({ status: "inactive" })
