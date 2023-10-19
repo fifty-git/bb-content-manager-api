@@ -1,6 +1,7 @@
 import type { NewGroup, UpdateGroup } from "~/core/domain/groups/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/mysql-core";
 import { db } from "~/modules/drizzle";
 import { bundle_group_link } from "~/schema/bundles";
 import { groups } from "~/schema/groups";
@@ -9,6 +10,12 @@ import { product_group_link } from "~/schema/products";
 export class GroupsDS {
   static async updateGroup(group_id: number, group: UpdateGroup) {
     const prepared = db.update(groups).set(group).where(eq(groups.group_id, group_id)).prepare();
+    const results = await prepared.execute();
+    return results[0];
+  }
+
+  static async activateGroup(group_id: number) {
+    const prepared = db.update(groups).set({ status: "active" }).where(eq(groups.group_id, group_id)).prepare();
     const results = await prepared.execute();
     return results[0];
   }
@@ -61,18 +68,28 @@ export class GroupsDS {
   }
 
   static async getGroupById(group_id: number) {
+    const groups2 = alias(groups, "group2");
     return db
-      .select({ group_id: groups.group_id, name: groups.name, parent_group_id: groups.parent_group_id })
+      .select({ group_id: groups.group_id, name: groups.name, parent_group_id: groups.parent_group_id, parent_group_name: groups2.name })
       .from(groups)
+      .leftJoin(groups2, eq(groups.parent_group_id, groups2.group_id))
       .where(eq(groups.group_id, group_id)) // Filtrar por group_id
       .prepare()
       .execute();
   }
 
   static async getAll() {
+    const groups2 = alias(groups, "group2");
     return db
-      .select({ group_id: groups.group_id, name: groups.name, parent_group_id: groups.parent_group_id })
+      .select({
+        group_id: groups.group_id,
+        name: groups.name,
+        parent_group_id: groups.parent_group_id,
+        parent_group_name: groups2.name,
+        status: groups.status,
+      })
       .from(groups)
+      .leftJoin(groups2, eq(groups.parent_group_id, groups2.group_id))
       .prepare()
       .execute();
   }

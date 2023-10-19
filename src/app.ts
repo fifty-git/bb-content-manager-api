@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { jwt } from "hono/jwt";
 import { secureHeaders } from "hono/secure-headers";
+import { createBundleOptions } from "~/core/application/bundle-options-service";
 import {
   createBundleVariant,
   deleteBundleVariant,
@@ -36,7 +37,6 @@ import {
 } from "./core/application/carriers-service";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { groupsRouter } from "./routes/groups";
-import {createBundleOptions} from "~/core/application/bundle-options-service";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();
@@ -48,7 +48,7 @@ app.use(
     credentials: true,
     origin: (origin) => {
       if (origin.endsWith(".fiftyflowers.com") || origin === "https://fiftyflowers.com") return origin;
-      return "http://localhost:3000";
+      return "http://localhost:5000";
     },
   }),
 );
