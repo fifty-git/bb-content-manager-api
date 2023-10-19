@@ -1,5 +1,4 @@
-import { afterAll, describe, expect, test } from "bun:test";
-import app from "~/app";
+import { describe, expect, test } from "bun:test";
 import token from "../utils/sign-in";
 
 describe("Groups Service", () => {
