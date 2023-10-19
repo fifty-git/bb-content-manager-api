@@ -12,6 +12,7 @@ export class ProductTagsDS {
         tag_id: tags.tag_id,
         name: tags.name,
         type: tags.type,
+        searchable: tags.searchable,
         created_at: product_tag_link.created_at,
         updated_at: product_tag_link.updated_at,
       })
