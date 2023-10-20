@@ -29,6 +29,7 @@ app.use(
   }),
 );
 app.get("*", secureHeaders());
+app.get("/status", (c) => c.json({ msg: "Service UP" }, 200));
 app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 
 // Protected routes
