@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - jesus/unit-tests
-
+env:
+  PORT: 3000
+  LOG_LEVEL: "debug"
+  NODE_ENV: "development"
+  DATABASE_URL: "mysql://flower:50-honor-fold-roister-measure@dev-ds.fiftyflowers.com:3306/cms"
+  JWT_SECRET: "stormlight"
+  JWT_USER: "flower"
+  JWT_PASS: "100flowers"
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -29,13 +36,13 @@ jobs:
       - name: Starting Server
         uses: JarvusInnovations/background-action@v1
         with:
-          run: npm run start &
+          run: npm run dev &
           wait-on: http://localhost:3000/status
           tail: true
           log-output-resume: stderr
           log-output: stderr,stdout
           log-output-if: failure,exit-early,timeout,success,true,false
-          wait-for: 1m
+          wait-for: 10s
       - run: echo "🔎 Executing tests"
         
       - name: Run tests
