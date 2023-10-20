@@ -33,6 +33,8 @@ jobs:
           wait-on: http://localhost:3000/status
           tail: true
           log-output-resume: stderr
+          log-output: stderr,stdout
+          log-output-if: failure
           wait-for: 1m
       - run: echo "🔎 Executing tests"
         
