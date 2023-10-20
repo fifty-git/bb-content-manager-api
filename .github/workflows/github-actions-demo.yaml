@@ -25,16 +25,16 @@ jobs:
 
       - name: Install BUN
         run: npm install bun
-  
-      - uses: JarvusInnovations/background-action@v1
-        name: Starting Server
+
+      - name: Starting Server
+        uses: JarvusInnovations/background-action@v1
         with:
           run: npm run start &
           wait-on: http://localhost:3000/status
           tail: true
           log-output-resume: stderr
           log-output: stderr,stdout
-          log-output-if: failure
+          log-output-if: failure,exit-early,timeout,success,true,false
           wait-for: 1m
       - run: echo "🔎 Executing tests"
         
