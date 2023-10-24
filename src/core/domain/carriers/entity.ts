@@ -32,11 +32,9 @@ export interface NewCarrierServiceCity {
   transit_days: number;
 }
 
-export interface ServiceHighSeason {
-  carrier_service_high_season_id: number;
-  start_date: Date;
-  end_date: Date;
-  extra_time: number;
+export interface NewCarrierServiceDay {
+  carrier_service_id: number;
+  day_name: Days;
 }
 
 export interface Service {
@@ -62,7 +60,6 @@ export interface UpdateService {
   name?: string;
   type?: ServiceType;
   cities?: ServiceCity[];
-  high_seasons?: ServiceHighSeason[];
   days?: Days[];
   status?: Status;
 }

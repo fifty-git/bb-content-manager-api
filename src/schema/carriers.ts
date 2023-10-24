@@ -101,27 +101,3 @@ export const carrier_service_days = mysqlTable(
   },
 );
 
-export const carrier_service_high_seasons = mysqlTable(
-  "carrier_service_high_seasons",
-  {
-    carrier_service_high_season_id: int("carrier_service_high_season_id").autoincrement().primaryKey(),
-    carrier_service_id: int("carrier_service_id")
-      .notNull()
-      .references(() => carrier_services.carrier_service_id),
-    start_date: datetime("start_date").notNull(),
-    end_date: datetime("end_date").notNull(),
-    extra_time: int("extra_time").notNull(),
-    created_at: datetime("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updated_at: datetime("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      carrier_service_high_seasons_pk: primaryKey(table.carrier_service_high_season_id),
-      carrier_services_carrier_service_high_seasons_fk: index("carrier_service_id").on(table.carrier_service_id),
-    };
-  },
-);

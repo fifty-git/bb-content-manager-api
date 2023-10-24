@@ -1,4 +1,4 @@
-import type { Days, NewCarrierServiceCity, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import type { Days, NewCarrierServiceCity, NewCarrierServiceDay, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
@@ -12,7 +12,6 @@ import {
 } from "../domain/carriers/validator/create-carrier";
 import { CarrierServiceCitiesDS } from "../infrastructure/drizzle/carrier-service-cities";
 import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
-import { CarrierServiceHighSeasonsDS } from "../infrastructure/drizzle/carrier-service-high-seasons";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
 
@@ -38,13 +37,11 @@ export async function getAllCarriers(c: Context<EnvAPI>) {
         services.map(async (service) => {
           const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
           const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-          const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
           return {
             ...service,
             cities,
             days,
-            high_seasons,
           };
         }),
       );
@@ -73,13 +70,11 @@ export async function getCarrierById(c: Context<EnvAPI>) {
     services.map(async (service) => {
       const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
         cities,
         days,
-        high_seasons,
       };
     }),
   );
@@ -101,13 +96,11 @@ export async function getAllCarrierServices(c: Context<EnvAPI>) {
     services.map(async (service) => {
       const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
         cities,
         days,
-        high_seasons,
       };
     }),
   );
@@ -129,13 +122,11 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
     services.map(async (service) => {
       const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
-      const high_seasons = await CarrierServiceHighSeasonsDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
         cities,
         days,
-        high_seasons,
       };
     }),
   );
@@ -183,18 +174,13 @@ export async function createService(c: Context<EnvAPI>) {
       ...city,
       carrier_service_id: insertedService.insertId,
     }));
-    const days: Days[] = payload.service.days;
-    await CarrierServiceCitiesDS.createMany(cities, tx);
-    await CarrierServiceDaysDS.createMany(days, insertedService.insertId, tx);
+    const days: NewCarrierServiceDay[] = payload.service.days.map((day: Days) => ({
+      carrier_service_id: insertedService.insertId,
+      day_name: day,
+    }));
 
-    if (payload.service.high_seasons) {
-      const seasons = payload.service.high_seasons.map((high_season: any) => ({
-        ...high_season,
-        start_date: new Date(high_season.start_date),
-        end_date: new Date(high_season.end_date),
-      }));
-      await CarrierServiceHighSeasonsDS.createMany(seasons, insertedService.insertId, tx);
-    }
+    await CarrierServiceCitiesDS.createMany(cities, tx);
+    await CarrierServiceDaysDS.createMany(days, tx);
 
     return insertedService;
   });
@@ -258,19 +244,6 @@ export async function updateService(c: Context<EnvAPI>) {
     if (service.days) {
       await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
       await CarrierServiceDaysDS.createMany(service.days, service_id, tx);
-    }
-
-    if (service.high_seasons) {
-      await CarrierServiceHighSeasonsDS.deleteByServiceID(service_id, tx);
-      await CarrierServiceHighSeasonsDS.createMany(
-        service.high_seasons.map((high_season) => ({
-          ...high_season,
-          start_date: new Date(high_season.start_date),
-          end_date: new Date(high_season.end_date),
-        })),
-        service_id,
-        tx,
-      );
     }
 
     return true;
@@ -414,7 +387,6 @@ export async function deleteCarrier(c: Context<EnvAPI>) {
     const services = await CarrierServiceDS.getByCarrierID(carrier_id);
     await Promise.all(services.map((service) => CarrierServiceCitiesDS.deleteByServiceID(service.carrier_service_id, tx)));
     await Promise.all(services.map((service) => CarrierServiceDaysDS.deleteByServiceID(service.carrier_service_id, tx)));
-    await Promise.all(services.map((service) => CarrierServiceHighSeasonsDS.deleteByServiceID(service.carrier_service_id, tx)));
     await CarrierServiceDS.deleteByCarrierID(carrier_id, tx);
     return CarriersDS.delete(carrier_id, tx);
   });
@@ -428,7 +400,6 @@ export async function deleteService(c: Context<EnvAPI>) {
   const deleted = await db.transaction(async (tx) => {
     await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
     await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
-    await CarrierServiceHighSeasonsDS.deleteByServiceID(service_id, tx);
     return CarrierServiceDS.delete(
       {
         carrier_id,

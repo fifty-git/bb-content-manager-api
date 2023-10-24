@@ -1,4 +1,4 @@
-import type { Days } from "~/core/domain/carriers/entity";
+import type { Days, NewCarrierServiceDay } from "~/core/domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
 import { eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
@@ -16,17 +16,8 @@ export class CarrierServiceDaysDS {
     ).map(({ day_name }) => day_name);
   }
 
-  static async createMany(days: Days[], service_id: number, tx?: Transaction) {
-    return (tx || db)
-      .insert(carrier_service_days)
-      .values(
-        days.map((day) => ({
-          carrier_service_id: service_id,
-          day_name: day,
-        })),
-      )
-      .prepare()
-      .execute();
+  static async createMany(days: NewCarrierServiceDay[], tx?: Transaction) {
+    return (tx || db).insert(carrier_service_days).values(days).prepare().execute();
   }
 
   static async deleteByServiceID(service_id: number, tx?: Transaction) {
