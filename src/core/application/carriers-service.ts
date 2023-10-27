@@ -1,4 +1,11 @@
-import type { Days, NewCarrierServiceCity, NewCarrierServiceDay, NewService, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import type {
+  Days,
+  NewCarrierServiceCity,
+  NewCarrierServiceDay,
+  NewService,
+  UpdateCarrier,
+  UpdateService,
+} from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import type { SafeParseReturnType } from "zod";
@@ -242,8 +249,9 @@ export async function updateService(c: Context<EnvAPI>) {
     }
 
     if (service.days) {
+      const days = service.days.map((day) => ({ day_name: day, carrier_service_id: service_id }));
       await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
-      await CarrierServiceDaysDS.createMany(service.days, service_id, tx);
+      await CarrierServiceDaysDS.createMany(days, tx);
     }
 
     return true;
