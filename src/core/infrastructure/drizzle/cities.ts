@@ -7,7 +7,7 @@ export class CitiesDS {
     return db
       .select({
         city_id: cities.city_id,
-        name: cities.name,
+        city_name: cities.name,
       })
       .from(cities)
       .where(eq(cities.country_id, country_id))

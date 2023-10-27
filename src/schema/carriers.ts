@@ -100,4 +100,3 @@ export const carrier_service_days = mysqlTable(
     };
   },
 );
-
