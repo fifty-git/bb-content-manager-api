@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { datetime, index, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
 import { Days, ServiceType, Status } from "~/core/domain/carriers/entity";
-import { cities } from "./countries";
+import { farms } from "./farms";
 
 export const carriers = mysqlTable(
   "carriers",
@@ -24,6 +24,17 @@ export const carriers = mysqlTable(
     };
   },
 );
+
+export const carrier_accounts = mysqlTable("carrier_accounts", {
+  account_id: int("account_id").autoincrement().primaryKey().notNull(),
+  account_name: varchar("account_name", { length: 100 }).unique().notNull(),
+  account_number: varchar("account_number", { length: 100 }).notNull()
+});
+
+export const farm_carrier_accounts_link = mysqlTable("farm_carrier_accounts_link", {
+  account_id: int("account_id").references(() => carrier_accounts.account_id).primaryKey(),
+  farm_id: int("farm_id").references(() => farms.farm_id).primaryKey(),
+});
 
 export const carrier_services = mysqlTable(
   "carrier_services",
@@ -51,32 +62,10 @@ export const carrier_services = mysqlTable(
   },
 );
 
-export const carrier_service_cities = mysqlTable(
-  "carrier_service_cities",
-  {
-    carrier_service_city_id: int("carrier_service_city_id").autoincrement().notNull(),
-    carrier_service_id: int("carrier_service_id")
-      .notNull()
-      .references(() => carrier_services.carrier_service_id),
-    city_id: int("city_id")
-      .notNull()
-      .references(() => cities.city_id),
-    transit_days: int("transit_days").notNull(),
-    created_at: datetime("created_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updated_at: datetime("updated_at", { mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      carrier_services_cities_pk: primaryKey(table.carrier_service_city_id),
-      carrier_service_carrier_service_cities_fk: index("carrier_service_id").on(table.carrier_service_id),
-      cities_carrier_service_cities_fk: index("city_id").on(table.city_id),
-    };
-  },
-);
+export const carrier_service_accounts_link = mysqlTable("carrier_service_accounts_link", {
+  carrier_service_id: int("carrier_service_id").references(() => carrier_services.carrier_service_id).primaryKey().notNull(),
+  account_id: int("account_id").references(() => carrier_accounts.account_id).primaryKey().notNull(),
+});
 
 export const carrier_service_days = mysqlTable(
   "carrier_service_days",
