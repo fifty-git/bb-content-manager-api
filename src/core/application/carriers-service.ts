@@ -1,6 +1,5 @@
 import type {
   Days,
-  NewCarrierServiceCity,
   NewCarrierServiceDay,
   NewService,
   UpdateCarrier,
@@ -17,10 +16,10 @@ import {
   UpdateCarrierSchema,
   UpdateServiceSchema,
 } from "../domain/carriers/validator/create-carrier";
-import { CarrierServiceCitiesDS } from "../infrastructure/drizzle/carrier-service-cities";
 import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
+import { CarrierServiceAccountsDS } from "../infrastructure/drizzle/carrier-service-accounts";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -42,12 +41,12 @@ export async function getAllCarriers(c: Context<EnvAPI>) {
       const services = await CarrierServiceDS.getByCarrierID(carrier.carrier_id);
       const composedServices = await Promise.all(
         services.map(async (service) => {
-          const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+          const accounts = await CarrierServiceAccountsDS.getAllAccountsByServiceID(service.carrier_service_id);
           const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
 
           return {
             ...service,
-            cities,
+            accounts,
             days,
           };
         }),
@@ -75,12 +74,12 @@ export async function getCarrierById(c: Context<EnvAPI>) {
   const services = await CarrierServiceDS.getByCarrierID(id);
   const composedServices = await Promise.all(
     services.map(async (service) => {
-      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const accounts = await CarrierServiceAccountsDS.getAllAccountsByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
-        cities,
+        accounts,
         days,
       };
     }),
@@ -101,12 +100,12 @@ export async function getAllCarrierServices(c: Context<EnvAPI>) {
   const services = await CarrierServiceDS.getByCarrierID(id);
   const composedServices = await Promise.all(
     services.map(async (service) => {
-      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const accounts = await CarrierServiceAccountsDS.getAllAccountsByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
-        cities,
+        accounts,
         days,
       };
     }),
@@ -127,12 +126,12 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
   const services = await CarrierServiceDS.getByIDs(carrier_id, service_id);
   const composedServices = await Promise.all(
     services.map(async (service) => {
-      const cities = await CarrierServiceCitiesDS.getByServiceID(service.carrier_service_id);
+      const accounts = await CarrierServiceAccountsDS.getAllAccountsByServiceID(service.carrier_service_id);
       const days = await CarrierServiceDaysDS.getByServiceID(service.carrier_service_id);
 
       return {
         ...service,
-        cities,
+        accounts,
         days,
       };
     }),
@@ -177,16 +176,11 @@ export async function createService(c: Context<EnvAPI>) {
       },
       tx,
     );
-    const cities: NewCarrierServiceCity[] = payload.service.cities.map((city: NewCarrierServiceCity) => ({
-      ...city,
-      carrier_service_id: insertedService.insertId,
-    }));
     const days: NewCarrierServiceDay[] = payload.service.days.map((day: Days) => ({
       carrier_service_id: insertedService.insertId,
       day_name: day,
     }));
 
-    await CarrierServiceCitiesDS.createMany(cities, tx);
     await CarrierServiceDaysDS.createMany(days, tx);
 
     return insertedService;
@@ -241,12 +235,6 @@ export async function updateService(c: Context<EnvAPI>) {
       },
       tx,
     );
-
-    if (service.cities) {
-      const cities = service.cities.map((city) => ({ ...city, carrier_service_id: service_id }));
-      await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
-      await CarrierServiceCitiesDS.createMany(cities, tx);
-    }
 
     if (service.days) {
       const days = service.days.map((day) => ({ day_name: day, carrier_service_id: service_id }));
@@ -393,7 +381,6 @@ export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const deleted = await db.transaction(async (tx) => {
     const services = await CarrierServiceDS.getByCarrierID(carrier_id);
-    await Promise.all(services.map((service) => CarrierServiceCitiesDS.deleteByServiceID(service.carrier_service_id, tx)));
     await Promise.all(services.map((service) => CarrierServiceDaysDS.deleteByServiceID(service.carrier_service_id, tx)));
     await CarrierServiceDS.deleteByCarrierID(carrier_id, tx);
     return CarriersDS.delete(carrier_id, tx);
@@ -406,7 +393,6 @@ export async function deleteService(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const service_id = Number(c.req.param("service_id"));
   const deleted = await db.transaction(async (tx) => {
-    await CarrierServiceCitiesDS.deleteByServiceID(service_id, tx);
     await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
     return CarrierServiceDS.delete(
       {

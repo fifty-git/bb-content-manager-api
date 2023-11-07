@@ -18,13 +18,6 @@ export enum Days {
   SUN = "sun",
 }
 
-export interface ServiceCity {
-  carrier_service_city_id: number;
-  city_id: number;
-  city_name: string;
-  transit_days: number;
-}
-
 export interface NewCarrierServiceCity {
   carrier_service_id: number;
   city_id: number;
@@ -59,7 +52,6 @@ export interface UpdateService {
   code?: string;
   name?: string;
   type?: ServiceType;
-  cities?: ServiceCity[];
   days?: Days[];
   status?: Status;
 }
