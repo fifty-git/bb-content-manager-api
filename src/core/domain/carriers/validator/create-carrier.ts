@@ -1,11 +1,16 @@
 import { z } from "zod";
 import { Days, ServiceType } from "../entity";
 
+export const CreateCarrierAccountSchema = z.object({
+  account: z.object({
+    account_number: z.string().nonempty(),
+    account_name: z.string().nonempty()
+  })
+});
+
 export const CreateCarrierSchema = z.object({
   carrier: z.object({
-    code: z.string().trim().nonempty(),
     name: z.string().trim().nonempty(),
-    account_number: z.string().trim().nonempty(),
   }),
 });
 
@@ -19,16 +24,10 @@ export const UpdateCarrierSchema = z.object({
 
 export const CreateServiceSchema = z.object({
   service: z.object({
-    code: z.string().trim().nonempty(),
     name: z.string().trim().nonempty(),
-    cities: z.array(
-      z.object({
-        city_id: z.number(),
-        transit_days: z.number().gt(0),
-      }),
-    ),
     days: z.array(z.enum([Days.MON, Days.TUE, Days.WED, Days.THU, Days.FRI, Days.SAT, Days.SUN])),
     type: z.enum([ServiceType.INT, ServiceType.DOM]).optional(),
+    accounts: z.array(z.number()).optional(),
   }),
 });
 
@@ -37,14 +36,6 @@ export const UpdateServiceSchema = z.object({
     code: z.string().trim().nonempty().optional(),
     name: z.string().trim().nonempty().optional(),
     days: z.array(z.enum([Days.MON, Days.TUE, Days.WED, Days.THU, Days.FRI, Days.SAT, Days.SUN])).optional(),
-    cities: z
-      .array(
-        z.object({
-          city_id: z.number(),
-          transit_days: z.number().gt(0),
-        }),
-      )
-      .optional(),
     type: z.enum([ServiceType.INT, ServiceType.DOM]).optional(),
   }),
 });

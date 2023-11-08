@@ -7,9 +7,7 @@ export const carriers = mysqlTable(
   "carriers",
   {
     carrier_id: int("carrier_id").autoincrement().notNull(),
-    code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
-    account_number: varchar("accountNumber", { length: 255 }).notNull(),
     status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -40,9 +38,9 @@ export const carrier_services = mysqlTable(
   "carrier_services",
   {
     carrier_service_id: int("carrier_service_id").autoincrement().notNull(),
-    code: varchar("code", { length: 50 }).notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     type: mysqlEnum("type", [ServiceType.DOM, ServiceType.INT]).default(ServiceType.DOM).notNull(),
+    transit_days: int("transit_days").notNull(),
     status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),
     carrier_id: int("carrier_id")
       .notNull()

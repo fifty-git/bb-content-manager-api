@@ -12,7 +12,6 @@ export class CarrierServiceDS {
         carrier_id: carrier_services.carrier_id,
         name: carrier_services.name,
         type: carrier_services.type,
-        code: carrier_services.code,
         status: carrier_services.status,
       })
       .from(carrier_services)
@@ -28,7 +27,6 @@ export class CarrierServiceDS {
         carrier_id: carrier_services.carrier_id,
         name: carrier_services.name,
         type: carrier_services.type,
-        code: carrier_services.code,
         status: carrier_services.status,
       })
       .from(carrier_services)

@@ -18,6 +18,11 @@ export enum Days {
   SUN = "sun",
 }
 
+export interface NewCarrierServiceAccount {
+  account_id: number;
+  carrier_service_id: number;
+}
+
 export interface NewCarrierServiceCity {
   carrier_service_id: number;
   city_id: number;
@@ -33,26 +38,26 @@ export interface NewCarrierServiceDay {
 export interface Service {
   carrier_service_id: number;
   carrier_id: number;
-  code: string;
   name: string;
   type: ServiceType;
   status: Status;
 }
 
 export interface NewService {
+  carrier_id: number;
   code: string;
   name: string;
   type?: ServiceType;
-  carrier_id: number;
+  transit_days: number;
 }
 
 export interface UpdateService {
   carrier_service_id: number;
   carrier_id: number;
-  code?: string;
   name?: string;
   type?: ServiceType;
   days?: Days[];
+  accounts?: number[];
   status?: Status;
 }
 
@@ -64,16 +69,12 @@ export interface DeleteService {
 export interface Carrier {
   carrier_id: number;
   name: string;
-  code: string;
-  account_number: string;
   services?: Service[];
   status: Status;
 }
 
 export interface NewCarrier {
   name: string;
-  code: string;
-  account_number: string;
 }
 
 export interface UpdateCarrier {

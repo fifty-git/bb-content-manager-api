@@ -11,6 +11,7 @@ import type { SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
 import { Status } from "../domain/carriers/entity";
 import {
+    CreateCarrierAccountSchema,
   CreateCarrierSchema,
   CreateServiceSchema,
   UpdateCarrierSchema,
@@ -20,6 +21,7 @@ import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
 import { CarrierServiceAccountsDS } from "../infrastructure/drizzle/carrier-service-accounts";
+import { CarrierAccountsDS } from "../infrastructure/drizzle/carrier-accounts";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -146,6 +148,19 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
   );
 }
 
+export async function createCarrierAccount(c: Context<EnvAPI>) {
+  const payload = await c.req.json();
+  const validator = CreateCarrierAccountSchema.safeParse(payload);
+  if (!validator.success) return handleValidationErrors(validator, c);
+  const created = await CarrierAccountsDS.create(payload.account);
+
+  return c.json({
+    status: created?.insertId ? "success" : "error",
+    data: { id: created?.insertId },
+    msg: created?.insertId ? "account successfully created" : "cannot create account",
+  }, 201);
+}
+
 export async function createCarrier(c: Context<EnvAPI>) {
   const payload = await c.req.json();
   const validator = CreateCarrierSchema.safeParse(payload);
@@ -171,17 +186,26 @@ export async function createService(c: Context<EnvAPI>) {
   const created = await db.transaction(async (tx) => {
     const insertedService = await CarrierServiceDS.create(
       {
-        ...(payload.service as NewService),
+        ...payload.service,
         carrier_id,
       },
       tx,
     );
+
     const days: NewCarrierServiceDay[] = payload.service.days.map((day: Days) => ({
       carrier_service_id: insertedService.insertId,
       day_name: day,
     }));
 
     await CarrierServiceDaysDS.createMany(days, tx);
+
+    if (payload.service.accounts) {
+      const accounts = payload.service.accounts.map((account_id: number) => ({
+        account_id,
+        carrier_service_id: insertedService.insertId,
+      }));
+      await CarrierServiceAccountsDS.createMany(accounts, tx);
+    }
 
     return insertedService;
   });
@@ -227,7 +251,6 @@ export async function updateService(c: Context<EnvAPI>) {
   const updated = await db.transaction(async (tx) => {
     await CarrierServiceDS.update(
       {
-        code: service.code,
         name: service.name,
         type: service.type,
         carrier_id,
@@ -240,6 +263,13 @@ export async function updateService(c: Context<EnvAPI>) {
       const days = service.days.map((day) => ({ day_name: day, carrier_service_id: service_id }));
       await CarrierServiceDaysDS.deleteByServiceID(service_id, tx);
       await CarrierServiceDaysDS.createMany(days, tx);
+    }
+
+    if (service.accounts) {
+      const accounts = service.accounts.map((account) => ({ account_id: account, carrier_service_id: service_id }));
+      const deleted = await CarrierServiceAccountsDS.deleteByServiceID(service_id, tx);
+      console.log("DELETED:", deleted);
+      await CarrierServiceAccountsDS.createMany(accounts, tx);
     }
 
     return true;
