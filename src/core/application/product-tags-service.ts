@@ -21,7 +21,15 @@ export async function createProductTag(c: Context<EnvAPI>) {
 
   // Product Tag creation
   await db.transaction(async (tx) => {
-    const [{ insertId }] = await TagsDS.create(data, tx);
+    const tags = await TagsDS.findByName(data.name);
+    let insertId = 0;
+    if (Object.keys(tags).length === 0) {
+      [{ insertId }] = await TagsDS.create(data, tx);
+    } else {
+      tags.map(async (tag) => {
+        insertId = tag.tag_id;
+      });
+    }
     await ProductTagsDS.create({ tag_id: insertId, product_id }, tx);
   });
 
