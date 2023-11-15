@@ -6,12 +6,7 @@ import { tags } from "~/schema/tags";
 
 export class TagsDS {
   static async findByName(name: string) {
-    return db
-      .select()
-      .from(tags)
-      .where(eq(tags.name, `${name}`))
-      .prepare()
-      .execute();
+    return db.select().from(tags).where(eq(tags.name, name)).prepare().execute();
   }
 
   static async create(data: NewTag, tx?: Transaction) {
