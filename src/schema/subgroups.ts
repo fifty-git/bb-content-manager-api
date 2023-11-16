@@ -5,7 +5,7 @@ import { groups } from "./groups";
 export const subgroups = mysqlTable(
   "subgroups",
   {
-    group_id: int("group_id").autoincrement().notNull(),
+    subgroup_id: int("subgroup_id").autoincrement().notNull(),
     name: varchar("name", { length: 50 }).notNull(),
     parent_group_id: int("parent_group_id").notNull(),
     status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
@@ -22,7 +22,7 @@ export const subgroups = mysqlTable(
         columns: [table.parent_group_id],
         foreignColumns: [groups.group_id],
       }),
-      groups_group_id: primaryKey(table.group_id),
+      groups_group_id: primaryKey(table.subgroup_id),
     };
   },
 );

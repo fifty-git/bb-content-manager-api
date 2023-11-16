@@ -12,6 +12,7 @@ export const products = mysqlTable(
       .default(1)
       .notNull()
       .references(() => sales_channels.sales_channel_id),
+    subgroup_id: int("subgroup_id"),
     name: varchar("name", { length: 255 }).notNull(),
     description: varchar("description", { length: 2000 }).default("").notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
