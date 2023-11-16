@@ -122,12 +122,14 @@ export class GroupsDS {
   }
 
   static async getGroupById(group_id: number) {
-    return db
+    const results = await db
       .select({ group_id: groups.group_id, name: groups.name, status: groups.status })
       .from(groups)
       .where(eq(groups.group_id, group_id))
       .prepare()
       .execute();
+    if (!results || results.length === 0) return null;
+    return results[0];
   }
 
   static async getAllGroups() {
