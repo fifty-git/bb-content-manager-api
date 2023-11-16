@@ -1,8 +1,9 @@
-import type { NewGroup } from "~/core/domain/groups/entity";
+import type { NewGroup, NewSubgroup } from "~/core/domain/groups/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
-import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+import { GroupsDS, SubGroupDS } from "~/core/infrastructure/drizzle/groups";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
+import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
 export async function updateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
@@ -11,23 +12,17 @@ export async function updateGroup(c: Context<EnvAPI>) {
   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
   const groupDB = await GroupsDS.getGroupById(groupId);
   if (!groupDB) return c.json({ msg: "Group not found" }, 400);
-  const { parent_group_id } = validation.data;
-  if (parent_group_id) {
-    const parentGroup = await GroupsDS.getGroupById(parent_group_id);
-    const subGroups = await GroupsDS.getSubgroupsByParentGroupId(groupId);
-    if (!parentGroup) return c.json({ msg: "Parent Group not found" }, 400);
-    if (parentGroup[0].parent_group_id) return c.json({ msg: "The Parent Group already has a parent group" }, 400);
-    if (subGroups.length) return c.json({ msg: "The Group is already a parent group" }, 400);
-  }
   await GroupsDS.updateGroup(groupId, group);
   return c.json({ msg: "Group updated successfully" });
 }
 
 export async function activateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
+  const { activateSubgroups } = c.req.query();
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
   await GroupsDS.activateGroup(groupId);
+  activateSubgroups == "true" && (await SubGroupDS.activateSubgroups(groupId));
   return c.json({ msg: "Group activated successfully" });
 }
 
@@ -36,7 +31,7 @@ export async function deactivateGroup(c: Context<EnvAPI>) {
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
   await GroupsDS.deactivateGroup(groupId);
-  return c.json({ msg: "Group deactivated successfully" });
+  return c.json({ msg: "Group and subgroups deactivated successfully" });
 }
 
 export async function deleteGroup(c: Context<EnvAPI>) {
@@ -51,12 +46,6 @@ export async function createGroup(c: Context<EnvAPI>) {
   const newGroup: NewGroup = await c.req.json();
   const validation = NewGroupSchema.safeParse(newGroup);
   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
-  const { parent_group_id } = validation.data;
-  if (parent_group_id) {
-    const parentGroup = await GroupsDS.getGroupById(parent_group_id);
-    if (!parentGroup || parentGroup.length === 0) return c.json({ msg: "Parent Group not found" }, 400);
-    if (parentGroup[0].parent_group_id) return c.json({ msg: "The Parent Group already has a parent group" }, 400);
-  }
   await GroupsDS.createGroup(newGroup);
   return c.json({ msg: "Group created successfully" }, 201);
 }
@@ -78,7 +67,7 @@ export async function getSubgroupsByParentGroupId(c: Context<EnvAPI>) {
 }
 
 export async function getGroups(c: Context<EnvAPI>) {
-  const groups = await GroupsDS.getAll();
+  const groups = await GroupsDS.getAllGroups();
   return c.json({ groups });
 }
 
@@ -88,4 +77,47 @@ export async function getGroupById(c: Context<EnvAPI>) {
   const group = await GroupsDS.getGroupById(groupId);
   if (!group || group.length === 0) return c.json({ msg: "Group not found" }, 404);
   return c.json({ group: group[0] });
+}
+
+/* --------------- Subgroups ----------------- */
+
+export async function activateSubgroup(c: Context<EnvAPI>) {
+  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroup = await SubGroupDS.getSubgroupById(subgroupId);
+  if (!subgroup) return c.json({ msg: "Group not found" }, 404);
+  const parentGroup = await GroupsDS.getGroupById(subgroup?.parent_group_id);
+  if (parentGroup[0].status === "inactive") return c.json({ msg: "Parent group is inactive" }, 400);
+  await SubGroupDS.activateSubgroup(subgroupId);
+  return c.json({ msg: "Subgroup activated successfully" });
+}
+
+export async function deactivateSubgroup(c: Context<EnvAPI>) {
+  const subgroupId = parseInt(c.req.param("id"), 10);
+  await SubGroupDS.deactivateSubgroup(subgroupId);
+  return c.json({ msg: "Subgroup deactivated successfully" });
+}
+
+export async function createSubGroup(c: Context<EnvAPI>) {
+  const newGroup: NewSubgroup = await c.req.json();
+  const validation = NewSubGroupSchema.safeParse(newGroup);
+  if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
+  const { parent_group_id } = validation.data;
+  const parentGroup = await GroupsDS.getGroupById(parent_group_id);
+  if (!parentGroup || parentGroup.length === 0) return c.json({ msg: "Parent Group not found" }, 400);
+  await SubGroupDS.createSugroup(newGroup);
+  return c.json({ msg: "Subgroup created successfully" }, 201);
+}
+
+export async function updateSubgroup(c: Context<EnvAPI>) {
+  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroup = await c.req.json();
+  const validation = NewSubGroupSchema.safeParse(subgroup);
+  if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
+  const subgroupDB = await SubGroupDS.getSubgroupById(subgroupId);
+  if (!subgroupDB) return c.json({ msg: "Group not found" }, 400);
+  const { parent_group_id } = validation.data;
+  const parentGroup = await GroupsDS.getGroupById(parent_group_id);
+  if (!parentGroup) return c.json({ msg: "Parent Group not found" }, 400);
+  await SubGroupDS.updateSubgroup(subgroupId, subgroup);
+  return c.json({ msg: "Subgroup updated successfully" });
 }
