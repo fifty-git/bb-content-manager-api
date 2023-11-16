@@ -6,7 +6,7 @@ import type { Context } from "hono";
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
 import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
-import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+import { SubGroupDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 import { ProductVarietiesDS } from "~/core/infrastructure/drizzle/product-varieties";
@@ -18,7 +18,7 @@ async function getProductsWithGroups(name: string | undefined) {
   return Promise.all(
     products.map(async (product) => {
       const group = null;
-      const subgroup = null;
+      const subgroup = SubGroupDS.getSubgroupByProductID(product.product_id);
       return { ...product, id: product.product_id, group, subgroup };
     }),
   );
@@ -36,7 +36,7 @@ export async function getProduct(c: Context<EnvAPI>) {
   if (!product) return c.json({ status: "success", data: product });
 
   const group = null;
-  const subgroup = null;
+  const subgroup = SubGroupDS.getSubgroupByProductID(+id);
   return c.json({ status: "success", data: { ...product, group, subgroup } });
 }
 

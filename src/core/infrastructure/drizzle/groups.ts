@@ -2,8 +2,8 @@ import type { NewGroup, NewSubgroup, UpdateGroup, UpdateSubgroup } from "~/core/
 import type { Transaction } from "~/core/domain/types";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { products } from "~/schema/products";
 import { groups } from "~/schema/groups";
+import { products } from "~/schema/products";
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
@@ -46,6 +46,7 @@ export class SubGroupDS {
       await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
   }
+
   static async getSubgroupByProductID(product_id: number) {
     const results = await db
       .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
