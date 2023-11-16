@@ -1,11 +1,13 @@
 import { sql } from "drizzle-orm";
-import { datetime, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
+import { datetime, foreignKey, int, mysqlEnum, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
+import { groups } from "./groups";
 
-export const groups = mysqlTable(
-  "groups",
+export const subgroups = mysqlTable(
+  "subgroups",
   {
     group_id: int("group_id").autoincrement().notNull(),
     name: varchar("name", { length: 50 }).notNull(),
+    parent_group_id: int("parent_group_id").notNull(),
     status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
     created_at: datetime("created_at", { mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -16,6 +18,10 @@ export const groups = mysqlTable(
   },
   (table) => {
     return {
+      groups_groups_group_id_fk: foreignKey({
+        columns: [table.parent_group_id],
+        foreignColumns: [groups.group_id],
+      }),
       groups_group_id: primaryKey(table.group_id),
     };
   },

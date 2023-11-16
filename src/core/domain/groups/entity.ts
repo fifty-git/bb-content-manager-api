@@ -21,8 +21,13 @@ export interface Group {
   name: string;
 }
 
-export interface Subgroup {
+export interface NewSubgroup {
   group_id: number;
+  name: string;
+  parent_group_id: number;
+}
+
+export interface UpdateSubgroup {
   name: string;
   parent_group_id: number;
 }
