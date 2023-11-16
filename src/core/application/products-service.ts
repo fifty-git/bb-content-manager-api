@@ -6,7 +6,7 @@ import type { Context } from "hono";
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
 import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
-import { SubGroupDS } from "~/core/infrastructure/drizzle/groups";
+import { GroupsDS, SubGroupDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 import { ProductVarietiesDS } from "~/core/infrastructure/drizzle/product-varieties";
@@ -17,8 +17,8 @@ async function getProductsWithGroups(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
   return Promise.all(
     products.map(async (product) => {
-      const group = null;
-      const subgroup = SubGroupDS.getSubgroupByProductID(product.product_id);
+      const subgroup = await SubGroupDS.getSubgroupByProductID(product.product_id);
+      const group = subgroup ? await GroupsDS.getGroupById(subgroup.parent_group_id) : null;
       return { ...product, id: product.product_id, group, subgroup };
     }),
   );
@@ -35,8 +35,8 @@ export async function getProduct(c: Context<EnvAPI>) {
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ status: "success", data: product });
 
-  const group = null;
-  const subgroup = SubGroupDS.getSubgroupByProductID(+id);
+  const subgroup = await SubGroupDS.getSubgroupByProductID(+id);
+  const group = subgroup ? await GroupsDS.getGroupById(subgroup.parent_group_id) : null;
   return c.json({ status: "success", data: { ...product, group, subgroup } });
 }
 
