@@ -49,7 +49,12 @@ export class SubGroupDS {
 
   static async getSubgroupByProductID(product_id: number) {
     const results = await db
-      .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
+      .select({
+        subgroup_id: subgroups.subgroup_id,
+        name: subgroups.name,
+        parent_group_id: subgroups.parent_group_id,
+        status: subgroups.status,
+      })
       .from(subgroups)
       .innerJoin(products, eq(products.subgroup_id, subgroups.subgroup_id))
       .where(eq(products.product_id, product_id))
