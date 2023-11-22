@@ -5,6 +5,14 @@ import { GroupsDS, SubGroupDS } from "~/core/infrastructure/drizzle/groups";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
+export async function getAll(c: Context<EnvAPI>) {
+  const groups = await GroupsDS.getAllGroups();
+  const subgroups = await SubGroupDS.getAllSubgroups();
+  return c.json({ groups, subgroups });
+}
+
+/* --------------- Groups ----------------- */
+
 export async function updateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
   const group = await c.req.json();
@@ -120,4 +128,13 @@ export async function updateSubgroup(c: Context<EnvAPI>) {
   if (!parentGroup) return c.json({ msg: "Parent Group not found" }, 400);
   await SubGroupDS.updateSubgroup(subgroupId, subgroup);
   return c.json({ msg: "Subgroup updated successfully" });
+}
+
+export async function deleteSubgroup(c: Context<EnvAPI>) {
+  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroup = await SubGroupDS.getSubgroupById(subgroupId);
+  if (!subgroup) return c.json({ msg: "Subroup not found" }, 404);
+  if (subgroup.status === "active") return c.json({ msg: "The Subgroups is active you can not delete it" }, 400);
+  await SubGroupDS.deleteSubgroup(subgroupId);
+  return c.json(null, 204);
 }
