@@ -2,14 +2,20 @@ import type { NewGroup, NewSubgroup, UpdateGroup, UpdateSubgroup } from "~/core/
 import type { Transaction } from "~/core/domain/types";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
-import { products } from "~/schema/products";
 import { groups } from "~/schema/groups";
+import { products } from "~/schema/products";
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
   static async createSugroup(newSubgroup: NewSubgroup, tx?: Transaction) {
     if (tx) return tx.insert(groups).values(newSubgroup).prepare().execute();
     return db.insert(subgroups).values(newSubgroup).prepare().execute();
+  }
+
+  static async deleteSubgroup(subgroup_id: number) {
+    const prepared = db.delete(subgroups).where(eq(subgroups.subgroup_id, subgroup_id));
+    const results = await prepared.execute();
+    return results[0];
   }
 
   static async updateSubgroup(subgroup_id: number, subgroup: UpdateSubgroup) {
@@ -20,7 +26,12 @@ export class SubGroupDS {
 
   static async getSubgroupById(subgroupID: number) {
     const results = await db
-      .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
+      .select({
+        group_id: subgroups.subgroup_id,
+        name: subgroups.name,
+        parent_group_id: subgroups.parent_group_id,
+        status: subgroups.status,
+      })
       .from(subgroups)
       .where(eq(subgroups.subgroup_id, subgroupID)) // Filtrar por group_id y parent_group_id
       .prepare()
@@ -46,6 +57,7 @@ export class SubGroupDS {
       await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
   }
+
   static async getSubgroupByProductID(product_id: number) {
     const results = await db
       .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
@@ -57,6 +69,21 @@ export class SubGroupDS {
       .execute();
     if (!results || results.length === 0) return null;
     return results[0];
+  }
+
+  static async getAllSubgroups() {
+    return db
+      .select({
+        subgroup_id: subgroups.subgroup_id,
+        name: subgroups.name,
+        status: subgroups.status,
+        parent_group_id: subgroups.parent_group_id,
+        parent_group_name: groups.name,
+      })
+      .from(subgroups)
+      .innerJoin(groups, eq(groups.group_id, subgroups.parent_group_id))
+      .prepare()
+      .execute();
   }
 }
 

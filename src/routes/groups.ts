@@ -7,6 +7,8 @@ import {
   deactivateGroup,
   deactivateSubgroup,
   deleteGroup,
+  deleteSubgroup,
+  getAll,
   getGroupById,
   getGroups,
   getSubgroupById,
@@ -27,6 +29,7 @@ groupsRouter.put("/:id/subgroups", updateSubgroup);
 
 // DELETE Requests
 groupsRouter.delete("/:id", deleteGroup);
+groupsRouter.delete("/:id/subgroups", deleteSubgroup);
 
 // POST Requests
 groupsRouter.post("", createGroup);
@@ -37,3 +40,4 @@ groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:id", getGroupById);
 groupsRouter.get("", getGroups);
+groupsRouter.get("/subgroups/all", getAll);
