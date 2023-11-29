@@ -19,12 +19,13 @@ export const UpdateCarrierSchema = z.object({
 
 export const CreateServiceSchema = z.object({
   service: z.object({
-    code: z.string().trim().nonempty(),
     name: z.string().trim().nonempty(),
-    cities: z.array(
+    origins: z.array(
       z.object({
+        account_id: z.number(),
         city_id: z.number(),
         transit_days: z.number().gt(0),
+        pickup_days: z.number(),
       }),
     ),
     days: z.array(z.enum([Days.MON, Days.TUE, Days.WED, Days.THU, Days.FRI, Days.SAT, Days.SUN])),
