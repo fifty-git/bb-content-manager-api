@@ -7,7 +7,7 @@ import { products, product_group_link } from "~/schema/products";
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
-  static async createSugroup(newSubgroup: NewSubgroup, tx?: Transaction) {
+  static async createSubgroup(newSubgroup: NewSubgroup, tx?: Transaction) {
     if (tx) return tx.insert(groups).values(newSubgroup).prepare().execute();
     return db.insert(subgroups).values(newSubgroup).prepare().execute();
   }
@@ -109,13 +109,14 @@ export class GroupsDS {
     const subGroups = await GroupsDS.getSubgroupsByParentGroupId(group_id);
     const subGroupsIDs = subGroups.map((group) => group.group_id);
     return db.transaction(async (tx) => {
-      const productStatus = await tx.select({id: products.product_id, name: products.name, status: products.status}).from(products).innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id)).where(inArray(product_group_link.subgroup_id, subGroupsIDs));
-      const activeProducts = productStatus.filter((status: any) => status != "inactive");
-      if (activeProducts.length){
-        return null;
-      }
-      if (subGroupsIDs.length)
+      if (subGroupsIDs.length){
+        const productStatus = await tx.select({id: products.product_id, name: products.name, status: products.status}).from(products).innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id)).where(inArray(product_group_link.subgroup_id, subGroupsIDs));
+        const activeProducts = productStatus.filter((status: any) => status != "inactive");
+        if (activeProducts.length){
+          return null;
+        }
         await tx.update(subgroups).set({ status: "inactive" }).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
+      }
       return await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
     });
   }
@@ -125,7 +126,7 @@ export class GroupsDS {
     const subGroupsIDs = subGroups.map((group) => group.group_id);
     return db.transaction(async (tx) => {
       if (subGroupsIDs.length) {
-        await tx.delete(groups).where(inArray(groups.group_id, subGroupsIDs)).prepare().execute();
+        await tx.delete(subgroups).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
       }
       await tx.delete(groups).where(eq(groups.group_id, group_id)).prepare().execute();
     });

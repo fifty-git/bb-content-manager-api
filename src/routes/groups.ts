@@ -3,7 +3,7 @@ import {
   activateGroup,
   activateSubgroup,
   createGroup,
-  createSubGroup,
+  createSubgroup,
   deactivateGroup,
   deactivateSubgroup,
   deleteGroup,
@@ -33,7 +33,7 @@ groupsRouter.delete("/:id/subgroups", deleteSubgroup);
 
 // POST Requests
 groupsRouter.post("", createGroup);
-groupsRouter.post("/subgroups", createSubGroup);
+groupsRouter.post("/subgroups", createSubgroup);
 
 // GET Requests
 groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
