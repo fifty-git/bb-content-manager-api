@@ -105,7 +105,7 @@ export async function deactivateSubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("id"), 10);
   const result = await SubGroupDS.deactivateSubgroup(subgroupId);
   if (!result)
-    return c.json({ msg: "The subgroups has at least an active product" }, 404);
+    return c.json({ msg: "The subgroup has at least an active product" }, 404);
   return c.json({ msg: "Subgroup deactivated successfully" });
 }
 
