@@ -39,14 +39,14 @@ export const product_group_link = mysqlTable(
     product_id: int("product_id")
       .notNull()
       .references(() => products.product_id),
-    group_id: int("group_id")
+    subgroup_id: int("subgroup_id")
       .notNull()
       .references(() => groups.group_id),
   },
   (table) => {
     return {
       product_group_link_product_group_id: primaryKey(table.product_group_id),
-      product_group_link_pk: unique("product_group_link_pk").on(table.group_id, table.product_id),
+      product_group_link_pk: unique("product_group_link_pk").on(table.subgroup_id, table.product_id),
     };
   },
 );

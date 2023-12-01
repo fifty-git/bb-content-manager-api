@@ -38,7 +38,9 @@ export async function deactivateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
-  await GroupsDS.deactivateGroup(groupId);
+  const result = await GroupsDS.deactivateGroup(groupId);
+  if (!result)
+    return c.json({ msg: "At least one of the subgroups has an active product" }, 404);
   return c.json({ msg: "Group and subgroups deactivated successfully" });
 }
 
@@ -101,7 +103,9 @@ export async function activateSubgroup(c: Context<EnvAPI>) {
 
 export async function deactivateSubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("id"), 10);
-  await SubGroupDS.deactivateSubgroup(subgroupId);
+  const result = await SubGroupDS.deactivateSubgroup(subgroupId);
+  if (!result)
+    return c.json({ msg: "The subgroup has at least an active product" }, 404);
   return c.json({ msg: "Subgroup deactivated successfully" });
 }
 

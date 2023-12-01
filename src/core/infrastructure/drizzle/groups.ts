@@ -3,7 +3,7 @@ import type { Transaction } from "~/core/domain/types";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { groups } from "~/schema/groups";
-import { products } from "~/schema/products";
+import { products, product_group_link } from "~/schema/products";
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
@@ -54,7 +54,12 @@ export class SubGroupDS {
 
   static async deactivateSubgroup(subgroup_id: number) {
     return db.transaction(async (tx) => {
-      await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
+      const productStatus = await tx.select({id: products.product_id, name: products.name, status: products.status}).from(products).innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id)).where(eq(product_group_link.subgroup_id, subgroup_id));
+      const activeProducts = productStatus.filter((status: any) => status != "inactive");
+      if (activeProducts.length){
+        return null;
+      }
+      return await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
   }
 
@@ -109,10 +114,14 @@ export class GroupsDS {
     const subGroups = await GroupsDS.getSubgroupsByParentGroupId(group_id);
     const subGroupsIDs = subGroups.map((group) => group.group_id);
     return db.transaction(async (tx) => {
-      if (subGroupsIDs.length) {
-        await tx.update(subgroups).set({ status: "inactive" }).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
+      const productStatus = await tx.select({id: products.product_id, name: products.name, status: products.status}).from(products).innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id)).where(inArray(product_group_link.subgroup_id, subGroupsIDs));
+      const activeProducts = productStatus.filter((status: any) => status != "inactive");
+      if (activeProducts.length){
+        return null;
       }
-      await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
+      if (subGroupsIDs.length)
+        await tx.update(subgroups).set({ status: "inactive" }).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
+      return await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
     });
   }
 

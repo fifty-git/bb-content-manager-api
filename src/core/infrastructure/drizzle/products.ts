@@ -34,8 +34,8 @@ export class ProductsDS {
     return (tx ?? db).insert(products).values(new_products).prepare().execute();
   }
 
-  static async addGroup(product_id: number, group_id: number, tx?: Transaction) {
-    return (tx ?? db).insert(product_group_link).values({ product_id, group_id }).prepare().execute();
+  static async addGroup(product_id: number, subgroup_id: number, tx?: Transaction) {
+    return (tx ?? db).insert(product_group_link).values({ product_id, subgroup_id }).prepare().execute();
   }
 
   static async enable(product_id: number) {
