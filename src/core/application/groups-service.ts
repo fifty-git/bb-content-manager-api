@@ -116,10 +116,9 @@ export async function createSubgroup(c: Context<EnvAPI>) {
   const { parent_group_id } = validation.data;
   const parentGroup = await GroupsDS.getGroupById(parent_group_id);
   if (!parentGroup || parentGroup.length === 0) return c.json({ msg: "Parent Group not found" }, 400);
-  await SubGroupDS.createSubgroup(newGroup);
-  console.log("-----------------------");
-  console.log("Llego hasta aqui");
-  console.log("-----------------------");
+  const result = await SubGroupDS.createSubgroup(newGroup);
+  if (!result[0].insertId)
+  return c.json({ msg: "The subgroup already exists" }, 400);
   return c.json({ msg: "Subgroup created successfully" }, 201);
 }
 

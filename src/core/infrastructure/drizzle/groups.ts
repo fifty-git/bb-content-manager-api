@@ -4,12 +4,13 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { groups } from "~/schema/groups";
 import { products, product_group_link } from "~/schema/products";
+import { sql } from 'drizzle-orm';
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
   static async createSubgroup(newSubgroup: NewSubgroup, tx?: Transaction) {
-    if (tx) return tx.insert(groups).values(newSubgroup).prepare().execute();
-    return db.insert(subgroups).values(newSubgroup).prepare().execute();
+    if (tx) return tx.insert(groups).values(newSubgroup).onDuplicateKeyUpdate({ set: newSubgroup }).prepare().execute();
+    return db.insert(subgroups).values(newSubgroup).onDuplicateKeyUpdate({ set: { subgroup_id: sql`subgroup_id` }  }).prepare().execute();
   }
 
   static async deleteSubgroup(subgroup_id: number) {
