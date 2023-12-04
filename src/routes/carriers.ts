@@ -11,7 +11,7 @@ import {
   getAllCarriers,
   getAllCarrierServices,
   getCarrierById,
-  getCarrierServiceById,
+  getCarrierServicesById,
   updateCarrier,
   updateService,
 } from "~/core/application/carriers-service";
@@ -21,7 +21,7 @@ export const carriersRouter = new Hono();
 carriersRouter.get("/", getAllCarriers);
 carriersRouter.get("/:carrier_id", getCarrierById);
 carriersRouter.get("/:carrier_id/services", getAllCarrierServices);
-carriersRouter.get("/:carrier_id/services/:service_id", getCarrierServiceById);
+carriersRouter.get("/:carrier_id/services/:service_id", getCarrierServicesById);
 carriersRouter.post("/", createCarrier);
 carriersRouter.post("/:carrier_id/services", createService);
 carriersRouter.put("/:carrier_id", updateCarrier);
