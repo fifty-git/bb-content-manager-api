@@ -4,6 +4,7 @@ import { CreateTagAPISchema } from "~/core/domain/tags/validator/create-tag-vali
 import { ProductTagsDS } from "~/core/infrastructure/drizzle/product-tags";
 import { TagsDS } from "~/core/infrastructure/drizzle/tags";
 import { db } from "~/modules/drizzle";
+import { error } from "console";
 
 export async function getProductTags(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
@@ -20,10 +21,27 @@ export async function createProductTag(c: Context<EnvAPI>) {
     return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   // Product Tag creation
-  await db.transaction(async (tx) => {
-    const [{ insertId }] = await TagsDS.create(data, tx);
-    await ProductTagsDS.create({ tag_id: insertId, product_id }, tx);
+  const itemTag = await db.transaction(async (tx) => {
+    const tags = await TagsDS.findByName(data.name);
+    let insertId = 0;
+    if (Object.keys(tags).length === 0) {
+      [{ insertId }] = await TagsDS.create(data, tx);
+    } else {
+      tags.map(async (tag) => {
+        insertId = tag.tag_id;
+      });
+    }
+
+    const productTag = await ProductTagsDS.findByIdTag(product_id, insertId);
+    if (Object.keys(productTag).length === 0) {
+      await ProductTagsDS.create({ tag_id: insertId, product_id }, tx);
+    } else {
+      c.var.log.info(`Item already exist witht the product`);
+      return "exist";
+    }
   });
+
+  if (itemTag == "exist") return c.json({ status: "error", msg: "The tag is already associated with this product." }, 400);
 
   return c.json({ status: "success", msg: `Tags for product ID ${product_id} were created successfully!` }, 201);
 }

@@ -66,7 +66,12 @@ export class SubGroupDS {
 
   static async getSubgroupByProductID(product_id: number) {
     const results = await db
-      .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
+      .select({
+        subgroup_id: subgroups.subgroup_id,
+        name: subgroups.name,
+        parent_group_id: subgroups.parent_group_id,
+        status: subgroups.status,
+      })
       .from(subgroups)
       .innerJoin(products, eq(products.subgroup_id, subgroups.subgroup_id))
       .where(eq(products.product_id, product_id))
@@ -159,12 +164,14 @@ export class GroupsDS {
   }
 
   static async getGroupById(group_id: number) {
-    return db
+    const results = await db
       .select({ group_id: groups.group_id, name: groups.name, status: groups.status })
       .from(groups)
       .where(eq(groups.group_id, group_id))
       .prepare()
       .execute();
+    if (!results || results.length === 0) return null;
+    return results[0];
   }
 
   static async getAllGroups() {

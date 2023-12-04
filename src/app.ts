@@ -12,6 +12,7 @@ import { variantsRouter } from "~/routes/product-variants";
 import { productsRouter } from "~/routes/products";
 import { salesChannelsRouter } from "~/routes/sales-channels";
 import { bindLogger, logger, uuid } from "./modules/logger";
+import { countriesRouter } from "./routes/countries";
 import { groupsRouter } from "./routes/groups";
 
 const port = parseInt(process.env.PORT ?? "3000", 10);
@@ -24,7 +25,7 @@ app.use(
     credentials: true,
     origin: (origin) => {
       if (origin.endsWith(".fiftyflowers.com") || origin === "https://fiftyflowers.com") return origin;
-      return "http://localhost:5000";
+      return `http://localhost:${port}`;
     },
   }),
 );
@@ -38,6 +39,7 @@ app.route("/api/v1/content-manager/products/:product_id/variants", variantsRoute
 app.route("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", optionsRouter);
 app.route("/api/v1/content-manager/products/:product_id/tags", tagsRouter);
 app.route("/api/v1/content-manager/carriers", carriersRouter);
+app.route("/api/v1/content-manager/countries", countriesRouter);
 app.route("/api/v1/content-manager/sales-channels", salesChannelsRouter);
 
 // 404 Not found

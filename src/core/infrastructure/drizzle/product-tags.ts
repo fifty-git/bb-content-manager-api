@@ -6,12 +6,22 @@ import { product_tag_link } from "~/schema/product-tag-link";
 import { tags } from "~/schema/tags";
 
 export class ProductTagsDS {
+  static async findByIdTag(product_id: number, tag_id: number) {
+    return db
+      .select()
+      .from(product_tag_link)
+      .where(and(eq(product_tag_link.product_id, product_id), eq(product_tag_link.tag_id, tag_id)))
+      .prepare()
+      .execute();
+  }
+
   static async getAll(product_id: number) {
     return db
       .select({
         tag_id: tags.tag_id,
         name: tags.name,
         type: tags.type,
+        searchable: tags.searchable,
         created_at: product_tag_link.created_at,
         updated_at: product_tag_link.updated_at,
       })

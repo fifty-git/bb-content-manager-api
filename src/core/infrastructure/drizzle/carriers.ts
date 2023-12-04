@@ -11,8 +11,6 @@ export class CarriersDS {
         .select({
           carrier_id: carriers.carrier_id,
           name: carriers.name,
-          code: carriers.code,
-          account_number: carriers.account_number,
           status: carriers.status,
         })
         .from(carriers)
@@ -26,8 +24,6 @@ export class CarriersDS {
     const fields = {
       carrier_id: carriers.carrier_id,
       name: carriers.name,
-      code: carriers.code,
-      account_number: carriers.account_number,
       status: carriers.status,
     };
 
