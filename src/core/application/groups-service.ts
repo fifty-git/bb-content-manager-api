@@ -39,8 +39,7 @@ export async function deactivateGroup(c: Context<EnvAPI>) {
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
   const result = await GroupsDS.deactivateGroup(groupId);
-  if (!result)
-    return c.json({ msg: "At least one of the subgroups has an active product" }, 404);
+  if (!result) return c.json({ msg: "At least one of the subgroups has an active product" }, 404);
   return c.json({ msg: "Group and subgroups deactivated successfully" });
 }
 
@@ -104,19 +103,19 @@ export async function activateSubgroup(c: Context<EnvAPI>) {
 export async function deactivateSubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("id"), 10);
   const result = await SubGroupDS.deactivateSubgroup(subgroupId);
-  if (!result)
-    return c.json({ msg: "The subgroup has at least an active product" }, 404);
+  if (!result) return c.json({ msg: "The subgroup has at least an active product" }, 404);
   return c.json({ msg: "Subgroup deactivated successfully" });
 }
 
-export async function createSubGroup(c: Context<EnvAPI>) {
+export async function createSubgroup(c: Context<EnvAPI>) {
   const newGroup: NewSubgroup = await c.req.json();
   const validation = NewSubGroupSchema.safeParse(newGroup);
   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
   const { parent_group_id } = validation.data;
   const parentGroup = await GroupsDS.getGroupById(parent_group_id);
   if (!parentGroup) return c.json({ msg: "Parent Group not found" }, 400);
-  await SubGroupDS.createSugroup(newGroup);
+  const result = await SubGroupDS.createSubgroup(newGroup);
+  if (!result[0].insertId) return c.json({ msg: "The subgroup already exists" }, 400);
   return c.json({ msg: "Subgroup created successfully" }, 201);
 }
 
