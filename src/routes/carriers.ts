@@ -8,6 +8,7 @@ import {
   deactivateService,
   deleteCarrier,
   deleteService,
+  getAllAccounts,
   getAllCarriers,
   getAllCarrierServices,
   getCarrierById,
@@ -19,6 +20,7 @@ import {
 export const carriersRouter = new Hono();
 
 carriersRouter.get("/", getAllCarriers);
+carriersRouter.get("/accounts", getAllAccounts);
 carriersRouter.get("/:carrier_id", getCarrierById);
 carriersRouter.get("/:carrier_id/services", getAllCarrierServices);
 carriersRouter.get("/:carrier_id/services/:service_id", getCarrierServicesById);

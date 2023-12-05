@@ -140,6 +140,14 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
   );
 }
 
+export async function getAllAccounts(c: Context<EnvAPI>) {
+  const accounts = await CarrierServiceCitiesAccountsLink.getAllAccounts();
+  return c.json({
+    status: accounts ? "success" : "error",
+    data: accounts,
+  }, 200);
+}
+
 export async function createCarrier(c: Context<EnvAPI>) {
   const payload = await c.req.json();
   const validator = CreateCarrierSchema.safeParse(payload);

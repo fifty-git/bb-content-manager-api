@@ -9,6 +9,20 @@ import {
 import { cities } from "~/schema/countries";
 
 export class CarrierServiceCitiesAccountsLink {
+  
+  static getAllAccounts() {
+    return db.select(
+      {
+        account_id: carrier_accounts.account_id,
+        account_name: carrier_accounts.account_name,
+        account_number: carrier_accounts.account_number,
+      },
+    )
+    .from(carrier_accounts)
+    .prepare()
+    .execute();
+  }
+
   static getByServiceID(service_id: number) {
     return db
       .select(
