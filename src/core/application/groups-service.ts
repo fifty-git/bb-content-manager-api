@@ -90,6 +90,14 @@ export async function getGroupById(c: Context<EnvAPI>) {
 
 /* --------------- Subgroups ----------------- */
 
+export async function getProductsBySubgroup(c: Context<EnvAPI>) {
+  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroup = await SubGroupDS.getSubgroupById(subgroupId);
+  if (!subgroup) return c.json({ msg: "Group not found" }, 404);
+  const products = await SubGroupDS.getProductsBySubgroup(subgroupId);
+  return c.json({ products });
+}
+
 export async function activateSubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("id"), 10);
   const subgroup = await SubGroupDS.getSubgroupById(subgroupId);

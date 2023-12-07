@@ -8,6 +8,12 @@ import { sql } from 'drizzle-orm';
 import { subgroups } from "~/schema/subgroups";
 
 export class SubGroupDS {
+  static async getProductsBySubgroup(subgroup_id: number) {
+    const prepared = db.select().from(products).where(eq(products.subgroup_id, subgroup_id));
+    const results = await prepared.execute();
+    return results;
+  }
+
   static async createSubgroup(newSubgroup: NewSubgroup, tx?: Transaction) {
     if (tx) return tx.insert(groups).values(newSubgroup).onDuplicateKeyUpdate({ set: newSubgroup }).prepare().execute();
     return db.insert(subgroups).values(newSubgroup).onDuplicateKeyUpdate({ set: { subgroup_id: sql`subgroup_id` }  }).prepare().execute();
