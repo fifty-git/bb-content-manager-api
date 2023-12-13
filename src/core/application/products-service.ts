@@ -160,7 +160,7 @@ export async function deleteProduct(c: Context<EnvAPI>) {
 
   await db.transaction(async (tx) => {
     // Delete dependencies
-    await ProductsDS.deleteGroups(+id, tx);
+    await ProductsDS.deleteGroup(+id, tx);
     await ProductsDS.deleteOptionValues(+id, tx);
     const variants = await ProductVariantsDS.getByProductID(+id, tx);
     const variant_ids = variants.map((v) => v.variant_id);
