@@ -41,8 +41,6 @@ carriersRouter.put("/:carrier_id/services/:service_id/deactivate", deactivateSer
 carriersRouter.put("/accounts/:account_id", updateAccount);
 carriersRouter.put("/accounts/:account_id/activate", activateAccount);
 carriersRouter.put("/accounts/:account_id/deactivate", deactivateAccount);
-carriersRouter.post("/:carrier_id/services", createService);
 carriersRouter.delete("/:carrier_id", deleteCarrier);
 carriersRouter.delete("/:carrier_id/services/:service_id", deleteService);
 carriersRouter.delete("/accounts/:account_id", deleteAccount);
-carriersRouter.post("/:carrier_id/services", createService);
