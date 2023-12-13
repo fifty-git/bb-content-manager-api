@@ -26,11 +26,15 @@ export class CarrierServiceCitiesAccountsLink {
     return db
       .select(
         {
-          account_id: carrier_service_account_city_link.account_id,
-          account_name: carrier_accounts.account_name,
-          account_number: carrier_accounts.account_number,
-          city_id: carrier_service_account_city_link.city_id,
-          city_name: cities.name,
+          account: {
+            account_id: carrier_service_account_city_link.account_id,
+            account_name: carrier_accounts.account_name,
+            account_number: carrier_accounts.account_number,
+          },
+          city: {
+            city_id: carrier_service_account_city_link.city_id,
+            city_name: cities.name,
+          },
           transit_days: carrier_service_account_city_link.transit_days,
           pickup_days: carrier_service_account_city_link.pickup_days,
         },
