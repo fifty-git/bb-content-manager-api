@@ -38,6 +38,10 @@ export class ProductsDS {
     return (tx ?? db).insert(product_group_link).values({ product_id, subgroup_id }).prepare().execute();
   }
 
+  static async deleteGroup(product_id: number, tx?: Transaction) {
+    return (tx ?? db).delete(product_group_link).where(eq(product_group_link.product_id, product_id));
+  }
+
   static async enable(product_id: number) {
     return db
       .update(products)

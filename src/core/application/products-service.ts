@@ -175,3 +175,17 @@ export async function deleteProduct(c: Context<EnvAPI>) {
 
   return c.json(null, 204);
 }
+
+export async function changeGroup(c: Context<EnvAPI>) {
+  const product_id = c.req.param("product_id");
+  const subgroup_id = c.req.param("subgroup_id");
+  const subgroup = await SubGroupDS.getSubgroupById(parseInt(subgroup_id, 10));
+  const product = await ProductsDS.getByID(+product_id);
+  if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
+  if (!product) return c.json({ msg: "Product not found" }, 404);
+  await db.transaction(async (tx) => {
+    await ProductsDS.deleteGroup(+product_id, tx);
+    await ProductsDS.addGroup(+product_id, +subgroup_id, tx);
+  });
+  return c.json({ status: "success", msg: `Product ${product_id} has been assigned to subgroup ${subgroup_id} successfully` });
+}

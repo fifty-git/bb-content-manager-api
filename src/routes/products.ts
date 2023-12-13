@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  changeGroup,
   cloneProduct,
   createProduct,
   createProductOptions,
@@ -19,4 +20,5 @@ productsRouter.post("/:product_id/options", createProductOptions);
 productsRouter.post("/:product_id/clone", cloneProduct);
 productsRouter.put("/:product_id/activate", enableProduct);
 productsRouter.put("/:product_id/deactivate", disableProduct);
+productsRouter.put("/:product_id/subgroup/:subgroup_id/change", changeGroup);
 productsRouter.delete("/:product_id", deleteProduct);
