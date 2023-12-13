@@ -35,7 +35,6 @@ export const CreateServiceSchema = z.object({
 
 export const UpdateServiceSchema = z.object({
   service: z.object({
-    code: z.string().trim().nonempty().optional(),
     name: z.string().trim().nonempty().optional(),
     days: z.array(z.enum([Days.MON, Days.TUE, Days.WED, Days.THU, Days.FRI, Days.SAT, Days.SUN])).optional(),
     cities: z
@@ -49,3 +48,4 @@ export const UpdateServiceSchema = z.object({
     type: z.enum([ServiceType.INT, ServiceType.DOM]).optional(),
   }),
 });
+

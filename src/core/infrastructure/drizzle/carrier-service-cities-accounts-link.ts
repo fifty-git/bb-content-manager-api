@@ -1,4 +1,4 @@
-import type { NewCarrierServiceOrigin } from "../../domain/carriers/entity";
+import type { NewCarrierServiceAccount } from "../../domain/carriers/entity";
 import type { Transaction } from "~/core/domain/types";
 import { eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
@@ -9,6 +9,19 @@ import {
 import { cities } from "~/schema/countries";
 
 export class CarrierServiceCitiesAccountsLink {
+  static getAllAccounts() {
+    return db.select(
+      {
+        account_id: carrier_accounts.account_id,
+        account_name: carrier_accounts.account_name,
+        account_number: carrier_accounts.account_number,
+      },
+    )
+    .from(carrier_accounts)
+    .prepare()
+    .execute();
+  }
+
   static getByServiceID(service_id: number) {
     return db
       .select(
@@ -42,7 +55,7 @@ export class CarrierServiceCitiesAccountsLink {
   }
 
   static async createMany(
-    origins: (NewCarrierServiceOrigin & { carrier_service_id: number })[],
+    origins: (NewCarrierServiceAccount & { carrier_service_id: number })[],
     tx?: Transaction,
   ) {
     return (tx || db).insert(carrier_service_account_city_link).values(origins)
@@ -52,6 +65,12 @@ export class CarrierServiceCitiesAccountsLink {
   static async deleteByServiceID(service_id: number, tx?: Transaction) {
     return (tx || db).delete(carrier_service_account_city_link).where(
       eq(carrier_service_account_city_link.carrier_service_id, service_id),
+    ).prepare().execute();
+  }
+
+  static async deleteByAccountID(account_id: number, tx?: Transaction) {
+    return (tx || db).delete(carrier_service_account_city_link).where(
+      eq(carrier_service_account_city_link.account_id, account_id),
     ).prepare().execute();
   }
 }

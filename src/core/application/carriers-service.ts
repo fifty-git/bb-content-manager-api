@@ -1,7 +1,7 @@
-import type { Days, NewCarrierServiceDay, NewCarrierServiceOrigin, NewService, ServiceOrigin, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
+import type { Days, NewCarrierServiceDay, NewCarrierServiceAccount, NewService, ServiceOrigin, UpdateAccount, UpdateCarrier, UpdateService } from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
-import type { SafeParseReturnType } from "zod";
+import { object, type SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
 import { Status } from "../domain/carriers/entity";
 import {
@@ -14,9 +14,15 @@ import { CarrierServiceCitiesAccountsLink } from "../infrastructure/drizzle/carr
 import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
 import { CarriersDS } from "../infrastructure/drizzle/carriers";
+import { CarrierServicesAccountsDS } from "../infrastructure/drizzle/carrier-services-accounts";
+import { CarrierServiceAccount, UpdateCarrierServiceAccount } from "../domain/carrier-service-accounts/types";
+import { CreateAccountSchema } from "../domain/carrier-service-accounts/validator/createAccount";
+import { UpdateAccountSchema } from "../domain/carrier-service-accounts/validator/updateAccount";
+import { logger } from "~/modules/logger";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
+    logger.error(validator.error);
     return c.json(
       {
         status: "error",
@@ -140,6 +146,14 @@ export async function getCarrierServicesById(c: Context<EnvAPI>) {
   );
 }
 
+export async function getAllAccounts(c: Context<EnvAPI>) {
+  const accounts = await CarrierServicesAccountsDS.getAllAccounts();
+  return c.json({
+    status: accounts ? "success" : "error",
+    data: accounts,
+  }, 200);
+}
+
 export async function createCarrier(c: Context<EnvAPI>) {
   const payload = await c.req.json();
   const validator = CreateCarrierSchema.safeParse(payload);
@@ -177,7 +191,7 @@ export async function createService(c: Context<EnvAPI>) {
     }));
 
     if (payload.service.origins) {
-      const origins = payload.service.origins.map((origin: NewCarrierServiceOrigin) => ({
+      const origins = payload.service.origins.map((origin: NewCarrierServiceAccount) => ({
         carrier_service_id: insertedService.insertId,
         ...origin,
       }));
@@ -198,6 +212,22 @@ export async function createService(c: Context<EnvAPI>) {
     },
     201,
   );
+}
+
+export async function createAccount(c: Context<EnvAPI>) {
+  const payload = await c.req.json();
+  const account = payload.account as CarrierServiceAccount;
+  const validator = CreateAccountSchema.safeParse(account);
+  if (!validator.success) return handleValidationErrors(validator, c);
+  
+  const created = await CarrierServicesAccountsDS.create(account);
+
+  return c.json({
+    status: created?.insertId ? "success" : "error",
+    data: { id: created?.insertId },
+    msg: created?.insertId ? "account successfully created" : "cannot create account",
+  },
+  201);
 }
 
 export async function updateCarrier(c: Context<EnvAPI>) {
@@ -271,6 +301,30 @@ export async function updateService(c: Context<EnvAPI>) {
   );
 }
 
+export async function updateAccount(c: Context<EnvAPI>) {
+  const account_id = Number(c.req.param("account_id"));
+  const payload = await c.req.json();
+  const account: UpdateCarrierServiceAccount = {
+    ...payload.account,
+    account_id: account_id,
+  };
+
+  const validator = UpdateAccountSchema.safeParse(account);
+  if (!validator.success) return handleValidationErrors(validator, c);
+
+  const updated = await CarrierServicesAccountsDS.update(account);
+
+  return c.json(
+    {
+      status: updated ? "success" : "error",
+      data: { account_id },
+      msg: updated ? "account successfully updated" : "cannot update account",
+    },
+    201,
+  );
+
+}
+
 export async function activateCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const services = await CarrierServiceDS.getByCarrierID(carrier_id);
@@ -330,6 +384,29 @@ export async function activateService(c: Context<EnvAPI>) {
     },
     200,
   );
+}
+
+export async function activateAccount(c: Context<EnvAPI>) {
+  const account_id = Number(c.req.param("account_id"));
+  const account: UpdateCarrierServiceAccount = {
+    account_id,
+    status: Status.ACTIVE,
+  };
+
+  const validator = UpdateAccountSchema.safeParse(account);
+  if (!validator.success) return handleValidationErrors(validator, c);
+
+  const updated = await CarrierServicesAccountsDS.update(account);
+
+  return c.json(
+    {
+      status: updated ? "success" : "error",
+      data: { account_id },
+      msg: updated ? "account successfully activated" : "cannot activate account",
+    },
+    201,
+  );
+
 }
 
 export async function deactivateCarrier(c: Context<EnvAPI>) {
@@ -393,6 +470,29 @@ export async function deactivateService(c: Context<EnvAPI>) {
   );
 }
 
+export async function deactivateAccount(c: Context<EnvAPI>) {
+  const account_id = Number(c.req.param("account_id"));
+  const account: UpdateCarrierServiceAccount = {
+    account_id,
+    status: Status.INACTIVE,
+  };
+
+  const validator = UpdateAccountSchema.safeParse(account);
+  if (!validator.success) return handleValidationErrors(validator, c);
+
+  const updated = await CarrierServicesAccountsDS.update(account);
+
+  return c.json(
+    {
+      status: updated ? "success" : "error",
+      data: { account_id },
+      msg: updated ? "account successfully deactivated" : "cannot deactivate account",
+    },
+    201,
+  );
+
+}
+
 export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const deleted = await db.transaction(async (tx) => {
@@ -417,6 +517,17 @@ export async function deleteService(c: Context<EnvAPI>) {
       },
       tx,
     );
+  });
+
+  return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);
+}
+
+export async function deleteAccount(c: Context<EnvAPI>) {
+  const account_id = Number(c.req.param("account_id"));
+
+  const deleted = await db.transaction(async tx => {
+    await CarrierServiceCitiesAccountsLink.deleteByAccountID(account_id, tx);
+    return CarrierServicesAccountsDS.delete(account_id, tx);
   });
 
   return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);

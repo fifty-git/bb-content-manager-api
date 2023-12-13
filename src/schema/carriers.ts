@@ -49,7 +49,7 @@ export const carrier_services = mysqlTable(
 );
 
 export const carrier_accounts = mysqlTable("carrier_accounts", {
-  account_id: int("account_id").autoincrement().notNull(),
+  account_id: int("account_id").primaryKey().autoincrement().notNull(),
   account_name: varchar("account_name", { length: 255 }).notNull(),
   account_number: varchar("account_number", { length: 255 }).notNull(),
   status: mysqlEnum("status", [Status.ACTIVE, Status.INACTIVE]).default(Status.ACTIVE).notNull(),

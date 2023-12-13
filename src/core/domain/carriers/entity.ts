@@ -27,7 +27,7 @@ export interface ServiceOrigin {
   pickup_days: number;
 }
 
-export interface NewCarrierServiceOrigin {
+export interface NewCarrierServiceAccount {
   account_id: number;
   city_id: number;
   transit_days: number;
@@ -87,4 +87,14 @@ export interface UpdateCarrier {
   code?: string;
   account_number?: string;
   status?: Status;
+}
+
+export interface NewAccount {
+  account_name: string;
+  account_number: string;
+}
+
+export interface UpdateAccount {
+  account_name?: string;
+  account_number?: string;
 }
