@@ -258,6 +258,8 @@ export async function updateService(c: Context<EnvAPI>) {
   const validator = UpdateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
 
+  console.log("UPDATING", service)
+
   const updated = await db.transaction(async (tx) => {
     await CarrierServiceDS.update(
       {
@@ -285,7 +287,10 @@ export async function updateService(c: Context<EnvAPI>) {
       }));
 
       await CarrierServiceCitiesAccountsLink.deleteByServiceID(service_id, tx);
-      await CarrierServiceCitiesAccountsLink.createMany(origins, tx);
+
+      if (origins.length > 0) {
+        await CarrierServiceCitiesAccountsLink.createMany(origins, tx);
+      }
     }
 
     return true;
