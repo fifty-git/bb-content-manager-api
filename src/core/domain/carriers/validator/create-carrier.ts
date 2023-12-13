@@ -3,9 +3,7 @@ import { Days, ServiceType } from "../entity";
 
 export const CreateCarrierSchema = z.object({
   carrier: z.object({
-    code: z.string().trim().nonempty(),
     name: z.string().trim().nonempty(),
-    account_number: z.string().trim().nonempty(),
   }),
 });
 
