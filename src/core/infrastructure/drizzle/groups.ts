@@ -123,6 +123,23 @@ export class SubGroupDS {
 }
 
 export class GroupsDS {
+  static async getProductsByGroup(group_id: number) {
+    const prepared = db
+    .select({
+      product_id: products.product_id,
+      name: products.name,
+      description: products.description,
+      product_type: products.product_type,
+      status: products.status,
+    })
+    .from(products)
+    .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
+    .innerJoin(subgroups, eq(subgroups.subgroup_id , product_group_link.subgroup_id))
+    .where(eq(subgroups.parent_group_id, group_id));
+    const results = await prepared.execute();
+    return results;
+  }
+
   static async updateGroup(group_id: number, group: UpdateGroup) {
     const prepared = db.update(groups).set(group).where(eq(groups.group_id, group_id)).prepare();
     const results = await prepared.execute();

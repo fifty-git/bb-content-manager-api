@@ -13,6 +13,14 @@ export async function getAll(c: Context<EnvAPI>) {
 
 /* --------------- Groups ----------------- */
 
+export async function getProductsByGroup(c: Context<EnvAPI>) {
+  const groupId = parseInt(c.req.param("group_id"), 10);
+  const group = await GroupsDS.getGroupById(groupId);
+  if (!group) return c.json({ msg: "Group not found" }, 404);
+  const products = await GroupsDS.getProductsByGroup(groupId);
+  return c.json({ products });
+}
+
 export async function updateGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("id"), 10);
   const group = await c.req.json();
