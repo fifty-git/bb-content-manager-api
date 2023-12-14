@@ -15,7 +15,7 @@ import { bindLogger, logger, uuid } from "./modules/logger";
 import { countriesRouter } from "./routes/countries";
 import { groupsRouter } from "./routes/groups";
 
-const port = parseInt(process.env.PORTE ?? "3000", 10);
+const port = parseInt(process.env.PORT ?? "3000", 10);
 const app: Hono<EnvAPI, any, "/"> = new Hono();
 app.use("*", uuid);
 app.use("*", bindLogger);
@@ -25,7 +25,7 @@ app.use(
     credentials: true,
     origin: (origin) => {
       if (origin.endsWith(".fiftyflowers.com") || origin === "https://fiftyflowers.com") return origin;
-      return `http://localhost:5000`;
+      return `http://localhost:${port}`;
     },
   }),
 );
