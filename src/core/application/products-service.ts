@@ -176,6 +176,16 @@ export async function deleteProduct(c: Context<EnvAPI>) {
   return c.json(null, 204);
 }
 
+export async function changeGroups(c: Context<EnvAPI>) {
+  const { productGroups } = await c.req.json();
+  const productIds: number[] = productGroups.map((elm: any) => elm.product_id);
+  await db.transaction(async(tx) => {
+    await ProductsDS.deleteGroups(productIds, tx);
+    await ProductsDS.addGroups(productGroups, tx);
+  });
+  return c.json("Groups changed successfully", 200);
+}
+
 export async function changeGroup(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const subgroup_id = c.req.param("subgroup_id");
