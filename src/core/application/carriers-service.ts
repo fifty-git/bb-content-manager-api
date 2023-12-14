@@ -285,7 +285,10 @@ export async function updateService(c: Context<EnvAPI>) {
       }));
 
       await CarrierServiceCitiesAccountsLink.deleteByServiceID(service_id, tx);
-      await CarrierServiceCitiesAccountsLink.createMany(origins, tx);
+
+      if (origins.length > 0) {
+        await CarrierServiceCitiesAccountsLink.createMany(origins, tx);
+      }
     }
 
     return true;
