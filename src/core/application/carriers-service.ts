@@ -258,8 +258,6 @@ export async function updateService(c: Context<EnvAPI>) {
   const validator = UpdateServiceSchema.safeParse(payload);
   if (!validator.success) return handleValidationErrors(validator, c);
 
-  console.log("UPDATING", service)
-
   const updated = await db.transaction(async (tx) => {
     await CarrierServiceDS.update(
       {
