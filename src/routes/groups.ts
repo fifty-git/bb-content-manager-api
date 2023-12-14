@@ -11,10 +11,12 @@ import {
   getAll,
   getGroupById,
   getGroups,
+  getProductsBySubgroup,
   getSubgroupById,
   getSubgroupsByParentGroupId,
   updateGroup,
   updateSubgroup,
+  getProductsByGroup
 } from "~/core/application/groups-service";
 
 export const groupsRouter = new Hono();
@@ -41,3 +43,6 @@ groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:id", getGroupById);
 groupsRouter.get("", getGroups);
 groupsRouter.get("/subgroups/all", getAll);
+groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);
+groupsRouter.get("/products/:group_id", getProductsByGroup);
+

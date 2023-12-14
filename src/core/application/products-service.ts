@@ -160,7 +160,7 @@ export async function deleteProduct(c: Context<EnvAPI>) {
 
   await db.transaction(async (tx) => {
     // Delete dependencies
-    await ProductsDS.deleteGroups(+id, tx);
+    await ProductsDS.deleteGroup(+id, tx);
     await ProductsDS.deleteOptionValues(+id, tx);
     const variants = await ProductVariantsDS.getByProductID(+id, tx);
     const variant_ids = variants.map((v) => v.variant_id);
@@ -174,4 +174,28 @@ export async function deleteProduct(c: Context<EnvAPI>) {
   });
 
   return c.json(null, 204);
+}
+
+export async function changeGroups(c: Context<EnvAPI>) {
+  const { productGroups } = await c.req.json();
+  const productIds: number[] = productGroups.map((elm: any) => elm.product_id);
+  await db.transaction(async(tx) => {
+    await ProductsDS.deleteGroups(productIds, tx);
+    await ProductsDS.addGroups(productGroups, tx);
+  });
+  return c.json("Groups changed successfully", 200);
+}
+
+export async function changeGroup(c: Context<EnvAPI>) {
+  const product_id = c.req.param("product_id");
+  const subgroup_id = c.req.param("subgroup_id");
+  const subgroup = await SubGroupDS.getSubgroupById(parseInt(subgroup_id, 10));
+  const product = await ProductsDS.getByID(+product_id);
+  if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
+  if (!product) return c.json({ msg: "Product not found" }, 404);
+  await db.transaction(async (tx) => {
+    await ProductsDS.deleteGroup(+product_id, tx);
+    await ProductsDS.addGroup(+product_id, +subgroup_id, tx);
+  });
+  return c.json({ status: "success", msg: `Product ${product_id} has been assigned to subgroup ${subgroup_id} successfully` });
 }
