@@ -51,6 +51,8 @@ export interface NewService {
   name: string;
   type?: ServiceType;
   carrier_id: number;
+  origins: ServiceOrigin[];
+  days: Days[];
 }
 
 export interface UpdateService {
