@@ -1,24 +1,13 @@
 import { Hono } from "hono";
+import { activateAccount, createAccount, deactivateAccount, deleteAccount, getAllAccounts, updateAccount } from "~/core/application/carrier-accounts";
+import { activateCarrier, createCarrier, deactivateCarrier, deleteCarrier, getAllCarriers, getCarrierById, updateCarrier } from "~/core/application/carriers";
 import {
-    activateAccount,
-  activateCarrier,
   activateService,
-  createAccount,
-  createCarrier,
   createService,
-  deactivateAccount,
-  deactivateCarrier,
   deactivateService,
-  deleteAccount,
-  deleteCarrier,
   deleteService,
-  getAllAccounts,
-  getAllCarriers,
   getAllCarrierServices,
-  getCarrierById,
   getCarrierServicesById,
-  updateAccount,
-  updateCarrier,
   updateService,
 } from "~/core/application/carriers-service";
 
