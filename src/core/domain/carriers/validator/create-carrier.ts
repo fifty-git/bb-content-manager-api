@@ -46,4 +46,3 @@ export const UpdateServiceSchema = z.object({
     type: z.enum([ServiceType.INT, ServiceType.DOM]).optional(),
   }),
 });
-

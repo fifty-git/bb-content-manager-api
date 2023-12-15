@@ -4,7 +4,6 @@ import { CreateTagAPISchema } from "~/core/domain/tags/validator/create-tag-vali
 import { ProductTagsDS } from "~/core/infrastructure/drizzle/product-tags";
 import { TagsDS } from "~/core/infrastructure/drizzle/tags";
 import { db } from "~/modules/drizzle";
-import { error } from "console";
 
 export async function getProductTags(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");

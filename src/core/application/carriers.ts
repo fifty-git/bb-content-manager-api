@@ -1,14 +1,15 @@
-import { Context } from "hono";
-import { EnvAPI } from "../domain/types";
-import { CarriersDS } from "../infrastructure/drizzle/carriers";
-import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
-import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
-import { CarrierServiceCitiesAccountsLink } from "../infrastructure/drizzle/carrier-service-cities-accounts-link";
-import { CreateCarrierSchema, UpdateCarrierSchema } from "../domain/carriers/validator/create-carrier";
-import { Status, UpdateCarrier } from "../domain/carriers/entity";
+import type { UpdateCarrier } from "../domain/carriers/entity";
+import type { EnvAPI } from "../domain/types";
+import type { Context } from "hono";
+import type { SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
 import { logger } from "~/modules/logger";
-import { SafeParseReturnType } from "zod";
+import { Status } from "../domain/carriers/entity";
+import { CreateCarrierSchema, UpdateCarrierSchema } from "../domain/carriers/validator/create-carrier";
+import { CarrierServiceCitiesAccountsLink } from "../infrastructure/drizzle/carrier-service-cities-accounts-link";
+import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
+import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
+import { CarriersDS } from "../infrastructure/drizzle/carriers";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -208,10 +209,12 @@ export async function deleteCarrier(c: Context<EnvAPI>) {
   const carrier_id = Number(c.req.param("carrier_id"));
   const deleted = await db.transaction(async (tx) => {
     const services = await CarrierServiceDS.getByCarrierID(carrier_id);
-    await Promise.all(services.map(async (service) => {
-      await CarrierServiceCitiesAccountsLink.deleteByServiceID(service.carrier_service_id);
-      return CarrierServiceDaysDS.deleteByServiceID(service.carrier_service_id, tx)
-    }));
+    await Promise.all(
+      services.map(async (service) => {
+        await CarrierServiceCitiesAccountsLink.deleteByServiceID(service.carrier_service_id);
+        return CarrierServiceDaysDS.deleteByServiceID(service.carrier_service_id, tx);
+      }),
+    );
     await CarrierServiceDS.deleteByCarrierID(carrier_id, tx);
     return CarriersDS.delete(carrier_id, tx);
   });
@@ -219,4 +222,3 @@ export async function deleteCarrier(c: Context<EnvAPI>) {
 
   return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);
 }
-

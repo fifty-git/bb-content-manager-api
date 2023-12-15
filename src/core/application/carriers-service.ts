@@ -1,17 +1,21 @@
-import type { Days, NewCarrierServiceDay, NewCarrierServiceAccount, NewService, ServiceOrigin, UpdateService } from "../domain/carriers/entity";
+import type {
+  Days,
+  NewCarrierServiceAccount,
+  NewCarrierServiceDay,
+  NewService,
+  ServiceOrigin,
+  UpdateService,
+} from "../domain/carriers/entity";
 import type { EnvAPI } from "../domain/types";
 import type { Context } from "hono";
 import { type SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
+import { logger } from "~/modules/logger";
 import { Status } from "../domain/carriers/entity";
-import {
-  CreateServiceSchema,
-  UpdateServiceSchema,
-} from "../domain/carriers/validator/create-carrier";
+import { CreateServiceSchema, UpdateServiceSchema } from "../domain/carriers/validator/create-carrier";
 import { CarrierServiceCitiesAccountsLink } from "../infrastructure/drizzle/carrier-service-cities-accounts-link";
 import { CarrierServiceDaysDS } from "../infrastructure/drizzle/carrier-service-days";
 import { CarrierServiceDS } from "../infrastructure/drizzle/carrier-services";
-import { logger } from "~/modules/logger";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -229,4 +233,3 @@ export async function deleteService(c: Context<EnvAPI>) {
 
   return c.json(null, deleted?.affectedRows === 1 ? 204 : 500);
 }
-

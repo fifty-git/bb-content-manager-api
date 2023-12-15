@@ -1,14 +1,14 @@
-import { Context } from "hono";
-import { CarrierServicesAccountsDS } from "../infrastructure/drizzle/carrier-services-accounts";
-import { EnvAPI } from "../domain/types";
-import { CarrierServiceAccount, UpdateCarrierServiceAccount } from "../domain/carrier-service-accounts/types";
-import { CreateAccountSchema } from "../domain/carrier-service-accounts/validator/createAccount";
-import { logger } from "~/modules/logger";
-import { SafeParseReturnType } from "zod";
-import { UpdateAccountSchema } from "../domain/carrier-service-accounts/validator/updateAccount";
+import type { CarrierServiceAccount, UpdateCarrierServiceAccount } from "../domain/carrier-service-accounts/types";
+import type { EnvAPI } from "../domain/types";
+import type { Context } from "hono";
+import type { SafeParseReturnType } from "zod";
 import { db } from "~/modules/drizzle";
+import { logger } from "~/modules/logger";
+import { CreateAccountSchema } from "../domain/carrier-service-accounts/validator/createAccount";
+import { UpdateAccountSchema } from "../domain/carrier-service-accounts/validator/updateAccount";
 import { Status } from "../domain/carriers/entity";
 import { CarrierServiceCitiesAccountsLink } from "../infrastructure/drizzle/carrier-service-cities-accounts-link";
+import { CarrierServicesAccountsDS } from "../infrastructure/drizzle/carrier-services-accounts";
 
 function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any) {
   if (!validator.success) {
@@ -25,10 +25,13 @@ function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any
 
 export async function getAllAccounts(c: Context<EnvAPI>) {
   const accounts = await CarrierServicesAccountsDS.getAllAccounts();
-  return c.json({
-    status: accounts ? "success" : "error",
-    data: accounts,
-  }, 200);
+  return c.json(
+    {
+      status: accounts ? "success" : "error",
+      data: accounts,
+    },
+    200,
+  );
 }
 
 export async function createAccount(c: Context<EnvAPI>) {
@@ -36,15 +39,17 @@ export async function createAccount(c: Context<EnvAPI>) {
   const account = payload.account as CarrierServiceAccount;
   const validator = CreateAccountSchema.safeParse(account);
   if (!validator.success) return handleValidationErrors(validator, c);
-  
+
   const created = await CarrierServicesAccountsDS.create(account);
 
-  return c.json({
-    status: created?.insertId ? "success" : "error",
-    data: { id: created?.insertId },
-    msg: created?.insertId ? "account successfully created" : "cannot create account",
-  },
-  201);
+  return c.json(
+    {
+      status: created?.insertId ? "success" : "error",
+      data: { id: created?.insertId },
+      msg: created?.insertId ? "account successfully created" : "cannot create account",
+    },
+    201,
+  );
 }
 
 export async function updateAccount(c: Context<EnvAPI>) {
@@ -52,7 +57,7 @@ export async function updateAccount(c: Context<EnvAPI>) {
   const payload = await c.req.json();
   const account: UpdateCarrierServiceAccount = {
     ...payload.account,
-    account_id: account_id,
+    account_id,
   };
 
   const validator = UpdateAccountSchema.safeParse(account);
@@ -90,7 +95,6 @@ export async function activateAccount(c: Context<EnvAPI>) {
     },
     201,
   );
-
 }
 
 export async function deactivateAccount(c: Context<EnvAPI>) {
@@ -113,13 +117,12 @@ export async function deactivateAccount(c: Context<EnvAPI>) {
     },
     201,
   );
-
 }
 
 export async function deleteAccount(c: Context<EnvAPI>) {
   const account_id = Number(c.req.param("account_id"));
 
-  const deleted = await db.transaction(async tx => {
+  const deleted = await db.transaction(async (tx) => {
     await CarrierServiceCitiesAccountsLink.deleteByAccountID(account_id, tx);
     return CarrierServicesAccountsDS.delete(account_id, tx);
   });
