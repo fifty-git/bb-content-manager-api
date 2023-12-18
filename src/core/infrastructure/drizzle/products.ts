@@ -1,6 +1,6 @@
 import type { NewProduct } from "~/core/domain/products/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, like, ne, inArray } from "drizzle-orm";
+import { and, eq, inArray, like, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { variant_option_values } from "~/schema/product-variants";
 import { product_group_link, product_tag_link, products } from "~/schema/products";
@@ -38,7 +38,7 @@ export class ProductsDS {
     return (tx ?? db).insert(product_group_link).values({ product_id, subgroup_id }).prepare().execute();
   }
 
-  static async addGroups(productsGroups: {product_id: number, subgroup_id: number}[], tx?: Transaction) {
+  static async addGroups(productsGroups: { product_id: number; subgroup_id: number }[], tx?: Transaction) {
     return (tx ?? db).insert(product_group_link).values(productsGroups).prepare().execute();
   }
 
@@ -49,6 +49,7 @@ export class ProductsDS {
   static async deleteGroups(product_ids: number[], tx?: Transaction) {
     return (tx ?? db).delete(product_group_link).where(inArray(product_group_link.product_id, product_ids));
   }
+
   static async enable(product_id: number) {
     return db
       .update(products)

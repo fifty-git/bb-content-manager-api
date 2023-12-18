@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import {
   changeGroup,
+  changeGroups,
   cloneProduct,
   createProduct,
   createProductOptions,
@@ -9,7 +10,6 @@ import {
   enableProduct,
   getProduct,
   getProducts,
-  changeGroups
 } from "~/core/application/products-service";
 
 export const productsRouter = new Hono();
