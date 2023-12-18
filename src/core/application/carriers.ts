@@ -95,7 +95,7 @@ export async function createCarrier(c: Context<EnvAPI>) {
     {
       status: created?.insertId ? "success" : "error",
       data: { id: created?.insertId },
-      msg: created?.insertId ? "carrier successfully created" : "cannot create carrier",
+      msg: created?.insertId ? "shipper successfully created" : "cannot create shipper",
     },
     201,
   );
@@ -115,7 +115,7 @@ export async function updateCarrier(c: Context<EnvAPI>) {
     {
       status: updated?.affectedRows === 1 ? "success" : "error",
       data: { carrier_id },
-      msg: updated?.affectedRows === 1 ? "carrier successfully updated" : "cannot update carrier",
+      msg: updated?.affectedRows === 1 ? "shipper successfully updated" : "cannot update shipper",
     },
     200,
   );
@@ -153,7 +153,7 @@ export async function activateCarrier(c: Context<EnvAPI>) {
         results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length
           ? "success"
           : "failed",
-      msg: "carrier activated successfully",
+      msg: "shipper activated successfully",
       data: {
         carrier_id,
         carrier_service_id: services.map((service) => service.carrier_service_id),
@@ -195,7 +195,7 @@ export async function deactivateCarrier(c: Context<EnvAPI>) {
         results.map((result) => result.affectedRows).filter((affectedRows) => affectedRows === 1).length === services.length
           ? "success"
           : "failed",
-      msg: "carrier deactivated successfully",
+      msg: "shipper deactivated successfully",
       data: {
         carrier_id,
         carrier_service_id: services.map((service) => service.carrier_service_id),
