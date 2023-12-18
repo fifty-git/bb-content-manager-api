@@ -1,4 +1,4 @@
-import { Status } from "../carriers/entity";
+import type { Status } from "../carriers/entity";
 
 export interface CarrierServiceAccount {
   account_id: number;

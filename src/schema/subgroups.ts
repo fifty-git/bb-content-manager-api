@@ -23,7 +23,7 @@ export const subgroups = mysqlTable(
         foreignColumns: [groups.group_id],
       }),
       groups_group_id: primaryKey(table.subgroup_id),
-      unq: unique("unique_name_parent_group").on(table.name, table.parent_group_id)
+      unq: unique("unique_name_parent_group").on(table.name, table.parent_group_id),
     };
   },
 );
