@@ -179,7 +179,7 @@ export async function deleteProduct(c: Context<EnvAPI>) {
 export async function changeGroups(c: Context<EnvAPI>) {
   const { productGroups } = await c.req.json();
   const productIds: number[] = productGroups.map((elm: any) => elm.product_id);
-  await db.transaction(async(tx) => {
+  await db.transaction(async (tx) => {
     await ProductsDS.deleteGroups(productIds, tx);
     await ProductsDS.addGroups(productGroups, tx);
   });
