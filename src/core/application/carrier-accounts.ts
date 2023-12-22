@@ -25,10 +25,18 @@ function handleValidationErrors(validator: SafeParseReturnType<any, any>, c: any
 
 export async function getAllAccounts(c: Context<EnvAPI>) {
   const accounts = await CarrierServicesAccountsDS.getAllAccounts();
+  const composedAccounts = await Promise.all(accounts.map(async (account) => {
+    const relatedServices = await CarrierServiceCitiesAccountsLink.getByAccountID(account.account_id);
+    return {
+      ...account,
+      origins: relatedServices,
+    };
+  }));
+
   return c.json(
     {
       status: accounts ? "success" : "error",
-      data: accounts,
+      data: composedAccounts,
     },
     200,
   );

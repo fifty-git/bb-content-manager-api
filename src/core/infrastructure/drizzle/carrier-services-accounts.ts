@@ -9,8 +9,8 @@ export class CarrierServicesAccountsDS {
     return db
       .select({
         account_id: carrier_accounts.account_id,
-        account_name: carrier_accounts.account_name,
-        account_number: carrier_accounts.account_number,
+        name: carrier_accounts.name,
+        number: carrier_accounts.number,
         status: carrier_accounts.status,
       })
       .from(carrier_accounts)

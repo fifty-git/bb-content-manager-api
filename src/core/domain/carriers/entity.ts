@@ -79,24 +79,20 @@ export interface Carrier {
 
 export interface NewCarrier {
   name: string;
-  code: string;
-  account_number: string;
 }
 
 export interface UpdateCarrier {
   carrier_id: number;
   name?: string;
-  code?: string;
-  account_number?: string;
   status?: Status;
 }
 
 export interface NewAccount {
-  account_name: string;
-  account_number: string;
+  name: string;
+  number: string;
 }
 
 export interface UpdateAccount {
-  account_name?: string;
-  account_number?: string;
+  name?: string;
+  number?: string;
 }
