@@ -34,11 +34,11 @@ export class ProductsDS {
     return (tx ?? db).insert(products).values(new_products).prepare().execute();
   }
 
-  static async addGroup(product_id: number, subgroup_id: number, tx?: Transaction) {
+  static async addSubgroup(product_id: number, subgroup_id: number, tx?: Transaction) {
     return (tx ?? db).insert(product_group_link).values({ product_id, subgroup_id }).prepare().execute();
   }
 
-  static async addGroups(productsGroups: { product_id: number; subgroup_id: number }[], tx?: Transaction) {
+  static async addSubgroups(productsGroups: { product_id: number; subgroup_id: number }[], tx?: Transaction) {
     return (tx ?? db).insert(product_group_link).values(productsGroups).prepare().execute();
   }
 

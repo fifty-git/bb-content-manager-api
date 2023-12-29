@@ -49,8 +49,7 @@ export async function createProduct(c: Context<EnvAPI>) {
   for (const product of validator.data.products) {
     await db.transaction(async (tx) => {
       const [{ insertId }] = await ProductsDS.create(product, tx);
-      if (product.group_id && product.group_id !== 0) await ProductsDS.addGroup(insertId, product.group_id, tx);
-      if (product.subgroup_id && product.subgroup_id !== 0) await ProductsDS.addGroup(insertId, product.subgroup_id, tx);
+      if (product.subgroup_id && product.subgroup_id !== 0) await ProductsDS.addSubgroup(insertId, product.subgroup_id, tx);
     });
   }
 
@@ -72,8 +71,8 @@ export async function cloneProduct(c: Context<EnvAPI>) {
     delete cloned_product.product_id;
 
     const [{ insertId }] = await ProductsDS.create(cloned_product, tx);
-    if (validator.data.group_id && validator.data.group_id !== 0) await ProductsDS.addGroup(insertId, validator.data.group_id, tx);
-    if (validator.data.subgroup_id && validator.data.subgroup_id !== 0) await ProductsDS.addGroup(insertId, validator.data.subgroup_id, tx);
+    if (validator.data.subgroup_id && validator.data.subgroup_id !== 0)
+      await ProductsDS.addSubgroup(insertId, validator.data.subgroup_id, tx);
 
     // Product variants cloning
     const variants = await ProductVariantsDS.getByProductID(validator.data.product_id, tx);
@@ -179,7 +178,7 @@ export async function changeGroups(c: Context<EnvAPI>) {
   const productIds: number[] = productGroups.map((elm: any) => elm.product_id);
   await db.transaction(async (tx) => {
     await ProductsDS.deleteGroups(productIds, tx);
-    await ProductsDS.addGroups(productGroups, tx);
+    await ProductsDS.addSubgroups(productGroups, tx);
   });
   return c.json("Groups changed successfully", 200);
 }
@@ -193,7 +192,7 @@ export async function changeGroup(c: Context<EnvAPI>) {
   if (!product) return c.json({ msg: "Product not found" }, 404);
   await db.transaction(async (tx) => {
     await ProductsDS.deleteGroup(+product_id, tx);
-    await ProductsDS.addGroup(+product_id, +subgroup_id, tx);
+    await ProductsDS.addSubgroup(+product_id, +subgroup_id, tx);
   });
   return c.json({ status: "success", msg: `Product ${product_id} has been assigned to subgroup ${subgroup_id} successfully` });
 }
