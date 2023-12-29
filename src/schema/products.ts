@@ -19,7 +19,6 @@ export const products = mysqlTable(
   "products",
   {
     product_id: int("product_id").autoincrement().notNull(),
-    subgroup_id: int("subgroup_id").references(() => subgroups.subgroup_id),
     name: varchar("name", { length: 255 }).notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
     product_type: mysqlEnum("product_type", ["single", "bundle"]).default("single").notNull(),
