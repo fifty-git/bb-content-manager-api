@@ -53,7 +53,7 @@ export class ProductsDS {
   static async enable(product_id: number) {
     return db
       .update(products)
-      .set({ status: "draft" })
+      .set({ status: "active" })
       .where(and(eq(products.product_id, product_id), eq(products.status, "inactive")))
       .prepare()
       .execute();
