@@ -17,9 +17,8 @@ async function getProductsWithGroups(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
   return Promise.all(
     products.map(async (product) => {
-      const subgroup = await SubGroupDS.getSubgroupByProductID(product.product_id);
-      const group = subgroup ? await GroupsDS.getGroupById(subgroup.parent_group_id) : null;
-      return { ...product, id: product.product_id, group, subgroup };
+      const groups = await GroupsDS.getGroupByProductID(product.product_id);
+      return { ...product, id: product.product_id, groups };
     }),
   );
 }
@@ -35,9 +34,8 @@ export async function getProduct(c: Context<EnvAPI>) {
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ status: "success", data: product });
 
-  const subgroup = await SubGroupDS.getSubgroupByProductID(+id);
-  const group = subgroup ? await GroupsDS.getGroupById(subgroup.parent_group_id) : null;
-  return c.json({ status: "success", data: { ...product, group, subgroup } });
+  const groups = await GroupsDS.getGroupByProductID(+id);
+  return c.json({ status: "success", data: { ...product, groups } });
 }
 
 export async function createProduct(c: Context<EnvAPI>) {
