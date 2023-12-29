@@ -211,7 +211,7 @@ export class GroupsDS {
 
   static async getGroupByProductID(product_id: number) {
     const results = await db
-      .select({ group_id: groups.group_id, group_name: groups.name, subgroup_id: product_group_link.subgroup_id, name: subgroups.name })
+      .select({ group_id: groups.group_id, group_name: groups.name, subgroup_id: product_group_link.subgroup_id, subgroup_name: subgroups.name })
       .from(product_group_link)
       .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))
       .innerJoin(groups, eq(groups.group_id, subgroups.parent_group_id))
