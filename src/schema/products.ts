@@ -1,20 +1,26 @@
 import { sql } from "drizzle-orm";
-import { boolean, datetime, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
+import {
+    boolean,
+    datetime,
+    index,
+    int,
+    mysqlEnum,
+    mysqlTable,
+    primaryKey,
+    tinyint,
+    unique,
+    varchar
+} from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
-import { sales_channels } from "~/schema/sales-channels";
+import { subgroups } from "~/schema/subgroups";
 import { tags } from "~/schema/tags";
 
 export const products = mysqlTable(
   "products",
   {
     product_id: int("product_id").autoincrement().notNull(),
-    sales_channel_id: int("sales_channel_id")
-      .default(1)
-      .notNull()
-      .references(() => sales_channels.sales_channel_id),
-    subgroup_id: int("subgroup_id"),
+    subgroup_id: int("subgroup_id").references(() => subgroups.subgroup_id),
     name: varchar("name", { length: 255 }).notNull(),
-    description: varchar("description", { length: 2000 }).default("").notNull(),
     is_standalone: boolean("is_standalone").default(true).notNull(),
     product_type: mysqlEnum("product_type", ["single", "bundle"]).default("single").notNull(),
     status: mysqlEnum("status", ["inactive", "draft", "active"]).default("draft").notNull(),
@@ -31,7 +37,6 @@ export const products = mysqlTable(
     };
   },
 );
-
 export const product_group_link = mysqlTable(
   "product_group_link",
   {
