@@ -1,18 +1,6 @@
 import { sql } from "drizzle-orm";
-import {
-    boolean,
-    datetime,
-    index,
-    int,
-    mysqlEnum,
-    mysqlTable,
-    primaryKey,
-    tinyint,
-    unique,
-    varchar
-} from "drizzle-orm/mysql-core";
+import { boolean, datetime, index, int, mysqlEnum, mysqlTable, primaryKey, unique, varchar } from "drizzle-orm/mysql-core";
 import { groups } from "~/schema/groups";
-import { subgroups } from "~/schema/subgroups";
 import { tags } from "~/schema/tags";
 
 export const products = mysqlTable(

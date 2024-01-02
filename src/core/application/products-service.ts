@@ -3,29 +3,32 @@ import type { ClonedVariant } from "~/core/domain/product-variants/entity";
 import type { ClonedProduct } from "~/core/domain/products/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
+import { CreateOfferAPISchema } from "~/core/domain/product-offers/validator/create-offer-validator";
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
 import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
 import { GroupsDS, SubGroupDS } from "~/core/infrastructure/drizzle/groups";
+import { OffersDS } from "~/core/infrastructure/drizzle/product-offers";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 import { ProductVarietiesDS } from "~/core/infrastructure/drizzle/product-varieties";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
 
-async function getProductsWithGroups(name: string | undefined) {
+async function getProductsWithAttributes(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
   return Promise.all(
     products.map(async (product) => {
       const groups = await GroupsDS.getGroupByProductID(product.product_id);
-      return { ...product, id: product.product_id, groups };
+      const offers = await OffersDS.getAllByProductID(product.product_id);
+      return { ...product, id: product.product_id, groups, offers };
     }),
   );
 }
 
 export async function getProducts(c: Context<EnvAPI>) {
   const name = c.req.query("name");
-  const products = await getProductsWithGroups(name);
+  const products = await getProductsWithAttributes(name);
   return c.json({ status: "success", data: products });
 }
 
@@ -54,6 +57,18 @@ export async function createProduct(c: Context<EnvAPI>) {
   }
 
   return c.json({ status: "success", msg: "Product creation was completed successfully!" }, 201);
+}
+
+export async function createOffer(c: Context<EnvAPI>) {
+  const product_id = parseInt(c.req.param("product_id"), 10);
+  // Validator
+  const validator = CreateOfferAPISchema.safeParse(await c.req.json());
+  if (!validator.success)
+    return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
+
+  // Offer creation
+  await OffersDS.create({ ...validator.data, product_id });
+  return c.json({ status: "success", msg: "Product offer creation was completed successfully!" }, 201);
 }
 
 export async function cloneProduct(c: Context<EnvAPI>) {

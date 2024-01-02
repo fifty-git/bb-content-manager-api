@@ -2,8 +2,7 @@ import type { Transaction } from "~/core/domain/types";
 import { and, eq } from "drizzle-orm";
 import { type DeleteService, type NewService, type Service, type UpdateService } from "~/core/domain/carriers/entity";
 import { db } from "~/modules/drizzle";
-import { carrier_accounts, carrier_service_account_city_link, carrier_services } from "~/schema/carriers";
-import { cities } from "~/schema/countries";
+import { carrier_services } from "~/schema/carriers";
 
 export class CarrierServiceDS {
   static async getByCarrierID(carrier_id: number): Promise<Service[]> {
