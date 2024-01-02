@@ -6,7 +6,17 @@ import { product_offers } from "~/schema/product-offers";
 
 export class OffersDS {
   static async getAllByProductID(product_id: number) {
-    return db.select().from(product_offers).where(eq(product_offers.product_id, product_id)).prepare().execute();
+    return db
+      .select({
+        product_offer_id: product_offers.product_offer_id,
+        sales_channel_id: product_offers.sales_channel_id,
+        name: product_offers.name,
+        status: product_offers.status,
+      })
+      .from(product_offers)
+      .where(eq(product_offers.product_id, product_id))
+      .prepare()
+      .execute();
   }
 
   static async create(offer: NewOffer, tx?: Transaction) {
