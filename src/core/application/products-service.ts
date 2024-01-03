@@ -7,13 +7,14 @@ import { CreateOfferAPISchema } from "~/core/domain/product-offers/validator/cre
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
 import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
-import { GroupsDS, SubgroupsDS } from "~/core/infrastructure/drizzle/groups";
+import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { OffersDS } from "~/core/infrastructure/drizzle/product-offers";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 import { ProductVarietiesDS } from "~/core/infrastructure/drizzle/product-varieties";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { db } from "~/modules/drizzle";
+import {SubgroupsDS} from "~/core/infrastructure/drizzle/subgroups";
 
 async function getProductsWithAttributes(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();

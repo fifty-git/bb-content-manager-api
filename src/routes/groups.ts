@@ -10,7 +10,6 @@ import {
   deleteSubgroup,
   getAll,
   getGroupById,
-  getGroups,
   getProductsByGroup,
   getProductsBySubgroup,
   getSubgroupById,
@@ -41,7 +40,7 @@ groupsRouter.post("/subgroups", createSubgroup);
 groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:id", getGroupById);
-groupsRouter.get("", getGroups);
-groupsRouter.get("/subgroups/all", getAll);
+groupsRouter.get("", getAll);
+// groupsRouter.get("/subgroups/all", getAll);
 groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);
 groupsRouter.get("/products/:group_id", getProductsByGroup);
