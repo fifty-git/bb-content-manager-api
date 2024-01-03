@@ -94,7 +94,7 @@ export async function createGroup(c: Context<EnvAPI>) {
 }
 
 export async function getSubgroupById(c: Context<EnvAPI>) {
-  const parentGroupId = parseInt(c.req.param("parent_group_id"), 10);
+  const parentGroupId = parseInt(c.req.param("group_id"), 10);
   const subgroupID = parseInt(c.req.param("subgroup_id"), 10);
   if (isNaN(parentGroupId) || isNaN(subgroupID)) return c.json({ msg: "Invalid group IDs" }, 400);
   const subgroup = await GroupsDS.getSubgroupById(parentGroupId, subgroupID);
@@ -103,7 +103,7 @@ export async function getSubgroupById(c: Context<EnvAPI>) {
 }
 
 export async function getSubgroupsByParentGroupId(c: Context<EnvAPI>) {
-  const parent_group_id = parseInt(c.req.param("parent_group_id"), 10);
+  const parent_group_id = parseInt(c.req.param("group_id"), 10);
   if (isNaN(parent_group_id)) return c.json({ msg: "Invalid parent_group_id" }, 400);
   const subgroups = await SubgroupsDS.getByParentGroupID(parent_group_id);
   return c.json({ subgroups });

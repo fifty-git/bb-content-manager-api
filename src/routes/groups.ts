@@ -22,8 +22,8 @@ export const groupsRouter = new Hono();
 
 // GET Requests
 groupsRouter.get("", getAll);
-groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
-groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
+groupsRouter.get("/:group_id/subgroups/:subgroup_id", getSubgroupById);
+groupsRouter.get("/:group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:group_id", getGroupById);
 
 // groupsRouter.get("/subgroups/all", getAll);
