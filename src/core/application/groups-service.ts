@@ -57,6 +57,7 @@ export async function updateGroup(c: Context<EnvAPI>) {
 export async function activateGroup(c: Context<EnvAPI>) {
   const group_id = parseInt(c.req.param("group_id"), 10);
   const { with_subgroups } = c.req.query();
+  c.var.log.info(`Activating group ${group_id}, with_subgroups:${with_subgroups}`);
   await GroupsDS.activate(group_id);
   if (with_subgroups === "true") await SubgroupsDS.activateByGroupID(group_id);
   return c.json({ msg: "Group activated successfully" });
