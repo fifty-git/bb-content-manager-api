@@ -7,7 +7,7 @@ import { CreateOfferAPISchema } from "~/core/domain/product-offers/validator/cre
 import { CreateProductOptionsAllAPISchema } from "~/core/domain/product-options/validator/create-option-validator";
 import { CloneProductAPISchema } from "~/core/domain/products/validator/clone-product-validator";
 import { CreateProductsAPISchema } from "~/core/domain/products/validator/create-product-validator";
-import { GroupsDS, SubGroupDS } from "~/core/infrastructure/drizzle/groups";
+import { GroupsDS, SubgroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { OffersDS } from "~/core/infrastructure/drizzle/product-offers";
 import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options";
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
@@ -201,7 +201,7 @@ export async function changeGroups(c: Context<EnvAPI>) {
 export async function changeGroup(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const subgroup_id = c.req.param("subgroup_id");
-  const subgroup = await SubGroupDS.getSubgroupById(parseInt(subgroup_id, 10));
+  const subgroup = await SubgroupsDS.getSubgroupById(parseInt(subgroup_id, 10));
   const product = await ProductsDS.getByID(+product_id);
   if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
   if (!product) return c.json({ msg: "Product not found" }, 404);
