@@ -43,7 +43,7 @@ export async function getProductsByGroup(c: Context<EnvAPI>) {
 }
 
 export async function updateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("id"), 10);
+  const groupId = parseInt(c.req.param("group_id"), 10);
   const group = await c.req.json();
   const validation = NewGroupSchema.safeParse(group);
   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
@@ -54,7 +54,7 @@ export async function updateGroup(c: Context<EnvAPI>) {
 }
 
 export async function activateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("id"), 10);
+  const groupId = parseInt(c.req.param("group_id"), 10);
   const { activateSubgroups } = c.req.query();
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
@@ -64,7 +64,7 @@ export async function activateGroup(c: Context<EnvAPI>) {
 }
 
 export async function deactivateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("id"), 10);
+  const groupId = parseInt(c.req.param("group_id"), 10);
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
   const result = await GroupsDS.deactivateGroup(groupId);
@@ -110,7 +110,7 @@ export async function getSubgroupsByParentGroupId(c: Context<EnvAPI>) {
 }
 
 export async function getGroupById(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("id"), 10);
+  const groupId = parseInt(c.req.param("group_id"), 10);
   if (isNaN(groupId)) return c.json({ msg: "Invalid group ID" }, 400);
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
@@ -128,7 +128,7 @@ export async function getProductsBySubgroup(c: Context<EnvAPI>) {
 }
 
 export async function activateSubgroup(c: Context<EnvAPI>) {
-  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroupId = parseInt(c.req.param("group_id"), 10);
   const subgroup = await SubgroupsDS.getSubgroupById(subgroupId);
   if (!subgroup) return c.json({ msg: "Group not found" }, 404);
   const parentGroup = await GroupsDS.getGroupById(subgroup?.parent_group_id);
@@ -138,7 +138,7 @@ export async function activateSubgroup(c: Context<EnvAPI>) {
 }
 
 export async function deactivateSubgroup(c: Context<EnvAPI>) {
-  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroupId = parseInt(c.req.param("group_id"), 10);
   const result = await SubgroupsDS.deactivateSubgroup(subgroupId);
   if (!result) return c.json({ msg: "The subgroup has at least an active product" }, 404);
   return c.json({ msg: "Subgroup deactivated successfully" });
@@ -157,7 +157,7 @@ export async function createSubgroup(c: Context<EnvAPI>) {
 }
 
 export async function updateSubgroup(c: Context<EnvAPI>) {
-  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroupId = parseInt(c.req.param("group_id"), 10);
   const subgroup = await c.req.json();
   const validation = NewSubGroupSchema.safeParse(subgroup);
   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
@@ -171,7 +171,7 @@ export async function updateSubgroup(c: Context<EnvAPI>) {
 }
 
 export async function deleteSubgroup(c: Context<EnvAPI>) {
-  const subgroupId = parseInt(c.req.param("id"), 10);
+  const subgroupId = parseInt(c.req.param("group_id"), 10);
   const subgroup = await SubgroupsDS.getSubgroupById(subgroupId);
   if (!subgroup) return c.json({ msg: "Subroup not found" }, 404);
   if (subgroup.status === "active") return c.json({ msg: "The Subgroups is active you can not delete it" }, 400);

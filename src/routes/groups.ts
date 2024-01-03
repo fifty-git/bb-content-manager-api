@@ -24,7 +24,7 @@ export const groupsRouter = new Hono();
 groupsRouter.get("", getAll);
 groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
-groupsRouter.get("/:id", getGroupById);
+groupsRouter.get("/:group_id", getGroupById);
 
 // groupsRouter.get("/subgroups/all", getAll);
 groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);
@@ -35,13 +35,13 @@ groupsRouter.post("", createGroup);
 groupsRouter.post("/subgroups", createSubgroup);
 
 // PUT Requests
-groupsRouter.put("/:id/deactivate", deactivateGroup);
-groupsRouter.put("/:id/deactivate/subgroups", deactivateSubgroup);
-groupsRouter.put("/:id/activate", activateGroup);
-groupsRouter.put("/:id/activate/subgroups", activateSubgroup);
-groupsRouter.put("/:id", updateGroup);
-groupsRouter.put("/:id/subgroups", updateSubgroup);
+groupsRouter.put("/:group_id/deactivate", deactivateGroup);
+groupsRouter.put("/:group_id/deactivate/subgroups", deactivateSubgroup);
+groupsRouter.put("/:group_id/activate", activateGroup);
+groupsRouter.put("/:group_id/activate/subgroups", activateSubgroup);
+groupsRouter.put("/:group_id", updateGroup);
+groupsRouter.put("/:group_id/subgroups", updateSubgroup);
 
 // DELETE Requests
 groupsRouter.delete("/:group_id", deleteGroup);
-groupsRouter.delete("/:id/subgroups", deleteSubgroup);
+groupsRouter.delete("/:group_id/subgroups", deleteSubgroup);
