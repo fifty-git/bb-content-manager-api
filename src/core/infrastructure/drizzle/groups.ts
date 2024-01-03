@@ -1,7 +1,6 @@
 import type { NewGroup, UpdateGroup } from "~/core/domain/groups/entity";
 import type { Transaction } from "~/core/domain/types";
-import { and, eq, inArray } from "drizzle-orm";
-import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
+import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { groups } from "~/schema/groups";
 import { product_group_link, products } from "~/schema/products";
@@ -20,8 +19,8 @@ export class GroupsDS {
       .execute();
   }
 
-  static async getProductsByGroup(group_id: number) {
-    const prepared = db
+  static async getProductsByGroupID(group_id: number) {
+    return db
       .select({
         product_id: products.product_id,
         name: products.name,
@@ -31,8 +30,9 @@ export class GroupsDS {
       .from(products)
       .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
       .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))
-      .where(eq(subgroups.parent_group_id, group_id));
-    return await prepared.execute();
+      .where(eq(subgroups.parent_group_id, group_id))
+      .prepare()
+      .execute();
   }
 
   static async updateGroup(group_id: number, group: UpdateGroup) {
@@ -41,30 +41,12 @@ export class GroupsDS {
     return results[0];
   }
 
-  static async activateGroup(group_id: number) {
-    const prepared = db.update(groups).set({ status: "active" }).where(eq(groups.group_id, group_id)).prepare();
-    const results = await prepared.execute();
-    return results[0];
+  static async activate(group_id: number) {
+    return db.update(groups).set({ status: "active" }).where(eq(groups.group_id, group_id)).prepare().execute();
   }
 
-  static async deactivateGroup(group_id: number) {
-    const subGroups = await SubgroupsDS.getByParentGroupID(group_id);
-    const subGroupsIDs = subGroups.map((subgroup) => subgroup.subgroup_id);
-    return db.transaction(async (tx) => {
-      if (subGroupsIDs.length) {
-        const productStatus = await tx
-          .select({ id: products.product_id, name: products.name, status: products.status })
-          .from(products)
-          .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
-          .where(inArray(product_group_link.subgroup_id, subGroupsIDs));
-        const activeProducts = productStatus.filter((status: any) => status != "inactive");
-        if (activeProducts.length) {
-          return null;
-        }
-        await tx.update(subgroups).set({ status: "inactive" }).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
-      }
-      return await tx.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
-    });
+  static async deactivate(group_id: number) {
+    return db.update(groups).set({ status: "inactive" }).where(eq(groups.group_id, group_id)).prepare().execute();
   }
 
   static async createGroup(newGroup: NewGroup, tx?: Transaction) {

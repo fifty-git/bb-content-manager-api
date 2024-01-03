@@ -26,6 +26,16 @@ export class ProductsDS {
     return result[0];
   }
 
+  static async getBySubgroupIDs(subgroup_ids: number[], status: "inactive" | "active") {
+    return db
+      .select({ product_id: products.product_id })
+      .from(products)
+      .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
+      .where(and(inArray(product_group_link.subgroup_id, subgroup_ids), eq(products.status, status)))
+      .prepare()
+      .execute();
+  }
+
   static async create(new_product: NewProduct, tx?: Transaction) {
     return (tx ?? db).insert(products).values(new_product).prepare().execute();
   }

@@ -69,16 +69,12 @@ export class SubgroupsDS {
     return results[0];
   }
 
-  static async activateSubgroup(subgroupID: number) {
-    const prepared = db.update(subgroups).set({ status: "active" }).where(eq(subgroups.subgroup_id, subgroupID)).prepare();
-    const results = await prepared.execute();
-    return results[0];
+  static async activate(subgroup_id: number) {
+    return db.update(subgroups).set({ status: "active" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
   }
 
-  static async activateSubgroups(parentGroupId: number) {
-    const prepared = db.update(subgroups).set({ status: "active" }).where(eq(subgroups.parent_group_id, parentGroupId)).prepare();
-    const results = await prepared.execute();
-    return results[0];
+  static async activateByGroupID(group_id: number) {
+    return db.update(subgroups).set({ status: "active" }).where(eq(subgroups.parent_group_id, group_id)).prepare().execute();
   }
 
   static async deactivateSubgroup(subgroup_id: number) {
@@ -94,6 +90,11 @@ export class SubgroupsDS {
       }
       return await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
+  }
+
+  static async deactivateMany(subgroup_ids: number[], tx?: Transaction) {
+    if (subgroup_ids.length === 0) return;
+    return (tx ?? db).update(subgroups).set({ status: "inactive" }).where(inArray(subgroups.subgroup_id, subgroup_ids)).prepare().execute();
   }
 
   static async deleteMany(subgroup_ids: number[], tx?: Transaction) {

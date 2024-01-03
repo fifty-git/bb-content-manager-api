@@ -2,11 +2,11 @@ import type { Group, NewGroup, NewSubgroup, Subgroup } from "~/core/domain/group
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { db } from "~/modules/drizzle";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
-import {logger} from "~/modules/logger";
 
 async function addReferencesToSubgroups(subgroups: Subgroup[]) {
   return Promise.all(
@@ -39,7 +39,7 @@ export async function getProductsByGroup(c: Context<EnvAPI>) {
   const groupId = parseInt(c.req.param("group_id"), 10);
   const group = await GroupsDS.getGroupById(groupId);
   if (!group) return c.json({ msg: "Group not found" }, 404);
-  const products = await GroupsDS.getProductsByGroup(groupId);
+  const products = await GroupsDS.getProductsByGroupID(groupId);
   return c.json({ products });
 }
 
@@ -55,21 +55,21 @@ export async function updateGroup(c: Context<EnvAPI>) {
 }
 
 export async function activateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("group_id"), 10);
-  const { activateSubgroups } = c.req.query();
-  const group = await GroupsDS.getGroupById(groupId);
-  if (!group) return c.json({ msg: "Group not found" }, 404);
-  await GroupsDS.activateGroup(groupId);
-  activateSubgroups == "true" && (await SubgroupsDS.activateSubgroups(groupId));
+  const group_id = parseInt(c.req.param("group_id"), 10);
+  const { with_subgroups } = c.req.query();
+  await GroupsDS.activate(group_id);
+  if (with_subgroups === "true") await SubgroupsDS.activateByGroupID(group_id);
   return c.json({ msg: "Group activated successfully" });
 }
 
 export async function deactivateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("group_id"), 10);
-  const group = await GroupsDS.getGroupById(groupId);
-  if (!group) return c.json({ msg: "Group not found" }, 404);
-  const result = await GroupsDS.deactivateGroup(groupId);
-  if (!result) return c.json({ msg: "At least one of the subgroups has an active product" }, 404);
+  const group_id = parseInt(c.req.param("group_id"), 10);
+  const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
+  const subgroup_ids = subgroups.map((subgroup) => subgroup.subgroup_id);
+  const products = await ProductsDS.getBySubgroupIDs(subgroup_ids, "active");
+  if (products.length > 0) return c.json({ msg: "At least one of the subgroups has an active product" }, 400);
+  await SubgroupsDS.deactivateMany(subgroup_ids);
+  await GroupsDS.deactivate(group_id);
   return c.json({ msg: "Group and subgroups deactivated successfully" });
 }
 
@@ -136,7 +136,7 @@ export async function activateSubgroup(c: Context<EnvAPI>) {
   if (!subgroup) return c.json({ msg: "Group not found" }, 404);
   const parentGroup = await GroupsDS.getGroupById(subgroup?.parent_group_id);
   if (parentGroup && parentGroup.status === "inactive") return c.json({ msg: "Parent group is inactive" }, 400);
-  await SubgroupsDS.activateSubgroup(subgroupId);
+  await SubgroupsDS.activate(subgroupId);
   return c.json({ msg: "Subgroup activated successfully" });
 }
 
