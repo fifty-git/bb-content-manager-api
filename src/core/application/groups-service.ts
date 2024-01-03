@@ -6,6 +6,7 @@ import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { db } from "~/modules/drizzle";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
+import {logger} from "~/modules/logger";
 
 async function addReferencesToSubgroups(subgroups: Subgroup[]) {
   return Promise.all(
@@ -74,14 +75,16 @@ export async function deactivateGroup(c: Context<EnvAPI>) {
 
 export async function deleteGroup(c: Context<EnvAPI>) {
   const group_id = parseInt(c.req.param("group_id"), 10);
+  c.var.log.info(`Group to be deleted: ${group_id}`);
   await db.transaction(async (tx) => {
     //Delete dependencies
     const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
     const subgroup_ids = subgroups.map((s) => s.subgroup_id);
+    c.var.log.info(`Child subgroups: ${subgroup_ids.length}`);
     await SubgroupsDS.deleteMany(subgroup_ids, tx);
     await GroupsDS.delete(group_id);
   });
-
+  c.var.log.info(`Group deleted successfully`);
   return c.json(null, 204);
 }
 
