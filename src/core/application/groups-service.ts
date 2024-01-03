@@ -3,6 +3,7 @@ import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
+import { db } from "~/modules/drizzle";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
@@ -72,10 +73,15 @@ export async function deactivateGroup(c: Context<EnvAPI>) {
 }
 
 export async function deleteGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("id"), 10);
-  const group = await GroupsDS.getGroupById(groupId);
-  if (!group) return c.json({ msg: "Group not found" }, 404);
-  await GroupsDS.deleteGroup(groupId);
+  const group_id = parseInt(c.req.param("group_id"), 10);
+  await db.transaction(async (tx) => {
+    //Delete dependencies
+    const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
+    const subgroup_ids = subgroups.map((s) => s.subgroup_id);
+    await SubgroupsDS.deleteMany(subgroup_ids, tx);
+    await GroupsDS.delete(group_id);
+  });
+
   return c.json(null, 204);
 }
 

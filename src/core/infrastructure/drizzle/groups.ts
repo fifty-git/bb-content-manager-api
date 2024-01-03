@@ -67,17 +67,6 @@ export class GroupsDS {
     });
   }
 
-  static async deleteGroup(group_id: number) {
-    const subGroups = await SubgroupsDS.getByParentGroupID(group_id);
-    const subGroupsIDs = subGroups.map((subgroup) => subgroup.subgroup_id);
-    return db.transaction(async (tx) => {
-      if (subGroupsIDs.length) {
-        await tx.delete(subgroups).where(inArray(subgroups.subgroup_id, subGroupsIDs)).prepare().execute();
-      }
-      await tx.delete(groups).where(eq(groups.group_id, group_id)).prepare().execute();
-    });
-  }
-
   static async createGroup(newGroup: NewGroup, tx?: Transaction) {
     if (tx) return tx.insert(groups).values(newGroup).prepare().execute();
     return db.insert(groups).values(newGroup).prepare().execute();
@@ -121,5 +110,9 @@ export class GroupsDS {
       .execute();
     if (!results || results.length === 0) return null;
     return results[0];
+  }
+
+  static async delete(group_id: number, tx?: Transaction) {
+    return (tx ?? db).delete(groups).where(eq(groups.group_id, group_id)).prepare().execute();
   }
 }

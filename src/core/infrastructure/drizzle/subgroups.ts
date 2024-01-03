@@ -1,6 +1,6 @@
 import type { NewSubgroup, UpdateSubgroup } from "~/core/domain/groups/entity";
 import type { Transaction } from "~/core/domain/types";
-import { eq, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { groups } from "~/schema/groups";
 import { product_group_link, products } from "~/schema/products";
@@ -94,5 +94,10 @@ export class SubgroupsDS {
       }
       return await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
+  }
+
+  static async deleteMany(subgroup_ids: number[], tx?: Transaction) {
+    if (subgroup_ids.length === 0) return;
+    return (tx ?? db).delete(subgroups).where(inArray(subgroups.subgroup_id, subgroup_ids)).prepare().execute();
   }
 }
