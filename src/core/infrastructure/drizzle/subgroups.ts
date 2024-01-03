@@ -16,8 +16,8 @@ export class SubgroupsDS {
       .execute();
   }
 
-  static async getProductsBySubgroup(subgroup_id: number) {
-    const prepared = db
+  static async getProductsBySubgroupID(subgroup_id: number) {
+    return db
       .select({
         product_id: products.product_id,
         name: products.name,
@@ -26,8 +26,9 @@ export class SubgroupsDS {
       })
       .from(products)
       .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
-      .where(eq(product_group_link.subgroup_id, subgroup_id));
-    return await prepared.execute();
+      .where(eq(product_group_link.subgroup_id, subgroup_id))
+      .prepare()
+      .execute();
   }
 
   static async createSubgroup(newSubgroup: NewSubgroup, tx?: Transaction) {
@@ -93,20 +94,5 @@ export class SubgroupsDS {
       }
       return await tx.update(subgroups).set({ status: "inactive" }).where(eq(subgroups.subgroup_id, subgroup_id)).prepare().execute();
     });
-  }
-
-  static async getAllSubgroups() {
-    return db
-      .select({
-        subgroup_id: subgroups.subgroup_id,
-        name: subgroups.name,
-        status: subgroups.status,
-        parent_group_id: subgroups.parent_group_id,
-        parent_group_name: groups.name,
-      })
-      .from(subgroups)
-      .innerJoin(groups, eq(groups.group_id, subgroups.parent_group_id))
-      .prepare()
-      .execute();
   }
 }

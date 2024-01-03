@@ -37,10 +37,11 @@ groupsRouter.post("", createGroup);
 groupsRouter.post("/subgroups", createSubgroup);
 
 // GET Requests
+groupsRouter.get("", getAll);
 groupsRouter.get("/:parent_group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:parent_group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:id", getGroupById);
-groupsRouter.get("", getAll);
+
 // groupsRouter.get("/subgroups/all", getAll);
 groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);
 groupsRouter.get("/products/:group_id", getProductsByGroup);

@@ -1,4 +1,4 @@
-import type { NewGroup, NewSubgroup } from "~/core/domain/groups/entity";
+import type { Group, NewGroup, NewSubgroup, Subgroup } from "~/core/domain/groups/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
@@ -6,14 +6,28 @@ import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
-export async function getAll(c: Context<EnvAPI>) {
-  const _groups = await GroupsDS.getAll();
-  const groups = await Promise.all(
-    _groups.map(async (group) => {
-      const subgroups = await SubgroupsDS.getByParentGroupID(group.group_id);
+async function addReferencesToSubgroups(subgroups: Subgroup[]) {
+  return Promise.all(
+    subgroups.map(async (subgroup) => {
+      const refs = await SubgroupsDS.getProductsBySubgroupID(subgroup.subgroup_id);
+      return { ...subgroup, product_references: refs.length };
+    }),
+  );
+}
+
+async function addSubgroupsToGroups(groups: Group[]) {
+  return Promise.all(
+    groups.map(async (group) => {
+      const _subgroups = await SubgroupsDS.getByParentGroupID(group.group_id);
+      const subgroups = await addReferencesToSubgroups(_subgroups);
       return { ...group, subgroups };
     }),
   );
+}
+
+export async function getAll(c: Context<EnvAPI>) {
+  const _groups = await GroupsDS.getAll();
+  const groups = await addSubgroupsToGroups(_groups);
   return c.json({ status: "success", data: groups });
 }
 
@@ -103,7 +117,7 @@ export async function getProductsBySubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("subgroup_id"), 10);
   const subgroup = await SubgroupsDS.getSubgroupById(subgroupId);
   if (!subgroup) return c.json({ msg: "Group not found" }, 404);
-  const products = await SubgroupsDS.getProductsBySubgroup(subgroupId);
+  const products = await SubgroupsDS.getProductsBySubgroupID(subgroupId);
   return c.json({ products });
 }
 
