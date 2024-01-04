@@ -1,6 +1,6 @@
 import type { NewSubgroup, UpdateSubgroup } from "~/core/domain/groups/entity";
 import type { Transaction } from "~/core/domain/types";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { product_group_link, products } from "~/schema/products";
 import { subgroups } from "~/schema/subgroups";
@@ -31,7 +31,12 @@ export class SubgroupsDS {
   }
 
   static async createSubgroup(subgroup: NewSubgroup, tx?: Transaction) {
-    return (tx ?? db).insert(subgroups).values(subgroup).prepare().execute();
+    return (tx ?? db)
+      .insert(subgroups)
+      .values(subgroup)
+      .onDuplicateKeyUpdate({ set: { subgroup_id: sql`subgroup_id` } })
+      .prepare()
+      .execute();
   }
 
   static async deleteSubgroup(subgroup_id: number) {
