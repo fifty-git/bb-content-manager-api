@@ -10,8 +10,6 @@ import {
   deleteSubgroup,
   getAll,
   getGroupById,
-  getProductsByGroup,
-  getProductsBySubgroup,
   getSubgroupById,
   getSubgroupsByParentGroupId,
   updateGroup,
@@ -35,12 +33,13 @@ groupsRouter.post("/", createGroup);
 groupsRouter.post("/:group_id/subgroups", createSubgroup);
 
 // PUT Requests
-groupsRouter.put("/:group_id/deactivate", deactivateGroup);
-groupsRouter.put("/:group_id/deactivate/subgroups", deactivateSubgroup);
-groupsRouter.put("/:group_id/activate", activateGroup);
-groupsRouter.put("/:group_id/activate/subgroups", activateSubgroup);
 groupsRouter.put("/:group_id", updateGroup);
-groupsRouter.put("/:group_id/subgroups", updateSubgroup);
+groupsRouter.put("/:group_id/activate", activateGroup);
+groupsRouter.put("/:group_id/deactivate", deactivateGroup);
+
+groupsRouter.put("/:group_id/subgroups/:subgroup_id", updateSubgroup);
+groupsRouter.put("/:group_id/subgroups/:subgroup_id/activate", activateSubgroup);
+groupsRouter.put("/:group_id/subgroups/:subgroup_id/deactivate", deactivateSubgroup);
 
 // DELETE Requests
 groupsRouter.delete("/:group_id", deleteGroup);
