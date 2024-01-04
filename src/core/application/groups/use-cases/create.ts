@@ -17,7 +17,7 @@ export class CreateUseCase extends BaseUseCase {
   protected msg = "Group created successfully";
   private data: NewGroup | undefined = undefined;
 
-  async getData(c: Context<EnvAPI>) {
+  protected async getData(c: Context<EnvAPI>) {
     return await c.req.json();
   }
 
