@@ -11,7 +11,7 @@ export abstract class BaseUseCase {
   async run(c: Context<EnvAPI>) {
     c.var.log.info(`[${c.req.method}] ${c.req.url}`);
     const _data = await this.getData(c);
-    c.var.log.info(`Received:`, _data);
+    c.var.log.info(_data, "Received:");
     const error = await this.validate(_data);
     if (error) return c.json({ error }, 400);
     await this.process();
