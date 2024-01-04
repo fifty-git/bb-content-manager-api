@@ -19,7 +19,7 @@ export class UpdateUseCase extends BaseUseCase {
   private data: UpdateGroup | undefined = undefined;
   protected async getData(c: Context<EnvAPI>) {
     const group_id = parseInt(c.req.param("group_id"), 10);
-    const name = await c.req.json();
+    const { name } = await c.req.json();
     return { group_id, name };
   }
 
