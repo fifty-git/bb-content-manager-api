@@ -151,7 +151,8 @@ export async function deactivateSubgroup(c: Context<EnvAPI>) {
 
 export async function createSubgroup(c: Context<EnvAPI>) {
   const validator = NewSubGroupSchema.safeParse(await c.req.json());
-  if (!validator.success) return c.json({ error: validator.error.issues[0].message }, 400);
+  if (!validator.success)
+    return c.json({ status: "error", msg: `${validator.error.errors[0].message} (${validator.error.errors[0].path.join(".")})` }, 400);
 
   const parent_group = await GroupsDS.getGroupById(validator.data.parent_group_id);
   if (!parent_group) return c.json({ msg: "Parent Group not found" }, 400);
