@@ -22,7 +22,6 @@ export interface Group {
 }
 
 export interface NewSubgroup {
-  group_id: number;
   name: string;
   parent_group_id: number;
 }

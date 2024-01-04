@@ -1,4 +1,4 @@
-import type { Group, NewGroup, NewSubgroup, Subgroup } from "~/core/domain/groups/entity";
+import type { Group, NewGroup, Subgroup } from "~/core/domain/groups/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
@@ -150,14 +150,12 @@ export async function deactivateSubgroup(c: Context<EnvAPI>) {
 }
 
 export async function createSubgroup(c: Context<EnvAPI>) {
-  const newGroup: NewSubgroup = await c.req.json();
-  const validation = NewSubGroupSchema.safeParse(newGroup);
-  if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
-  const { parent_group_id } = validation.data;
-  const parentGroup = await GroupsDS.getGroupById(parent_group_id);
-  if (!parentGroup) return c.json({ msg: "Parent Group not found" }, 400);
-  const result = await SubgroupsDS.createSubgroup(newGroup);
-  if (!result[0].insertId) return c.json({ msg: "The subgroup already exists" }, 400);
+  const validator = NewSubGroupSchema.safeParse(await c.req.json());
+  if (!validator.success) return c.json({ error: validator.error.issues[0].message }, 400);
+
+  const parent_group = await GroupsDS.getGroupById(validator.data.parent_group_id);
+  if (!parent_group) return c.json({ msg: "Parent Group not found" }, 400);
+  await SubgroupsDS.createSubgroup(validator.data);
   return c.json({ msg: "Subgroup created successfully" }, 201);
 }
 

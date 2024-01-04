@@ -32,7 +32,7 @@ groupsRouter.get("/:group_id", getGroupById);
 
 // POST Requests
 groupsRouter.post("/", createGroup);
-// groupsRouter.post("/subgroups", createSubgroup);
+groupsRouter.post("/:group_id/subgroups", createSubgroup);
 
 // PUT Requests
 groupsRouter.put("/:group_id/deactivate", deactivateGroup);
