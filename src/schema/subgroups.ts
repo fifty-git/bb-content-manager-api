@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { index, int, mysqlEnum, mysqlTable, primaryKey, timestamp, unique, varchar } from "drizzle-orm/mysql-core";
-import {groups} from "~/schema/groups";
+import { groups } from "~/schema/groups";
 
 export const subgroups = mysqlTable(
   "subgroups",

@@ -1,4 +1,4 @@
-import type { NewGroup, UpdateGroup } from "~/core/domain/groups/entity";
+import type { NewGroup } from "~/core/domain/groups/entity";
 import type { Transaction } from "~/core/domain/types";
 import { and, eq } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
@@ -35,10 +35,8 @@ export class GroupsDS {
       .execute();
   }
 
-  static async updateGroup(group_id: number, group: UpdateGroup) {
-    const prepared = db.update(groups).set(group).where(eq(groups.group_id, group_id)).prepare();
-    const results = await prepared.execute();
-    return results[0];
+  static async updateGroup(group_id: number, name: string) {
+    return db.update(groups).set({ name }).where(eq(groups.group_id, group_id)).prepare().execute();
   }
 
   static async activate(group_id: number) {

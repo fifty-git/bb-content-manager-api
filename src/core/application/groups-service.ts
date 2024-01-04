@@ -1,11 +1,10 @@
-import type { Group, NewGroup, Subgroup } from "~/core/domain/groups/entity";
+import type { Group, Subgroup } from "~/core/domain/groups/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { db } from "~/modules/drizzle";
-import { NewGroupSchema } from "../domain/groups/validator/create-group-validator";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
 async function addReferencesToSubgroups(subgroups: Subgroup[]) {
@@ -35,24 +34,24 @@ export async function getAll(c: Context<EnvAPI>) {
 
 /* --------------- Groups ----------------- */
 
-export async function getProductsByGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("group_id"), 10);
-  const group = await GroupsDS.getGroupById(groupId);
-  if (!group) return c.json({ msg: "Group not found" }, 404);
-  const products = await GroupsDS.getProductsByGroupID(groupId);
-  return c.json({ products });
-}
+// export async function getProductsByGroup(c: Context<EnvAPI>) {
+//   const groupId = parseInt(c.req.param("group_id"), 10);
+//   const group = await GroupsDS.getGroupById(groupId);
+//   if (!group) return c.json({ msg: "Group not found" }, 404);
+//   const products = await GroupsDS.getProductsByGroupID(groupId);
+//   return c.json({ products });
+// }
 
-export async function updateGroup(c: Context<EnvAPI>) {
-  const groupId = parseInt(c.req.param("group_id"), 10);
-  const group = await c.req.json();
-  const validation = NewGroupSchema.safeParse(group);
-  if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
-  const groupDB = await GroupsDS.getGroupById(groupId);
-  if (!groupDB) return c.json({ msg: "Group not found" }, 400);
-  await GroupsDS.updateGroup(groupId, group);
-  return c.json({ msg: "Group updated successfully" });
-}
+// export async function updateGroup(c: Context<EnvAPI>) {
+//   const groupId = parseInt(c.req.param("group_id"), 10);
+//   const group = await c.req.json();
+//   const validation = NewGroupSchema.safeParse(group);
+//   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
+//   const groupDB = await GroupsDS.getGroupById(groupId);
+//   if (!groupDB) return c.json({ msg: "Group not found" }, 400);
+//   await GroupsDS.updateGroup(groupId, validation.data);
+//   return c.json({ msg: "Group updated successfully" });
+// }
 
 export async function activateGroup(c: Context<EnvAPI>) {
   const group_id = parseInt(c.req.param("group_id"), 10);
@@ -90,13 +89,13 @@ export async function deleteGroup(c: Context<EnvAPI>) {
   return c.json(null, 204);
 }
 
-export async function createGroup(c: Context<EnvAPI>) {
-  const newGroup: NewGroup = await c.req.json();
-  const validation = NewGroupSchema.safeParse(newGroup);
-  if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
-  await GroupsDS.createGroup(newGroup);
-  return c.json({ msg: "Group created successfully" }, 201);
-}
+// export async function createGroup(c: Context<EnvAPI>) {
+//   const newGroup: NewGroup = await c.req.json();
+//   const validation = NewGroupSchema.safeParse(newGroup);
+//   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
+//   await GroupsDS.createGroup(newGroup);
+//   return c.json({ msg: "Group created successfully" }, 201);
+// }
 
 export async function getSubgroupById(c: Context<EnvAPI>) {
   const parentGroupId = parseInt(c.req.param("group_id"), 10);
@@ -124,13 +123,13 @@ export async function getGroupById(c: Context<EnvAPI>) {
 
 /* --------------- Subgroups ----------------- */
 
-export async function getProductsBySubgroup(c: Context<EnvAPI>) {
-  const subgroupId = parseInt(c.req.param("subgroup_id"), 10);
-  const subgroup = await SubgroupsDS.getSubgroupById(subgroupId);
-  if (!subgroup) return c.json({ msg: "Group not found" }, 404);
-  const products = await SubgroupsDS.getProductsBySubgroupID(subgroupId);
-  return c.json({ products });
-}
+// export async function getProductsBySubgroup(c: Context<EnvAPI>) {
+//   const subgroupId = parseInt(c.req.param("subgroup_id"), 10);
+//   const subgroup = await SubgroupsDS.getSubgroupById(subgroupId);
+//   if (!subgroup) return c.json({ msg: "Group not found" }, 404);
+//   const products = await SubgroupsDS.getProductsBySubgroupID(subgroupId);
+//   return c.json({ products });
+// }
 
 export async function activateSubgroup(c: Context<EnvAPI>) {
   const subgroupId = parseInt(c.req.param("group_id"), 10);

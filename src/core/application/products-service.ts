@@ -13,8 +13,8 @@ import { ProductOptionsDS } from "~/core/infrastructure/drizzle/product-options"
 import { ProductVariantsDS } from "~/core/infrastructure/drizzle/product-variants";
 import { ProductVarietiesDS } from "~/core/infrastructure/drizzle/product-varieties";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
+import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { db } from "~/modules/drizzle";
-import {SubgroupsDS} from "~/core/infrastructure/drizzle/subgroups";
 
 async function getProductsWithAttributes(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
