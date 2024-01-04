@@ -83,7 +83,8 @@ export async function deleteGroup(c: Context<EnvAPI>) {
     const subgroup_ids = subgroups.map((s) => s.subgroup_id);
     c.var.log.info(`Child subgroups: ${subgroup_ids.length}`);
     await SubgroupsDS.deleteMany(subgroup_ids, tx);
-    await GroupsDS.delete(group_id);
+    c.var.log.info(`Child subgroups deleted`);
+    await GroupsDS.delete(group_id, tx);
   });
   c.var.log.info(`Group deleted successfully`);
   return c.json(null, 204);
