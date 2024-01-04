@@ -9,9 +9,9 @@ export abstract class BaseUseCase {
   protected abstract process(): Promise<void>;
 
   async run(c: Context<EnvAPI>) {
-    c.var.log.info(`Hit ${c.req.url} [${c.req.method}]`);
+    c.var.log.info(`[${c.req.method}] ${c.req.url}`);
     const _data = await this.getData(c);
-    c.var.log.info(`Received: ${_data}`);
+    c.var.log.info(`Received:`, _data);
     const error = await this.validate(_data);
     if (error) return c.json({ error }, 400);
     await this.process();
