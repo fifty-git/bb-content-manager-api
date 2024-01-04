@@ -9,5 +9,5 @@ export default {
   introspect: {
     casing: "preserve",
   },
-  tablesFilter: ["product_offers"],
+  tablesFilter: ["subgroups"],
 } satisfies Config;
