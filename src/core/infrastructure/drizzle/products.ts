@@ -27,6 +27,7 @@ export class ProductsDS {
   }
 
   static async getBySubgroupIDs(subgroup_ids: number[], status: "inactive" | "active") {
+    if (subgroup_ids.length === 0) return [];
     return db
       .select({ product_id: products.product_id })
       .from(products)
