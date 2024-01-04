@@ -18,6 +18,7 @@ import {
 
 export const groupsRouter = new Hono<EnvAPI>();
 
+const group = new GroupsService();
 // GET Requests
 groupsRouter.get("/", getAll);
 groupsRouter.get("/:group_id/subgroups/:subgroup_id", getSubgroupById);
@@ -29,11 +30,11 @@ groupsRouter.get("/:group_id", getGroupById);
 // groupsRouter.get("/products/:group_id", getProductsByGroup);
 
 // POST Requests
-groupsRouter.post("/", GroupsService.CreateUseCase.run);
+groupsRouter.post("/", group.CreateUseCase.run);
 groupsRouter.post("/:group_id/subgroups", createSubgroup);
 
 // PUT Requests
-groupsRouter.put("/:group_id", GroupsService.UpdateUseCase.run);
+groupsRouter.put("/:group_id", group.UpdateUseCase.run);
 groupsRouter.put("/:group_id/activate", activateGroup);
 groupsRouter.put("/:group_id/deactivate", deactivateGroup);
 
