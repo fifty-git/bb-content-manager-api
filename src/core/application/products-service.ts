@@ -20,7 +20,7 @@ async function getProductsWithAttributes(name: string | undefined) {
   const products = name ? await ProductsDS.findByName(name) : await ProductsDS.getAll();
   return Promise.all(
     products.map(async (product) => {
-      const groups = await GroupsDS.getGroupByProductID(product.product_id);
+      const groups = await GroupsDS.getByProductID(product.product_id);
       const offers = await OffersDS.getAllByProductID(product.product_id);
       return { ...product, id: product.product_id, groups, offers };
     }),
@@ -38,7 +38,7 @@ export async function getProduct(c: Context<EnvAPI>) {
   const product = await ProductsDS.getByID(+id);
   if (!product) return c.json({ status: "success", data: product });
 
-  const groups = await GroupsDS.getGroupByProductID(+id);
+  const groups = await GroupsDS.getByProductID(+id);
   return c.json({ status: "success", data: { ...product, groups } });
 }
 
@@ -202,7 +202,7 @@ export async function changeGroups(c: Context<EnvAPI>) {
 export async function changeGroup(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const subgroup_id = c.req.param("subgroup_id");
-  const subgroup = await SubgroupsDS.getSubgroupById(parseInt(subgroup_id, 10));
+  const subgroup = await SubgroupsDS.getByID(parseInt(subgroup_id, 10));
   const product = await ProductsDS.getByID(+product_id);
   if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
   if (!product) return c.json({ msg: "Product not found" }, 404);

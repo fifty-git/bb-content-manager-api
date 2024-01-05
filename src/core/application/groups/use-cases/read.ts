@@ -1,12 +1,14 @@
-import type { Group, Subgroup } from "~/core/domain/groups/types";
+import type { Group } from "~/core/domain/groups/types";
+import type { Subgroup } from "~/core/domain/subgroups/types";
 import { BaseDataAccess } from "~/core/application/use-cases/base";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 
 async function addReferencesToSubgroups(subgroups: Subgroup[]) {
   return Promise.all(
     subgroups.map(async (subgroup) => {
-      const refs = await SubgroupsDS.getProductsBySubgroupID(subgroup.subgroup_id);
+      const refs = await ProductsDS.getBySubgroupID(subgroup.subgroup_id);
       return { ...subgroup, product_references: refs.length };
     }),
   );
