@@ -12,8 +12,8 @@ export abstract class BaseUseCase {
     c.var.log.info(`[${c.req.method}] ${c.req.url}`);
     const error = await this.validateData(c);
     if (error) {
-      c.var.log.error({ error });
-      return c.json({ error }, 400);
+      c.var.log.error({ status: "error", msg: error });
+      return c.json({ status: "error", msg: error }, 400);
     }
 
     // Running the process
@@ -37,8 +37,8 @@ export abstract class BaseDataAccess {
     c.var.log.info(`[${c.req.method}] ${c.req.url}`);
     const error = await this.validateData(c);
     if (error) {
-      c.var.log.error({ error });
-      return c.json({ error }, 400);
+      c.var.log.error({ status: "error", msg: error });
+      return c.json({ status: "error", msg: error }, 400);
     }
 
     // Running the process
