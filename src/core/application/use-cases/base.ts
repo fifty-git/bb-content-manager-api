@@ -4,7 +4,7 @@ import type { Context } from "hono";
 export abstract class BaseUseCase {
   protected abstract status_code: number;
   protected abstract msg: string;
-  protected abstract validateData(c: Context<EnvAPI>): Promise<any>;
+  protected abstract validateData(c: Context<EnvAPI>): Promise<string | undefined | void>;
   protected abstract process(): Promise<void>;
 
   async run(c: Context<EnvAPI>) {

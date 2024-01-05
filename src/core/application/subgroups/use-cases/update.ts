@@ -29,9 +29,9 @@ export class UpdateUseCase extends BaseUseCase {
     const validator = schema.safeParse({ ...data, parent_group_id, subgroup_id });
     if (!validator.success) return validator.error.issues[0].message;
     const parent_group = await GroupsDS.getByID(validator.data.parent_group_id);
-    if (!parent_group) return c.json({ msg: "Parent Group not found" }, 400);
+    if (!parent_group) return "Parent Group not found";
     const new_parent_group = await GroupsDS.getByID(validator.data.new_parent_group_id);
-    if (!new_parent_group) return c.json({ msg: "New Parent Group not found" }, 400);
+    if (!new_parent_group) return "New Parent Group not found";
     this.data = validator.data;
   }
 
