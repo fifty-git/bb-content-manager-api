@@ -10,8 +10,9 @@ export abstract class BaseUseCase {
   async run(c: Context<EnvAPI>) {
     // Getting and validating the data
     c.var.log.info(`[${c.req.method}] ${c.req.url}`);
-    const data = await c.req.text();
-    if (data) c.var.log.info(data);
+    // Only for debug
+    // const data = await c.req.json();
+    // if (data) c.var.log.info(data);
     const error = await this.validateData(c);
     if (error) {
       c.var.log.error({ status: "error", msg: error });
