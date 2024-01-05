@@ -1,4 +1,4 @@
-import type { NewGroup } from "~/core/domain/groups/entity";
+import type { CreateGroup } from "~/core/domain/groups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { z } from "zod";
@@ -15,13 +15,10 @@ export const schema = z.object({
 export class CreateUseCase extends BaseUseCase {
   protected status_code = 200;
   protected msg = "Group created successfully";
-  private data: NewGroup | undefined = undefined;
+  private data: CreateGroup | undefined = undefined;
 
-  protected async getData(c: Context<EnvAPI>) {
-    return await c.req.json();
-  }
-
-  protected async validate(data: NewGroup) {
+  protected async validateData(c: Context<EnvAPI>) {
+    const data = await c.req.json();
     const validator = schema.safeParse(data);
     if (!validator.success) return validator.error.issues[0].message;
     this.data = validator.data;

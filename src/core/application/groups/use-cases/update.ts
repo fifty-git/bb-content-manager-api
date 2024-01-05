@@ -1,4 +1,4 @@
-import type { NewGroup, UpdateGroup } from "~/core/domain/groups/entity";
+import type { UpdateGroup } from "~/core/domain/groups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { z } from "zod";
@@ -17,14 +17,11 @@ export class UpdateUseCase extends BaseUseCase {
   protected status_code = 201;
   protected msg = "Group updated successfully";
   private data: UpdateGroup | undefined = undefined;
-  protected async getData(c: Context<EnvAPI>) {
-    const group_id = parseInt(c.req.param("group_id"), 10);
-    const { name } = await c.req.json();
-    return { group_id, name };
-  }
 
-  protected async validate(data: NewGroup) {
-    const validator = schema.safeParse(data);
+  protected async validateData(c: Context<EnvAPI>) {
+    const group_id = parseInt(c.req.param("group_id"), 10);
+    const data = await c.req.json();
+    const validator = schema.safeParse({ ...data, group_id });
     if (!validator.success) return validator.error.issues[0].message;
     const groupDB = await GroupsDS.getGroupById(validator.data.group_id);
     if (!groupDB) return "Group not found";

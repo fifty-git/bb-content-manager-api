@@ -2,14 +2,10 @@ import type { EnvAPI } from "~/core/domain/types";
 import { Hono } from "hono";
 import { GroupsService } from "~/core/application/groups/groups-service";
 import {
-  activateGroup,
   activateSubgroup,
   createSubgroup,
-  deactivateGroup,
   deactivateSubgroup,
-  deleteGroup,
   deleteSubgroup,
-  getAll,
   getGroupById,
   getSubgroupById,
   getSubgroupsByParentGroupId,
@@ -20,7 +16,7 @@ export const groupsRouter = new Hono<EnvAPI>();
 
 const group = new GroupsService();
 // GET Requests
-groupsRouter.get("/", getAll);
+groupsRouter.get("/", group.GetAllDataAccess.run);
 groupsRouter.get("/:group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:group_id/subgroups", getSubgroupsByParentGroupId);
 groupsRouter.get("/:group_id", getGroupById);
@@ -35,13 +31,13 @@ groupsRouter.post("/:group_id/subgroups", createSubgroup);
 
 // PUT Requests
 groupsRouter.put("/:group_id", group.UpdateUseCase.run);
-groupsRouter.put("/:group_id/activate", activateGroup);
-groupsRouter.put("/:group_id/deactivate", deactivateGroup);
+groupsRouter.put("/:group_id/activate", group.ActivateUseCase.run);
+groupsRouter.put("/:group_id/deactivate", group.DeactivateUseCase.run);
 
 groupsRouter.put("/:group_id/subgroups/:subgroup_id", updateSubgroup);
 groupsRouter.put("/:group_id/subgroups/:subgroup_id/activate", activateSubgroup);
 groupsRouter.put("/:group_id/subgroups/:subgroup_id/deactivate", deactivateSubgroup);
 
 // DELETE Requests
-groupsRouter.delete("/:group_id", deleteGroup);
+groupsRouter.delete("/:group_id", group.DeleteUseCase.run);
 groupsRouter.delete("/:group_id/subgroups", deleteSubgroup);

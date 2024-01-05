@@ -1,4 +1,4 @@
-import type { NewSubgroup, UpdateSubgroup } from "~/core/domain/groups/entity";
+import type { NewSubgroup, UpdateSubgroup } from "~/core/domain/groups/types";
 import type { Transaction } from "~/core/domain/types";
 import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "~/modules/drizzle";

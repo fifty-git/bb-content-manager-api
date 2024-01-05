@@ -18,6 +18,7 @@
   "rules": {
     // bypass
     "require-atomic-updates": "off",
+    "@typescript-eslint/no-this-alias": "off",
 
     // typescript
     "@typescript-eslint/ban-ts-comment": "off",

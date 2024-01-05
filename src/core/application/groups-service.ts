@@ -1,36 +1,33 @@
-import type { Group, Subgroup } from "~/core/domain/groups/entity";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
-import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
-import { db } from "~/modules/drizzle";
 import { NewSubGroupSchema } from "../domain/groups/validator/create-subgroup-validator";
 
-async function addReferencesToSubgroups(subgroups: Subgroup[]) {
-  return Promise.all(
-    subgroups.map(async (subgroup) => {
-      const refs = await SubgroupsDS.getProductsBySubgroupID(subgroup.subgroup_id);
-      return { ...subgroup, product_references: refs.length };
-    }),
-  );
-}
-
-async function addSubgroupsToGroups(groups: Group[]) {
-  return Promise.all(
-    groups.map(async (group) => {
-      const _subgroups = await SubgroupsDS.getByParentGroupID(group.group_id);
-      const subgroups = await addReferencesToSubgroups(_subgroups);
-      return { ...group, subgroups };
-    }),
-  );
-}
-
-export async function getAll(c: Context<EnvAPI>) {
-  const _groups = await GroupsDS.getAll();
-  const groups = await addSubgroupsToGroups(_groups);
-  return c.json({ status: "success", data: groups });
-}
+// async function addReferencesToSubgroups(subgroups: Subgroup[]) {
+//   return Promise.all(
+//     subgroups.map(async (subgroup) => {
+//       const refs = await SubgroupsDS.getProductsBySubgroupID(subgroup.subgroup_id);
+//       return { ...subgroup, product_references: refs.length };
+//     }),
+//   );
+// }
+//
+// async function addSubgroupsToGroups(groups: Group[]) {
+//   return Promise.all(
+//     groups.map(async (group) => {
+//       const _subgroups = await SubgroupsDS.getByParentGroupID(group.group_id);
+//       const subgroups = await addReferencesToSubgroups(_subgroups);
+//       return { ...group, subgroups };
+//     }),
+//   );
+// }
+//
+// export async function getAll(c: Context<EnvAPI>) {
+//   const _groups = await GroupsDS.getAll();
+//   const groups = await addSubgroupsToGroups(_groups);
+//   return c.json({ status: "success", data: groups });
+// }
 
 /* --------------- Groups ----------------- */
 
@@ -53,44 +50,44 @@ export async function getAll(c: Context<EnvAPI>) {
 //   return c.json({ msg: "Group updated successfully" });
 // }
 
-export async function activateGroup(c: Context<EnvAPI>) {
-  const group_id = parseInt(c.req.param("group_id"), 10);
-  const with_subgroups = c.req.query("with_subgroups");
-  c.var.log.info(`Activating group ${group_id}, with_subgroups:${with_subgroups}`);
-  await GroupsDS.activate(group_id);
-  if (with_subgroups === "true") await SubgroupsDS.activateByGroupID(group_id);
-  return c.json({ msg: "Group activated successfully" });
-}
+// export async function activateGroup(c: Context<EnvAPI>) {
+//   const group_id = parseInt(c.req.param("group_id"), 10);
+//   const with_subgroups = c.req.query("with_subgroups");
+//   c.var.log.info(`Activating group ${group_id}, with_subgroups:${with_subgroups}`);
+//   await GroupsDS.activate(group_id);
+//   if (with_subgroups === "true") await SubgroupsDS.activateByGroupID(group_id);
+//   return c.json({ msg: "Group activated successfully" });
+// }
 
-export async function deactivateGroup(c: Context<EnvAPI>) {
-  const group_id = parseInt(c.req.param("group_id"), 10);
-  const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
-  const subgroup_ids = subgroups.map((subgroup) => subgroup.subgroup_id);
-  const products = await ProductsDS.getBySubgroupIDs(subgroup_ids, "active");
-  if (products.length > 0) return c.json({ msg: "At least one of the subgroups has an active product" }, 400);
-  await SubgroupsDS.deactivateMany(subgroup_ids);
-  await GroupsDS.deactivate(group_id);
-  return c.json({ msg: "Group and subgroups deactivated successfully" });
-}
+// export async function deactivateGroup(c: Context<EnvAPI>) {
+//   const group_id = parseInt(c.req.param("group_id"), 10);
+//   const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
+//   const subgroup_ids = subgroups.map((subgroup) => subgroup.subgroup_id);
+//   const products = await ProductsDS.getBySubgroupIDs(subgroup_ids, "active");
+//   if (products.length > 0) return c.json({ msg: "At least one of the subgroups has an active product" }, 400);
+//   await SubgroupsDS.deactivateMany(subgroup_ids);
+//   await GroupsDS.deactivate(group_id);
+//   return c.json({ msg: "Group and subgroups deactivated successfully" });
+// }
 
-export async function deleteGroup(c: Context<EnvAPI>) {
-  const group_id = parseInt(c.req.param("group_id"), 10);
-  c.var.log.info(`Group to be deleted: ${group_id}`);
-  await db.transaction(async (tx) => {
-    //Delete dependencies
-    const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
-    const subgroup_ids = subgroups.map((s) => s.subgroup_id);
-    c.var.log.info(`Child subgroups: ${subgroup_ids.length}`);
-    await SubgroupsDS.deleteMany(subgroup_ids, tx);
-    c.var.log.info(`Child subgroups deleted`);
-    await GroupsDS.delete(group_id, tx);
-  });
-  c.var.log.info(`Group deleted successfully`);
-  return c.json(null, 204);
-}
+// export async function deleteGroup(c: Context<EnvAPI>) {
+//   const group_id = parseInt(c.req.param("group_id"), 10);
+//   c.var.log.info(`Group to be deleted: ${group_id}`);
+//   await db.transaction(async (tx) => {
+//     //Delete dependencies
+//     const subgroups = await SubgroupsDS.getByParentGroupID(group_id);
+//     const subgroup_ids = subgroups.map((s) => s.subgroup_id);
+//     c.var.log.info(`Child subgroups: ${subgroup_ids.length}`);
+//     await SubgroupsDS.deleteMany(subgroup_ids, tx);
+//     c.var.log.info(`Child subgroups deleted`);
+//     await GroupsDS.delete(group_id, tx);
+//   });
+//   c.var.log.info(`Group deleted successfully`);
+//   return c.json(null, 204);
+// }
 
 // export async function createGroup(c: Context<EnvAPI>) {
-//   const newGroup: NewGroup = await c.req.json();
+//   const newGroup: CreateGroup = await c.req.json();
 //   const validation = NewGroupSchema.safeParse(newGroup);
 //   if (!validation.success) return c.json({ error: validation.error.issues[0].message }, 400);
 //   await GroupsDS.createGroup(newGroup);
