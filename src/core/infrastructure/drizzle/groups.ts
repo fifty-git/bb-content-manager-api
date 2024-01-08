@@ -19,7 +19,7 @@ export class GroupsDS {
       .execute();
   }
 
-  static async getByID(group_id: number) {
+  static async getByGroupID(group_id: number) {
     const results = await db
       .select({ group_id: groups.group_id, name: groups.name, status: groups.status })
       .from(groups)
@@ -30,11 +30,25 @@ export class GroupsDS {
     return results[0];
   }
 
-  static async getSubgroupById(parentGroupId: number, subgroupID: number) {
-    const results = await db
-      .select({ group_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
+  static async getSubgroupsByGroupID(parent_group_id: number) {
+    return db
+      .select({
+        subgroup_id: subgroups.subgroup_id,
+        name: subgroups.name,
+        parent_group_id: subgroups.parent_group_id,
+        status: subgroups.status,
+      })
       .from(subgroups)
-      .where(and(eq(subgroups.subgroup_id, subgroupID), eq(subgroups.parent_group_id, parentGroupId))) // Filtrar por group_id y parent_group_id
+      .where(eq(subgroups.parent_group_id, parent_group_id))
+      .prepare()
+      .execute();
+  }
+
+  static async getSubgroupByGroupID(parent_group_id: number, subgroup_id: number) {
+    const results = await db
+      .select({ subgroup_id: subgroups.subgroup_id, name: subgroups.name, parent_group_id: subgroups.parent_group_id })
+      .from(subgroups)
+      .where(and(eq(subgroups.subgroup_id, subgroup_id), eq(subgroups.parent_group_id, parent_group_id)))
       .prepare()
       .execute();
     if (!results || results.length === 0) return null;

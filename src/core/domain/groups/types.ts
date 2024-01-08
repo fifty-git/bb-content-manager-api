@@ -1,9 +1,21 @@
 import type { Subgroup } from "~/core/domain/subgroups/types";
 
+interface Product {
+  product_id: number;
+  name: string;
+  status: string;
+}
+
 export interface Group {
   group_id: number;
   name: string;
   subgroups?: Subgroup[];
+}
+export interface GetGroupByID {
+  group_id?: number;
+  name?: string;
+  subgroups: Subgroup[];
+  products: Product[];
 }
 export interface CreateGroup {
   name: string;

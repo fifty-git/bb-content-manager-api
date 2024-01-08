@@ -23,7 +23,7 @@ export class UpdateUseCase extends BaseUseCase {
     const data = await c.req.json();
     const validator = schema.safeParse({ ...data, group_id });
     if (!validator.success) return validator.error.issues[0].message;
-    const groupDB = await GroupsDS.getByID(validator.data.group_id);
+    const groupDB = await GroupsDS.getByGroupID(validator.data.group_id);
     if (!groupDB) return "Group not found";
     this.data = validator.data;
   }

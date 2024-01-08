@@ -32,6 +32,7 @@ export abstract class BaseDataAccess {
   protected abstract status_code: number;
   protected abstract msg?: string;
   protected abstract data: any;
+  protected abstract response: any;
   protected abstract validateData(c: Context<EnvAPI>): Promise<any>;
   protected abstract process(): Promise<void>;
 
@@ -48,6 +49,6 @@ export abstract class BaseDataAccess {
     await this.process();
 
     // Returning response
-    return c.json({ status: "success", msg: this.msg, data: this.data }, this.status_code);
+    return c.json({ status: "success", msg: this.msg, data: this.response }, this.status_code);
   }
 }

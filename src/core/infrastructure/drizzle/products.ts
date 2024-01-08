@@ -4,6 +4,7 @@ import { and, eq, inArray, like, ne } from "drizzle-orm";
 import { db } from "~/modules/drizzle";
 import { variant_option_values } from "~/schema/product-variants";
 import { product_group_link, product_tag_link, products } from "~/schema/products";
+import { subgroups } from "~/schema/subgroups";
 
 export class ProductsDS {
   static async getAll() {
@@ -20,10 +21,31 @@ export class ProductsDS {
       .execute();
   }
 
-  static async getByID(product_id: number) {
+  static async getByProductID(product_id: number) {
     const result = await db.select().from(products).where(eq(products.product_id, product_id)).prepare().execute();
     if (!result || result.length === 0) return null;
     return result[0];
+  }
+
+  static async getByGroupID(parent_group_id: number, status?: "inactive" | "active") {
+    if (status) {
+      return db
+        .select({ product_id: products.product_id, name: products.name, status: products.status })
+        .from(products)
+        .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
+        .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))
+        .where(and(eq(subgroups.parent_group_id, parent_group_id), eq(products.status, status)))
+        .prepare()
+        .execute();
+    }
+    return db
+      .select({ product_id: products.product_id, name: products.name, status: products.status })
+      .from(products)
+      .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
+      .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))
+      .where(eq(subgroups.parent_group_id, parent_group_id))
+      .prepare()
+      .execute();
   }
 
   static async getBySubgroupID(subgroup_id: number, status?: "inactive" | "active") {

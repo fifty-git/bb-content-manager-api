@@ -24,7 +24,7 @@ export class CreateUseCase extends BaseUseCase {
     const data = await c.req.json();
     const validator = schema.safeParse({ ...data, parent_group_id });
     if (!validator.success) return validator.error.issues[0].message;
-    const parent_group = await GroupsDS.getByID(parent_group_id);
+    const parent_group = await GroupsDS.getByGroupID(parent_group_id);
     if (!parent_group) return "Parent Group not found";
     this.data = validator.data;
   }

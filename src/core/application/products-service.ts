@@ -35,7 +35,7 @@ export async function getProducts(c: Context<EnvAPI>) {
 
 export async function getProduct(c: Context<EnvAPI>) {
   const id = c.req.param("product_id");
-  const product = await ProductsDS.getByID(+id);
+  const product = await ProductsDS.getByProductID(+id);
   if (!product) return c.json({ status: "success", data: product });
 
   const groups = await GroupsDS.getByProductID(+id);
@@ -203,7 +203,7 @@ export async function changeGroup(c: Context<EnvAPI>) {
   const product_id = c.req.param("product_id");
   const subgroup_id = c.req.param("subgroup_id");
   const subgroup = await SubgroupsDS.getByID(parseInt(subgroup_id, 10));
-  const product = await ProductsDS.getByID(+product_id);
+  const product = await ProductsDS.getByProductID(+product_id);
   if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
   if (!product) return c.json({ msg: "Product not found" }, 404);
   await db.transaction(async (tx) => {

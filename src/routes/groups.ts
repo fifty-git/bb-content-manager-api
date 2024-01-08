@@ -1,7 +1,7 @@
 import type { EnvAPI } from "~/core/domain/types";
 import { Hono } from "hono";
 import { GroupsService } from "~/core/application/groups/groups-service";
-import { getGroupById, getSubgroupById, getSubgroupsByParentGroupId } from "~/core/application/groups-service";
+import { getSubgroupById, getSubgroupsByParentGroupId } from "~/core/application/groups-service";
 import { SubgroupsService } from "~/core/application/subgroups/subgroups-service";
 
 export const groupsRouter = new Hono<EnvAPI>();
@@ -12,7 +12,7 @@ const subgroup = new SubgroupsService();
 groupsRouter.get("/", group.GetAllDataAccess.run);
 groupsRouter.get("/:group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:group_id/subgroups", getSubgroupsByParentGroupId);
-groupsRouter.get("/:group_id", getGroupById);
+groupsRouter.get("/:group_id", group.GetByIDDataAccess.run);
 
 // groupsRouter.get("/subgroups/all", getAll);
 // groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);
