@@ -16,9 +16,9 @@ export class ActivateUseCase extends BaseUseCase {
     const subgroup_id = parseInt(c.req.param("subgroup_id"), 10);
 
     const subgroup = await SubgroupsDS.getByID(subgroup_id);
-    if (!subgroup) return c.json({ msg: "Subgroup not found" }, 404);
+    if (!subgroup) return "Subgroup not found";
     const parent_group = await GroupsDS.getByID(parent_group_id);
-    if (parent_group && parent_group.status === "inactive") return c.json({ msg: "Parent group is inactive" }, 400);
+    if (parent_group && parent_group.status === "inactive") return "Parent group is inactive";
     this.data = { subgroup_id };
   }
 
