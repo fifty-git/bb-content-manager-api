@@ -11,14 +11,14 @@ export const schema = z.object({
   new_parent_group_id: z.number().min(1),
   subgroup_id: z.number().min(1),
   name: z
-    .string({ required_error: "Group name is required", invalid_type_error: "Group name must be a string" })
-    .min(1, { message: "Group name must be at minimun of 1 char." })
-    .max(50, { message: "Group name must be at maximum of 50 chars" }),
+    .string({ required_error: "Subgroup name is required", invalid_type_error: "Subgroup name must be a string" })
+    .min(1, { message: "Subgroup name must be at minimun of 1 char." })
+    .max(50, { message: "Subgroup name must be at maximum of 50 chars" }),
 });
 
 export class UpdateUseCase extends BaseUseCase {
   protected status_code = 201;
-  protected msg = "Group updated successfully";
+  protected msg = "Subgroup updated successfully";
   private data: UpdateSubgroup | undefined = undefined;
 
   protected async validateData(c: Context<EnvAPI>) {

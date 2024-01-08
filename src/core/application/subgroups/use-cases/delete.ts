@@ -58,7 +58,7 @@ export class DeleteUseCase extends BaseUseCase {
     const subgroup_id = parseInt(c.req.param("subgroup_id"), 10);
     const subgroup = await SubgroupsDS.getByID(subgroup_id);
     if (!subgroup) return "Subgroup not found";
-    if (subgroup.status === "active") return "The Subgroups is active you can not delete it";
+    if (subgroup.status === "active") return "The Subgroups is active, you can't delete it";
     this.data = { subgroup_id };
   }
 

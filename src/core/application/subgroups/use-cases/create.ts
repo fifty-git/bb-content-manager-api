@@ -9,14 +9,14 @@ import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 export const schema = z.object({
   parent_group_id: z.number().min(1),
   name: z
-    .string({ required_error: "Group name is required", invalid_type_error: "Group name must be a string" })
-    .min(1, { message: "Group name must be at minimun of 1 char." })
-    .max(50, { message: "Group name must be at maximum of 50 chars" }),
+    .string({ required_error: "Subgroup name is required", invalid_type_error: "Subgroup name must be a string" })
+    .min(1, { message: "Subgroup name must be at minimun of 1 char." })
+    .max(50, { message: "Subgroup name must be at maximum of 50 chars" }),
 });
 
 export class CreateUseCase extends BaseUseCase {
   protected status_code = 200;
-  protected msg = "Group created successfully";
+  protected msg = "Subgroup created successfully";
   private data: CreateSubgroup | undefined = undefined;
 
   protected async validateData(c: Context<EnvAPI>) {
@@ -25,7 +25,7 @@ export class CreateUseCase extends BaseUseCase {
     const validator = schema.safeParse({ ...data, parent_group_id });
     if (!validator.success) return validator.error.issues[0].message;
     const parent_group = await GroupsDS.getByID(parent_group_id);
-    if (!parent_group) return c.json({ msg: "Parent Group not found" }, 400);
+    if (!parent_group) return "Parent Group not found";
     this.data = validator.data;
   }
 
