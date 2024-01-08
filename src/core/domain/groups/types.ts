@@ -12,8 +12,10 @@ export interface Group {
   subgroups?: Subgroup[];
 }
 export interface GetGroupByID {
-  group_id?: number;
-  name?: string;
+  group?: {
+    group_id: number;
+    name: string;
+  };
   subgroups: Subgroup[];
   products: Product[];
 }

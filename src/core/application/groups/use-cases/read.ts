@@ -53,10 +53,11 @@ export class GetByIDDataAccess extends BaseDataAccess {
 
   protected async process() {
     if (this.data) {
-      const group = await GroupsDS.getByGroupID(this.data.group_id);
+      const _group = await GroupsDS.getByGroupID(this.data.group_id);
       const subgroups = await GroupsDS.getSubgroupsByGroupID(this.data.group_id);
       const products = await ProductsDS.getByGroupID(this.data.group_id);
-      this.response = { ...group, subgroups, products };
+      if (_group) this.response = { group: { ..._group }, subgroups, products };
+      else this.response = { group: undefined, subgroups: [], products: [] };
     }
   }
 }
