@@ -11,6 +11,7 @@ import { tagsRouter } from "~/routes/product-tags";
 import { variantsRouter } from "~/routes/product-variants";
 import { productsRouter } from "~/routes/products";
 import { salesChannelsRouter } from "~/routes/sales-channels";
+import { subgroupsRouter } from "~/routes/subgroups";
 import { bindLogger, logger, uuid } from "./modules/logger";
 import { countriesRouter } from "./routes/countries";
 import { groupsRouter } from "./routes/groups";
