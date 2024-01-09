@@ -2,7 +2,7 @@ import type { Subgroup } from "~/core/domain/subgroups/types";
 
 export interface ProductGroup {
   product_id: number;
-  subgroup_id: number;
+  subgroup: Subgroup;
   name: string;
   status: string;
   product_type: string;

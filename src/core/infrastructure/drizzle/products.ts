@@ -32,7 +32,11 @@ export class ProductsDS {
       return db
         .select({
           product_id: products.product_id,
-          subgroup_id: product_group_link.subgroup_id,
+          subgroup: {
+            subgroup_id: subgroups.subgroup_id,
+            name: subgroups.name,
+            status: subgroups.status,
+          },
           name: products.name,
           product_type: products.product_type,
           status: products.status,
@@ -47,7 +51,11 @@ export class ProductsDS {
     return db
       .select({
         product_id: products.product_id,
-        subgroup_id: product_group_link.subgroup_id,
+        subgroup: {
+          subgroup_id: subgroups.subgroup_id,
+          name: subgroups.name,
+          status: subgroups.status,
+        },
         name: products.name,
         product_type: products.product_type,
         status: products.status,
