@@ -35,6 +35,7 @@ app.use("/*", jwt({ secret: JWT_SECRET, cookie: "token" }));
 // Protected routes
 app.route("/api/v1/content-manager/products", productsRouter);
 app.route("/api/v1/content-manager/groups", groupsRouter);
+app.route("/api/v1/content-manager/subgroups", subgroupsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants", variantsRouter);
 app.route("/api/v1/content-manager/products/:product_id/variants/:variant_id/options", optionsRouter);
 app.route("/api/v1/content-manager/products/:product_id/tags", tagsRouter);

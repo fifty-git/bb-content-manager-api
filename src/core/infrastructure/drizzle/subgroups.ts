@@ -5,6 +5,14 @@ import { db } from "~/modules/drizzle";
 import { subgroups } from "~/schema/subgroups";
 
 export class SubgroupsDS {
+  static async getAll() {
+    return db
+      .select({ subgroup_id: subgroups.subgroup_id, name: subgroups.name, status: subgroups.status })
+      .from(subgroups)
+      .prepare()
+      .execute();
+  }
+
   static async getByID(subgroup_id: number) {
     const results = await db
       .select({
