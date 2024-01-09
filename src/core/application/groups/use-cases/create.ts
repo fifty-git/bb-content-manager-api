@@ -1,9 +1,10 @@
-import type { CreateGroup } from "~/core/domain/groups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { z } from "zod";
 import { BaseUseCase } from "~/core/application/use-cases/base";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+
+import {CreateGroup} from "~/core/domain/groups/types";
 
 export const schema = z.object({
   name: z

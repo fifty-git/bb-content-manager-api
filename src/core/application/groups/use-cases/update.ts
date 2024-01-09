@@ -1,9 +1,10 @@
-import type { UpdateGroup } from "~/core/domain/groups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { z } from "zod";
 import { BaseUseCase } from "~/core/application/use-cases/base";
 import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
+
+import {UpdateGroup} from "~/core/domain/groups/types";
 
 export const schema = z.object({
   group_id: z.number().min(1),

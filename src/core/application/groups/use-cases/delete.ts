@@ -1,4 +1,3 @@
-import type { ActivateGroup, DeactivateGroup, DeleteGroup } from "~/core/domain/groups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
 import { BaseUseCase } from "~/core/application/use-cases/base";
@@ -6,6 +5,8 @@ import { GroupsDS } from "~/core/infrastructure/drizzle/groups";
 import { ProductsDS } from "~/core/infrastructure/drizzle/products";
 import { SubgroupsDS } from "~/core/infrastructure/drizzle/subgroups";
 import { db } from "~/modules/drizzle";
+
+import {ActivateGroup, DeactivateGroup, DeleteGroup} from "~/core/domain/groups/types";
 
 export class ActivateUseCase extends BaseUseCase {
   protected status_code = 200;

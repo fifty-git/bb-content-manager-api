@@ -12,23 +12,29 @@ export interface Group {
   group_id: number;
   name: string;
   subgroups?: Subgroup[];
+  status: string;
 }
+
 export interface CreateGroup {
   name: string;
   parent_group_id?: number;
 }
+
 export interface UpdateGroup {
   group_id: number;
   name: string;
 }
+
 export interface ActivateGroup {
   group_id: number;
   with_subgroups: boolean;
 }
+
 export interface DeactivateGroup {
   group_id: number;
   subgroup_ids: number[];
 }
+
 export interface DeleteGroup {
   group_id: number;
 }

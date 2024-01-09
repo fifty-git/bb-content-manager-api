@@ -1,4 +1,5 @@
-import type { Group, ProductGroup } from "~/core/domain/groups/types";
+import type { GetAllGroups, GetProductsGroup } from "~/core/domain/groups/api-contract";
+import type { Group } from "~/core/domain/groups/types";
 import type { Subgroup } from "~/core/domain/subgroups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
@@ -30,13 +31,13 @@ export class GetAllDataAccess extends BaseDataAccess {
   protected status_code = 200;
   protected msg? = undefined;
   protected data = undefined;
-  protected response?: Group[];
+  protected response?: GetAllGroups;
 
   protected async validateData() {}
 
   protected async process() {
     const _groups = await GroupsDS.getAll();
-    this.response = await addSubgroupsToGroups(_groups);
+    this.response = { groups: await addSubgroupsToGroups(_groups) };
   }
 }
 
@@ -44,7 +45,7 @@ export class GetProductsDataAccess extends BaseDataAccess {
   protected status_code = 200;
   protected msg? = undefined;
   protected data?: { group_id: number };
-  protected response?: ProductGroup[];
+  protected response?: GetProductsGroup;
 
   protected async validateData(c: Context<EnvAPI>) {
     const group_id = parseInt(c.req.param("group_id"), 10);
@@ -53,7 +54,7 @@ export class GetProductsDataAccess extends BaseDataAccess {
 
   protected async process() {
     if (this.data) {
-      this.response = await ProductsDS.getByGroupID(this.data.group_id);
+      this.response = { products: await ProductsDS.getByGroupID(this.data.group_id) };
     }
   }
 }
