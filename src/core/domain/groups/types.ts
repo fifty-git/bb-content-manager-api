@@ -1,23 +1,17 @@
 import type { Subgroup } from "~/core/domain/subgroups/types";
 
-interface Product {
+export interface ProductGroup {
   product_id: number;
+  subgroup_id: number;
   name: string;
   status: string;
+  product_type: string;
 }
 
 export interface Group {
   group_id: number;
   name: string;
   subgroups?: Subgroup[];
-}
-export interface GetGroupByID {
-  group?: {
-    group_id: number;
-    name: string;
-  };
-  subgroups: Subgroup[];
-  products: Product[];
 }
 export interface CreateGroup {
   name: string;

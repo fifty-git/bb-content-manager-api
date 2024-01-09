@@ -10,9 +10,9 @@ const group = new GroupsService();
 const subgroup = new SubgroupsService();
 // GET Requests
 groupsRouter.get("/", group.GetAllDataAccess.run);
+groupsRouter.get("/:group_id/products", group.GetProductsDataAccess.run);
 groupsRouter.get("/:group_id/subgroups/:subgroup_id", getSubgroupById);
 groupsRouter.get("/:group_id/subgroups", getSubgroupsByParentGroupId);
-groupsRouter.get("/:group_id", group.GetByIDDataAccess.run);
 
 // groupsRouter.get("/subgroups/all", getAll);
 // groupsRouter.get("/products/:subgroup_id/subgroups", getProductsBySubgroup);

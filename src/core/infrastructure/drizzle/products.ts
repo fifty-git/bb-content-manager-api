@@ -30,7 +30,13 @@ export class ProductsDS {
   static async getByGroupID(parent_group_id: number, status?: "inactive" | "active") {
     if (status) {
       return db
-        .select({ product_id: products.product_id, name: products.name, status: products.status })
+        .select({
+          product_id: products.product_id,
+          subgroup_id: product_group_link.subgroup_id,
+          name: products.name,
+          product_type: products.product_type,
+          status: products.status,
+        })
         .from(products)
         .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
         .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))
@@ -39,7 +45,13 @@ export class ProductsDS {
         .execute();
     }
     return db
-      .select({ product_id: products.product_id, name: products.name, status: products.status })
+      .select({
+        product_id: products.product_id,
+        subgroup_id: product_group_link.subgroup_id,
+        name: products.name,
+        product_type: products.product_type,
+        status: products.status,
+      })
       .from(products)
       .innerJoin(product_group_link, eq(product_group_link.product_id, products.product_id))
       .innerJoin(subgroups, eq(subgroups.subgroup_id, product_group_link.subgroup_id))

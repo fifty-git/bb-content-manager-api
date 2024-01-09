@@ -1,4 +1,4 @@
-import type { GetGroupByID, Group } from "~/core/domain/groups/types";
+import type { Group, ProductGroup } from "~/core/domain/groups/types";
 import type { Subgroup } from "~/core/domain/subgroups/types";
 import type { EnvAPI } from "~/core/domain/types";
 import type { Context } from "hono";
@@ -30,7 +30,7 @@ export class GetAllDataAccess extends BaseDataAccess {
   protected status_code = 200;
   protected msg? = undefined;
   protected data = undefined;
-  protected response: Group[] | undefined = undefined;
+  protected response?: Group[];
 
   protected async validateData() {}
 
@@ -40,11 +40,11 @@ export class GetAllDataAccess extends BaseDataAccess {
   }
 }
 
-export class GetByIDDataAccess extends BaseDataAccess {
+export class GetProductsDataAccess extends BaseDataAccess {
   protected status_code = 200;
   protected msg? = undefined;
-  protected data: { group_id: number } | undefined = undefined;
-  protected response: GetGroupByID | undefined = undefined;
+  protected data?: { group_id: number };
+  protected response?: ProductGroup[];
 
   protected async validateData(c: Context<EnvAPI>) {
     const group_id = parseInt(c.req.param("group_id"), 10);
@@ -53,11 +53,7 @@ export class GetByIDDataAccess extends BaseDataAccess {
 
   protected async process() {
     if (this.data) {
-      const _group = await GroupsDS.getByGroupID(this.data.group_id);
-      const subgroups = await GroupsDS.getSubgroupsByGroupID(this.data.group_id);
-      const products = await ProductsDS.getByGroupID(this.data.group_id);
-      if (_group) this.response = { group: { ..._group }, subgroups, products };
-      else this.response = { group: undefined, subgroups: [], products: [] };
+      this.response = await ProductsDS.getByGroupID(this.data.group_id);
     }
   }
 }

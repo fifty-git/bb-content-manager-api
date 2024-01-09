@@ -31,8 +31,8 @@ export abstract class BaseUseCase {
 export abstract class BaseDataAccess {
   protected abstract status_code: number;
   protected abstract msg?: string;
-  protected abstract data: any;
-  protected abstract response: any;
+  protected abstract data?: any;
+  protected abstract response?: any;
   protected abstract validateData(c: Context<EnvAPI>): Promise<any>;
   protected abstract process(): Promise<void>;
 
